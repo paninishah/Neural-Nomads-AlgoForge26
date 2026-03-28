@@ -1,0 +1,119 @@
+{
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "mandiPrices": "मंडी भाव",
+    "inputVerification": "इनपुट सत्यापन",
+    "loanDecoder": "ऋण विश्लेषक",
+    "legalAid": "कानूनी सहायता",
+    "farmerWallet": "किसान वॉलेट",
+    "mapIntelligence": "मानचित्र बुद्धिमत्ता",
+    "myProfile": "मेरी प्रोफ़ाइल"
+  },
+  "common": {
+    "search": "किसान, मामले, फसलें खोजें...",
+    "signOut": "सिस्टम से बाहर",
+    "loading": "लोड हो रहा है...",
+    "submit": "जमा करें",
+    "cancel": "रद्द करें",
+    "back": "वापस",
+    "save": "सहेजें",
+    "language": "भाषा"
+  },
+  "auth": {
+    "farmerLogin": "किसान लॉगिन",
+    "farmerRegister": "किसान पंजीकरण",
+    "ngoLogin": "एनजीओ / संचालक लॉगिन",
+    "ngoRegister": "एनजीओ पंजीकरण",
+    "adminLogin": "सुरक्षित व्यवस्थापक लॉगिन",
+    "restrictedAccess": "केवल प्रतिबंधित पहुँच",
+    "enterCredentials": "अपना विवरण नीचे दर्ज करें",
+    "fullName": "पूरा नाम",
+    "state": "राज्य",
+    "district": "जिला",
+    "phone": "फ़ोन नंबर",
+    "password": "पासवर्ड",
+    "createPassword": "पासवर्ड बनाएं",
+    "passwordHint": "आपके वॉलेट और कानूनी रिकॉर्ड सुरक्षित करने के लिए।",
+    "operatorName": "संचालक का पूरा नाम",
+    "orgName": "संगठन का नाम / आईडी",
+    "email": "ईमेल पता",
+    "adminId": "सुरक्षित व्यवस्थापक आईडी",
+    "masterPassword": "मास्टर पासवर्ड",
+    "login": "लॉगिन",
+    "register": "पंजीकरण",
+    "authenticateAs": "{{role}} के रूप में प्रमाणित करें",
+    "completeRegistration": "पंजीकरण पूरा करें",
+    "gateway": "अन्नदाता सुरक्षित गेटवे v3.1",
+    "farmer": "किसान",
+    "ngo": "एनजीओ",
+    "admin": "व्यवस्थापक"
+  },
+  "dashboard": {
+    "welcomeBack": "वापस स्वागत है",
+    "trustedFarmer": "सत्यापित किसान",
+    "trustScore": "विश्वास स्कोर",
+    "riskZone": "जोखिम क्षेत्र",
+    "activeModules": "सक्रिय मॉड्यूल",
+    "todayAlerts": "आज के अलर्ट"
+  },
+  "mandi": {
+    "title": "मंडी मूल्य बुद्धिमत्ता",
+    "smartInsight": "स्मार्ट अंतर्दृष्टि",
+    "earnMore": "प्रति क्विंटल ₹{{diff}} अधिक कमाएं",
+    "cropWheat": "गेहूं",
+    "cropRice": "चावल",
+    "cropCotton": "कपास",
+    "cropSoybean": "सोयाबीन",
+    "cropMaize": "मक्का",
+    "cropSugarcane": "गन्ना",
+    "cropTomato": "टमाटर",
+    "cropOnion": "प्याज",
+    "currentPrice": "वर्तमान मूल्य",
+    "bestPrice": "सर्वोत्तम मूल्य",
+    "market": "बाज़ार",
+    "perQuintal": "प्रति क्विंटल"
+  },
+  "fraud": {
+    "title": "इनपुट सत्यापन",
+    "verifyProduct": "उत्पाद सत्यापित करें",
+    "scanBarcode": "बारकोड स्कैन करें",
+    "reportFraud": "धोखाधड़ी रिपोर्ट करें",
+    "verified": "सत्यापित",
+    "suspicious": "संदिग्ध",
+    "fake": "नकली"
+  },
+  "loan": {
+    "title": "ऋण विश्लेषक",
+    "checkEligibility": "पात्रता जांचें",
+    "monthlyIncome": "मासिक आय",
+    "loanAmount": "ऋण राशि",
+    "tenure": "अवधि (महीने)",
+    "interestRate": "ब्याज दर",
+    "emi": "ईएमआई"
+  },
+  "legal": {
+    "title": "कानूनी सहायता",
+    "fileCase": "मामला दर्ज करें",
+    "myCases": "मेरे मामले",
+    "legalRights": "कानूनी अधिकार",
+    "status": "स्थिति",
+    "pending": "लंबित",
+    "resolved": "सुलझाया गया",
+    "inProgress": "प्रगति में"
+  },
+  "wallet": {
+    "title": "किसान वॉलेट",
+    "balance": "शेष राशि",
+    "transactions": "लेनदेन",
+    "send": "पैसे भेजें",
+    "receive": "प्राप्त करें",
+    "withdraw": "निकालें"
+  },
+  "profile": {
+    "title": "मेरी प्रोफ़ाइल",
+    "editProfile": "प्रोफ़ाइल संपादित करें",
+    "verificationStatus": "सत्यापन स्थिति",
+    "verified": "सत्यापित",
+    "pending": "लंबित"
+  }
+}

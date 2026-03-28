@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useGeoData } from '../hooks/useGeoData';
 import { safeCompare } from '../lib/mapUtils';
 import { ChevronLeft, Lightbulb } from 'lucide-react';
+import { apiClient } from '@/lib/apiClient';
 import './MapStyles.css';
 
 /* ── Types ─────────────────────────────────────────── */
@@ -44,7 +45,25 @@ const LAYER_COLORS: Record<Layer, (t: number) => string> = {
 };
 
 /* ── Deterministic mock data ────────────────────────── */
-function getRegionData(name: string, layer: Layer, stateName?: string): RegionData {
+function getRegionData(name: string, layer: Layer, stateName?: string, realDataMap?: Record<string, any>): RegionData {
+  
+  if (layer === 'market' && realDataMap && realDataMap[name.toLowerCase()]) {
+    const d = realDataMap[name.toLowerCase()];
+    const isUp = d.price > 2000;
+    return {
+      state: stateName || name,
+      district: stateName ? name : undefined,
+      value: `₹${d.price.toLocaleString()}/qtl`,
+      comparison: isUp ? `↑ High Demand Area` : `↓ Below Average`,
+      recommendation: isUp ? "Sell here for maximum profit margin." : "Hold crops or locate nearby mandi with higher rates.",
+      intensity: d.intensity || Math.min(1.0, d.price / 4000),
+      trend: isUp ? 'up' : 'down',
+      fraud_alerts: 0,
+      loan_score: 0.8,
+      legal_cases: 0,
+    };
+  }
+
   const h = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   const raw = (h % 100) / 100;
 
@@ -97,6 +116,24 @@ const IndiaMap: React.FC<IndiaMapProps> = ({ layer, onRegionHover }) => {
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [tooltip, setTooltip]             = useState<TooltipState | null>(null);
+  const [realMapData, setRealMapData]     = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (layer === 'market') {
+      apiClient.get('/heatmap/summary').then((res) => {
+        if (res.data?.status === 'success') {
+           const heatDict: Record<string, any> = {};
+           res.data.data.forEach((d: any) => {
+             // Map summary data back to states/districts for coloring 
+             // Normally /heatmap/prices?crop=wheat works best, but summary gives us generic top market hotspots.
+             const key = (d.name.split(' ')[0] || d.name).toLowerCase();
+             heatDict[key] = { price: d.price, intensity: d.intensity };
+           });
+           setRealMapData(heatDict);
+        }
+      }).catch(console.error);
+    }
+  }, [layer]);
 
   const STATE_URL    = '/india_state.geojson';
   const DISTRICT_URL = '/india_district.geojson';
@@ -138,9 +175,9 @@ const IndiaMap: React.FC<IndiaMapProps> = ({ layer, onRegionHover }) => {
 
   /* ── Colour function for current layer ─────────────── */
   const colourFor = useCallback((name: string, isDistrict: boolean) => {
-    const d = getRegionData(name, layer, isDistrict ? (selectedState ?? undefined) : undefined);
+    const d = getRegionData(name, layer, isDistrict ? (selectedState ?? undefined) : undefined, realMapData);
     return LAYER_COLORS[layer](d.intensity);
-  }, [layer, selectedState]);
+  }, [layer, selectedState, realMapData]);
 
   /* ── Re-colour all paths when layer changes ─────────── */
   useEffect(() => {

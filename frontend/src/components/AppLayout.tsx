@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   LineChart,
@@ -16,6 +17,7 @@ import {
 import type { Lang } from "@/pages/Index";
 import type { Role } from "@/components/RoleLogin";
 import VoiceAssistant from "./VoiceAssistant";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -28,21 +30,18 @@ interface AppLayoutProps {
 }
 
 const ALL_SIDEBAR_ITEMS = [
-  { id: "home", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "ngo", "farmer"] },
-  { id: "mandi", label: "Mandi Prices", icon: LineChart, roles: ["admin", "farmer"] },
-  { id: "fraud", label: "Input Verification", icon: ShieldCheck, roles: ["admin", "farmer", "ngo"] },
-  { id: "loan", label: "Loan Decoder", icon: Landmark, roles: ["admin", "farmer"] },
-  { id: "legal", label: "Legal Aid", icon: Scale, roles: ["admin", "farmer", "ngo"] },
-  { id: "wallet", label: "Farmer Wallet", icon: Briefcase, roles: ["farmer"] },
-  { id: "heatmap",  label: "Map Intelligence", icon: LayoutDashboard, roles: ["admin", "ngo", "farmer"] },
-  { id: "profile",  label: "My Profile",        icon: FileText,       roles: ["admin", "ngo", "farmer"] },
-];
-
-const SECONDARY_ITEMS = [
-  { id: "lang", label: "English", action: true },
+  { id: "home",    labelKey: "nav.dashboard",         icon: LayoutDashboard, roles: ["admin", "ngo", "farmer"] },
+  { id: "mandi",   labelKey: "nav.mandiPrices",        icon: LineChart,        roles: ["admin", "farmer"] },
+  { id: "fraud",   labelKey: "nav.inputVerification",  icon: ShieldCheck,      roles: ["admin", "farmer", "ngo"] },
+  { id: "loan",    labelKey: "nav.loanDecoder",        icon: Landmark,         roles: ["admin", "farmer"] },
+  { id: "legal",   labelKey: "nav.legalAid",           icon: Scale,            roles: ["admin", "farmer", "ngo"] },
+  { id: "wallet",  labelKey: "nav.farmerWallet",       icon: Briefcase,        roles: ["farmer"] },
+  { id: "heatmap", labelKey: "nav.mapIntelligence",    icon: LayoutDashboard,  roles: ["admin", "ngo", "farmer"] },
+  { id: "profile", labelKey: "nav.myProfile",          icon: FileText,         roles: ["admin", "ngo", "farmer"] },
 ];
 
 const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, role, onLogout }: AppLayoutProps) => {
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const userName = localStorage.getItem("annadata_user_name") || "User";
   const userInitials = userName
@@ -57,7 +56,7 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
 
   // Derived Title for Header
   const activeItem = SIDEBAR_ITEMS.find(item => item.id === currentScreen);
-  const headerTitle = activeItem ? activeItem.label : "Dashboard";
+  const headerTitle = activeItem ? t(activeItem.labelKey) : t("nav.dashboard");
   
   // Format current date exactly like "Saturday, 28 March 2026"
   const today = new Date();
@@ -101,30 +100,20 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
                 }`}
               >
                 <item.icon className="w-4 h-4" />
-                {item.label}
+                {t(item.labelKey)}
               </button>
             );
           })}
         </nav>
 
         <div className="p-4 border-t border-white/10 space-y-1">
-          {SECONDARY_ITEMS.map((item) => (
-             <button
-               key={item.id}
-               onClick={item.action ? onToggleLang : undefined}
-               className={`w-full flex items-center px-4 py-2 text-xs font-bold transition-all ${
-                 item.id === "fpo" ? "bg-[#386542] text-white border border-[#4f855c]" : "text-white/70 hover:bg-white/5 hover:text-white"
-               }`}
-             >
-               {item.id === "lang" ? (lang === "en" ? "Hindi (Switch)" : "English (Switch)") : item.label}
-             </button>
-          ))}
+          <LanguageSwitcher compact />
           <button 
              onClick={onLogout}
-             className="w-full flex items-center px-4 py-2 text-xs font-bold transition-all text-red-300 hover:bg-red-500/10 hover:text-red-200 mt-4"
+             className="w-full flex items-center px-4 py-2 text-xs font-bold transition-all text-red-300 hover:bg-red-500/10 hover:text-red-200 mt-2"
            >
              <LogOut className="w-3 h-3 mr-2" />
-             Sign Out System
+             {t("common.signOut")}
            </button>
         </div>
       </aside>
@@ -153,11 +142,14 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
                 }`}
               >
                 <item.icon className="w-4 h-4" />
-                {item.label}
+                {t(item.labelKey)}
               </button>
             );
           })}
         </nav>
+        <div className="p-4 border-t border-white/10">
+          <LanguageSwitcher compact />
+        </div>
       </aside>
 
       {/* MAIN CONTENT AREA */}
@@ -183,7 +175,7 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
               <Search className="w-4 h-4 text-gray-400 mr-2" />
               <input 
                 type="text" 
-                placeholder="Search farmers, cases, crops..." 
+                placeholder={t("common.search")} 
                 className="bg-transparent border-none outline-none text-xs w-full text-gray-700"
               />
             </div>

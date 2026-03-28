@@ -1,0 +1,119 @@
+{
+  "nav": {
+    "dashboard": "డాష్‌బోర్డ్",
+    "mandiPrices": "మార్కెట్ ధరలు",
+    "inputVerification": "ఇన్‌పుట్ ధృవీకరణ",
+    "loanDecoder": "రుణ విశ్లేషకుడు",
+    "legalAid": "చట్టపరమైన సహాయం",
+    "farmerWallet": "రైతు వాలెట్",
+    "mapIntelligence": "మ్యాప్ ఇంటెలిజెన్స్",
+    "myProfile": "నా ప్రొఫైల్"
+  },
+  "common": {
+    "search": "రైతులు, కేసులు, పంటలు వెతకండి...",
+    "signOut": "సిస్టమ్ నుండి నిష్క్రమించు",
+    "loading": "లోడ్ అవుతోంది...",
+    "submit": "సమర్పించు",
+    "cancel": "రద్దు చేయి",
+    "back": "వెనక్కి",
+    "save": "సేవ్ చేయి",
+    "language": "భాష"
+  },
+  "auth": {
+    "farmerLogin": "రైతు లాగిన్",
+    "farmerRegister": "రైతు నమోదు",
+    "ngoLogin": "ఎన్‌జీఓ / ఆపరేటర్ లాగిన్",
+    "ngoRegister": "ఎన్‌జీఓ నమోదు",
+    "adminLogin": "సురక్షిత అడ్మిన్ లాగిన్",
+    "restrictedAccess": "పరిమిత యాక్సెస్ మాత్రమే",
+    "enterCredentials": "మీ వివరాలను క్రింద నమోదు చేయండి",
+    "fullName": "పూర్తి పేరు",
+    "state": "రాష్ట్రం",
+    "district": "జిల్లా",
+    "phone": "ఫోన్ నంబర్",
+    "password": "పాస్‌వర్డ్",
+    "createPassword": "పాస్‌వర్డ్ సృష్టించు",
+    "passwordHint": "మీ వాలెట్ మరియు చట్టపరమైన రికార్డులను సురక్షితంగా ఉంచడానికి.",
+    "operatorName": "ఆపరేటర్ పూర్తి పేరు",
+    "orgName": "సంస్థ పేరు / ఐడి",
+    "email": "ఇమెయిల్ చిరునామా",
+    "adminId": "సురక్షిత అడ్మిన్ ఐడి",
+    "masterPassword": "మాస్టర్ పాస్‌వర్డ్",
+    "login": "లాగిన్",
+    "register": "నమోదు",
+    "authenticateAs": "{{role}} గా ధృవీకరించు",
+    "completeRegistration": "నమోదు పూర్తి చేయి",
+    "gateway": "అన్నదాత సురక్షిత గేట్‌వే v3.1",
+    "farmer": "రైతు",
+    "ngo": "ఎన్‌జీఓ",
+    "admin": "అడ్మిన్"
+  },
+  "dashboard": {
+    "welcomeBack": "తిరిగి స్వాగతం",
+    "trustedFarmer": "ధృవీకరించిన రైతు",
+    "trustScore": "విశ్వాస స్కోర్",
+    "riskZone": "రిస్క్ జోన్",
+    "activeModules": "యాక్టివ్ మాడ్యూల్స్",
+    "todayAlerts": "నేటి హెచ్చరికలు"
+  },
+  "mandi": {
+    "title": "మార్కెట్ ధర ఇంటెలిజెన్స్",
+    "smartInsight": "స్మార్ట్ అంతర్దృష్టి",
+    "earnMore": "క్వింటాల్‌కు ₹{{diff}} ఎక్కువ సంపాదించు",
+    "cropWheat": "గోధుమ",
+    "cropRice": "వరి",
+    "cropCotton": "పత్తి",
+    "cropSoybean": "సోయాబీన్",
+    "cropMaize": "మొక్కజొన్న",
+    "cropSugarcane": "చెరకు",
+    "cropTomato": "టొమాటో",
+    "cropOnion": "ఉల్లిపాయ",
+    "currentPrice": "ప్రస్తుత ధర",
+    "bestPrice": "అత్యుత్తమ ధర",
+    "market": "మార్కెట్",
+    "perQuintal": "క్వింటాల్‌కు"
+  },
+  "fraud": {
+    "title": "ఇన్‌పుట్ ధృవీకరణ",
+    "verifyProduct": "ఉత్పత్తి ధృవీకరించు",
+    "scanBarcode": "బార్‌కోడ్ స్కాన్ చేయి",
+    "reportFraud": "మోసం నివేదించు",
+    "verified": "ధృవీకరించబడింది",
+    "suspicious": "అనుమానాస్పదం",
+    "fake": "నకిలీ"
+  },
+  "loan": {
+    "title": "రుణ విశ్లేషకుడు",
+    "checkEligibility": "అర్హత తనిఖీ చేయి",
+    "monthlyIncome": "నెలవారీ ఆదాయం",
+    "loanAmount": "రుణ మొత్తం",
+    "tenure": "వ్యవధి (నెలలు)",
+    "interestRate": "వడ్డీ రేటు",
+    "emi": "ఈఎంఐ"
+  },
+  "legal": {
+    "title": "చట్టపరమైన సహాయం",
+    "fileCase": "కేసు దాఖలు చేయి",
+    "myCases": "నా కేసులు",
+    "legalRights": "చట్టపరమైన హక్కులు",
+    "status": "స్థితి",
+    "pending": "పెండింగ్",
+    "resolved": "పరిష్కరించబడింది",
+    "inProgress": "పురోగతిలో"
+  },
+  "wallet": {
+    "title": "రైతు వాలెట్",
+    "balance": "బ్యాలెన్స్",
+    "transactions": "లావాదేవీలు",
+    "send": "డబ్బు పంపు",
+    "receive": "స్వీకరించు",
+    "withdraw": "ఉపసంహరించు"
+  },
+  "profile": {
+    "title": "నా ప్రొఫైల్",
+    "editProfile": "ప్రొఫైల్ సవరించు",
+    "verificationStatus": "ధృవీకరణ స్థితి",
+    "verified": "ధృవీకరించబడింది",
+    "pending": "పెండింగ్"
+  }
+}

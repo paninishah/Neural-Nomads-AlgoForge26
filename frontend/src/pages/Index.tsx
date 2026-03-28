@@ -1,4 +1,5 @@
 import { useState } from "react";
+import VineReveal from "@/components/VineReveal";
 import HeroLanding from "@/components/HeroLanding";
 import HomeDashboard from "@/components/HomeDashboard";
 import MandiPrice from "@/components/MandiPrice";
@@ -13,11 +14,11 @@ import RoleLogin, { Role } from "@/components/RoleLogin";
 import NGODashboard from "@/components/NGODashboard";
 import AdminDashboard from "@/components/AdminDashboard";
 
-type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap" | "wallet" | "profile";
+type Screen = "vine" | "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap" | "wallet" | "profile";
 export type Lang = "en" | "hi";
 
 const Index = () => {
-  const [screen, setScreen] = useState<Screen>("home");
+  const [screen, setScreen] = useState<Screen>("vine");
   const [lang, setLang] = useState<Lang>("en");
   const [role, setRole] = useState<Role | null>(null);
 
@@ -29,9 +30,8 @@ const Index = () => {
     setScreen("home");
   };
 
-  if (screen === "hero") {
-    // Keep hero separate as it's the landing page wrapper before they log into the OS
-    return <HeroLanding onEnter={() => navigate("home")} lang={lang} onToggleLang={toggleLang} />;
+  if (screen === "vine") {
+    return <VineReveal onComplete={() => { window.scrollTo(0, 0); navigate("home"); }} />;
   }
 
   // If there's no active role identified, lock out to the Login selector

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { theme } from "@/designSystem";
 import { useProfile } from "@/hooks/useProfile";
 import {
@@ -7,15 +7,11 @@ import {
 } from "lucide-react";
 import type { Role } from "@/components/RoleLogin";
 
+import { apiClient } from "@/lib/apiClient";
+
 const CROPS       = ["Wheat", "Rice", "Soybean", "Cotton", "Maize", "Sugarcane", "Mustard", "Groundnut", "Pulses", "Vegetables"];
 const IRRIGATIONS = ["Borewell", "Canal", "Rainwater", "Drip", "Sprinkler", "Pond / Tank"];
 const LANGUAGES   = ["Hindi", "English", "Marathi", "Punjabi", "Telugu", "Tamil", "Gujarati", "Kannada", "Odia"];
-
-const MOCK_RISK = {
-  fraudAlerts: 2,
-  zone: "Moderate Risk",
-  nearbyNGO: "Kisan Seva Kendra — 12 km",
-};
 
 function Chip({ label, active, onToggle }: { label: string; active: boolean; onToggle: () => void }) {
   return (
@@ -59,9 +55,33 @@ const FarmerProfile = ({ role }: FarmerProfileProps) => {
   const { profile, updateProfile, resetProfile } = useProfile(role);
   const [editing, setEditing]   = useState(false);
   const [saved, setSaved]       = useState(false);
+  const [riskData, setRiskData] = useState({ fraudAlerts: 0, zone: "Calculating..." });
 
   // Phone is on the User model, not FarmerProfile — read from localStorage
   const phone = localStorage.getItem("annadata_user_phone") || profile.phone;
+  const userId = localStorage.getItem("annadata_user_id");
+
+  useEffect(() => {
+    const fetchRisk = async () => {
+      if (!userId) {
+        setRiskData({ fraudAlerts: 0, zone: "Unknown" });
+        return;
+      }
+      try {
+        const res = await apiClient.get(`/trust-score/${userId}`);
+        if (res.data?.status === "success") {
+          const score = res.data.data.score;
+          setRiskData({
+            fraudAlerts: res.data.data.factors?.find((f: any) => f.name === 'NGO Verification' && !f.passed) ? 1 : 0,
+            zone: score >= 80 ? "Safe" : score >= 50 ? "Moderate Risk" : "High Risk"
+          });
+        }
+      } catch {
+        setRiskData({ fraudAlerts: 0, zone: "Unavailable" });
+      }
+    };
+    fetchRisk();
+  }, [userId]);
 
   const toggleCrop = (crop: string) => {
     const crops = profile.crops || [];
@@ -112,8 +132,8 @@ const FarmerProfile = ({ role }: FarmerProfileProps) => {
 
       {/* ── Risk Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Fraud Alerts" value={MOCK_RISK.fraudAlerts} color="#c82b28" />
-        <StatCard label="Risk Zone"    value={MOCK_RISK.zone}         color="#e18b2c" />
+        <StatCard label="Fraud Alerts" value={riskData.fraudAlerts} color={riskData.fraudAlerts > 0 ? "#c82b28" : "#408447"} />
+        <StatCard label="Risk Zone"    value={riskData.zone}         color={riskData.zone === "Safe" ? "#408447" : (riskData.zone === "High Risk" ? "#c82b28" : "#e18b2c")} />
         <StatCard label="Nearby NGO"   value="Available"              color="#3174a1" />
       </div>
 

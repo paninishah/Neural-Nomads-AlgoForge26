@@ -1,0 +1,119 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "mandiPrices": "Mandi Prices",
+    "inputVerification": "Input Verification",
+    "loanDecoder": "Loan Decoder",
+    "legalAid": "Legal Aid",
+    "farmerWallet": "Farmer Wallet",
+    "mapIntelligence": "Map Intelligence",
+    "myProfile": "My Profile"
+  },
+  "common": {
+    "search": "Search farmers, cases, crops...",
+    "signOut": "Sign Out System",
+    "loading": "Loading...",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "back": "Back",
+    "save": "Save",
+    "language": "Language"
+  },
+  "auth": {
+    "farmerLogin": "Farmer Login",
+    "farmerRegister": "Farmer Registration",
+    "ngoLogin": "NGO / Operator Login",
+    "ngoRegister": "NGO Registration",
+    "adminLogin": "Secure Admin Login",
+    "restrictedAccess": "Restricted Access Only",
+    "enterCredentials": "Enter your credentials below",
+    "fullName": "Full Name",
+    "state": "State",
+    "district": "District",
+    "phone": "Phone Number",
+    "password": "Password",
+    "createPassword": "Create Password",
+    "passwordHint": "Used to secure your wallet and legal records.",
+    "operatorName": "Operator Full Name",
+    "orgName": "Organization Name / ID",
+    "email": "Email Address",
+    "adminId": "Secure Admin ID",
+    "masterPassword": "Master Password",
+    "login": "Login",
+    "register": "Register",
+    "authenticateAs": "Authenticate as {{role}}",
+    "completeRegistration": "Complete Registration",
+    "gateway": "Annadata Secure Gateway v3.1",
+    "farmer": "Farmer",
+    "ngo": "NGO",
+    "admin": "Admin"
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome Back",
+    "trustedFarmer": "Verified Farmer",
+    "trustScore": "Trust Score",
+    "riskZone": "Risk Zone",
+    "activeModules": "Active Modules",
+    "todayAlerts": "Today's Alerts"
+  },
+  "mandi": {
+    "title": "Mandi Price Intelligence",
+    "smartInsight": "Smart Insight",
+    "earnMore": "Earn ₹{{diff}} more per quintal",
+    "cropWheat": "Wheat",
+    "cropRice": "Rice",
+    "cropCotton": "Cotton",
+    "cropSoybean": "Soybean",
+    "cropMaize": "Maize",
+    "cropSugarcane": "Sugarcane",
+    "cropTomato": "Tomato",
+    "cropOnion": "Onion",
+    "currentPrice": "Current Price",
+    "bestPrice": "Best Price",
+    "market": "Market",
+    "perQuintal": "per quintal"
+  },
+  "fraud": {
+    "title": "Input Verification",
+    "verifyProduct": "Verify Product",
+    "scanBarcode": "Scan Barcode",
+    "reportFraud": "Report Fraud",
+    "verified": "Verified",
+    "suspicious": "Suspicious",
+    "fake": "Fake"
+  },
+  "loan": {
+    "title": "Loan Decoder",
+    "checkEligibility": "Check Eligibility",
+    "monthlyIncome": "Monthly Income",
+    "loanAmount": "Loan Amount",
+    "tenure": "Tenure (months)",
+    "interestRate": "Interest Rate",
+    "emi": "EMI"
+  },
+  "legal": {
+    "title": "Legal Aid",
+    "fileCase": "File a Case",
+    "myCases": "My Cases",
+    "legalRights": "Legal Rights",
+    "status": "Status",
+    "pending": "Pending",
+    "resolved": "Resolved",
+    "inProgress": "In Progress"
+  },
+  "wallet": {
+    "title": "Farmer Wallet",
+    "balance": "Balance",
+    "transactions": "Transactions",
+    "send": "Send Money",
+    "receive": "Receive",
+    "withdraw": "Withdraw"
+  },
+  "profile": {
+    "title": "My Profile",
+    "editProfile": "Edit Profile",
+    "verificationStatus": "Verification Status",
+    "verified": "Verified",
+    "pending": "Pending"
+  }
+}

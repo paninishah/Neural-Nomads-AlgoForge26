@@ -12,15 +12,37 @@ interface CropPrice {
 
 const INITIAL_CROPS: CropPrice[] = [
   { id: "1", name: "Wheat (Kanak)", price: 2125.00, change: 0.0, direction: "up" },
-  { id: "2", name: "Basmati Rice", price: 4350.00, change: 1.2, direction: "up" },
-  { id: "3", name: "Maize (Makka)", price: 1960.00, change: -0.5, direction: "down" },
-  { id: "4", name: "Mustard (Sarson)", price: 5400.00, change: 0.8, direction: "up" },
-  { id: "5", name: "Cotton (Kapaas)", price: 6800.00, change: -1.2, direction: "down" }
+  { id: "2", name: "Basmati Rice", price: 4350.00, change: 1.2, direction: "up" }
 ];
 
 const PriceTicker = () => {
   const [crops, setCrops] = useState<CropPrice[]>(INITIAL_CROPS);
   const [lastUpdate, setLastUpdate] = useState<string>(new Date().toLocaleTimeString());
+  const [isLive, setIsLive] = useState(false);
+
+  useEffect(() => {
+    // Fetch real baseline data
+    const fetchLiveMarkets = async () => {
+      try {
+        const { apiClient } = await import("@/lib/apiClient");
+        const res = await apiClient.get("/heatmap/summary");
+        if (res.data?.status === "success" && res.data.data) {
+           const liveData = res.data.data.slice(0, 5).map((d: any) => ({
+              id: String(d.id),
+              name: d.name,
+              price: d.price,
+              change: 0.0,
+              direction: "up" as const
+           }));
+           setCrops(liveData);
+           setIsLive(true);
+        }
+      } catch (err) {
+        console.warn("Could not fetch live tickers, falling back to cached/mocked seed.");
+      }
+    };
+    fetchLiveMarkets();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

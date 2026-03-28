@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { theme } from "@/designSystem";
-import { Shield, Sprout, Briefcase, ArrowRight, UserPlus, LogIn } from "lucide-react";
+import { Shield, Sprout, Briefcase, UserPlus, LogIn, Globe } from "lucide-react";
 import { apiClient } from "@/lib/apiClient";
 import { toast } from "sonner";
 import { APIResponse, LoginResponse } from "@/lib/api";
@@ -8,11 +9,69 @@ import { APIResponse, LoginResponse } from "@/lib/api";
 export type Role = "farmer" | "ngo" | "admin";
 type AuthMode = "login" | "register";
 
+const LANGUAGES = [
+  { code: "en", native: "English" },
+  { code: "hi", native: "हिंदी" },
+  { code: "mr", native: "मराठी" },
+  { code: "te", native: "తెలుగు" },
+];
+
+const LanguageSelectorLogin = () => {
+  const { i18n } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="absolute top-4 right-4 z-30">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1.5 px-3 py-2 bg-white border border-[#e5e3d7] shadow-sm text-xs font-bold uppercase tracking-widest text-[#13311c] hover:bg-[#f5f4ee] transition-colors"
+      >
+        <Globe className="w-3.5 h-3.5" />
+        <span>{current.native}</span>
+        <span className="text-[#999] text-[10px]">{open ? "▲" : "▼"}</span>
+      </button>
+      {open && (
+        <div className="absolute top-full right-0 mt-1 w-40 bg-white border border-[#e5e3d7] shadow-lg overflow-hidden">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => {
+                i18n.changeLanguage(lang.code);
+                localStorage.setItem("annadata_lang", lang.code);
+                setOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold transition-colors ${
+                lang.code === i18n.language
+                  ? "bg-[#f0f8f1] text-[#13311c]"
+                  : "text-[#444] hover:bg-[#f9f8f3]"
+              }`}
+            >
+              <span>{lang.native}</span>
+              <span className="text-[#bbb] font-mono uppercase text-[10px]">{lang.code}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 interface RoleLoginProps {
   onLogin: (role: Role) => void;
 }
 
 const RoleLogin = ({ onLogin }: RoleLoginProps) => {
+  const { t } = useTranslation();
   const [selectedRole, setSelectedRole] = useState<Role>("farmer");
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [loading, setLoading] = useState(false);
@@ -108,6 +167,9 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
          <Shield className="w-[800px] h-[800px] text-[#13311c]" />
       </div>
 
+      {/* Language Switcher — top right, always visible */}
+      <LanguageSelectorLogin />
+
       <div className="relative z-10 w-full max-w-md bg-white border border-[#e5e3d7] shadow-sm">
         
         {/* Header */}
@@ -125,21 +187,21 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
               className={`flex flex-col items-center py-3 transition-colors ${selectedRole === "farmer" ? "bg-white border border-[#e5e3d7] shadow-sm text-[#408447]" : "text-gray-500 hover:bg-gray-100"}`}
             >
               <Sprout className="w-5 h-5 mb-1" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Farmer</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">{t("auth.farmer")}</span>
             </button>
             <button 
               onClick={() => handleRoleSwitch("ngo")}
               className={`flex flex-col items-center py-3 transition-colors ${selectedRole === "ngo" ? "bg-white border border-[#e5e3d7] shadow-sm text-[#e18b2c]" : "text-gray-500 hover:bg-gray-100"}`}
             >
               <Briefcase className="w-5 h-5 mb-1" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">NGO</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">{t("auth.ngo")}</span>
             </button>
             <button 
               onClick={() => handleRoleSwitch("admin")}
               className={`flex flex-col items-center py-3 transition-colors ${selectedRole === "admin" ? "bg-white border border-[#e5e3d7] shadow-sm text-[#3174a1]" : "text-gray-500 hover:bg-gray-100"}`}
             >
               <Shield className="w-5 h-5 mb-1" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Admin</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">{t("auth.admin")}</span>
             </button>
           </div>
 
@@ -147,12 +209,12 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
           <div className="mb-6 flex justify-between items-end">
              <div>
                <h2 className="font-mukta font-bold text-xl text-[#1a1a1a]">
-                 {selectedRole === "farmer" && (authMode === "login" ? "Farmer Login" : "Farmer Registration")}
-                 {selectedRole === "ngo" && (authMode === "login" ? "NGO / Operator Login" : "NGO Registration")}
-                 {selectedRole === "admin" && "Secure Admin Login"}
+                 {selectedRole === "farmer" && (authMode === "login" ? t("auth.farmerLogin") : t("auth.farmerRegister"))}
+                 {selectedRole === "ngo" && (authMode === "login" ? t("auth.ngoLogin") : t("auth.ngoRegister"))}
+                 {selectedRole === "admin" && t("auth.adminLogin")}
                </h2>
                <p className="text-xs text-[#666666] font-hind font-bold mt-1">
-                 {selectedRole === "admin" ? "Restricted Access Only" : "Enter your credentials below"}
+                 {selectedRole === "admin" ? t("auth.restrictedAccess") : t("auth.enterCredentials")}
                </p>
              </div>
              
@@ -163,13 +225,13 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                     onClick={() => setAuthMode("login")}
                     className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${authMode === "login" ? "bg-white shadow-sm text-[#1a1a1a]" : "text-gray-500"}`}
                   >
-                    Login
+                    {t("auth.login")}
                   </button>
                   <button 
                     onClick={() => setAuthMode("register")}
                     className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all ${authMode === "register" ? "bg-white shadow-sm text-[#1a1a1a]" : "text-gray-500"}`}
                   >
-                    Register
+                    {t("auth.register")}
                   </button>
                </div>
              )}
@@ -183,20 +245,20 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                  {authMode === "register" && (
                    <>
                      <div>
-                       <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Full Name</label>
+                       <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.fullName")}</label>
                        <div className={theme.classes.inputWrapper}>
                          <input type="text" placeholder="e.g. Ramesh Kumar" required className={theme.classes.inputText} value={name} onChange={(e) => setName(e.target.value)} />
                        </div>
                      </div>
                      <div className="grid grid-cols-2 gap-4">
                        <div>
-                         <label className="block text-xs font-bold uppercase text-[#666666] mb-1">State</label>
+                         <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.state")}</label>
                          <div className={theme.classes.inputWrapper}>
                            <input type="text" placeholder="e.g. Punjab" required className={theme.classes.inputText} value={stateName} onChange={(e) => setStateName(e.target.value)} />
                          </div>
                        </div>
                        <div>
-                         <label className="block text-xs font-bold uppercase text-[#666666] mb-1">District</label>
+                         <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.district")}</label>
                          <div className={theme.classes.inputWrapper}>
                            <input type="text" placeholder="e.g. Ludhiana" required className={theme.classes.inputText} value={district} onChange={(e) => setDistrict(e.target.value)} />
                          </div>
@@ -205,7 +267,7 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                    </>
                  )}
                  <div>
-                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Phone Number</label>
+                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.phone")}</label>
                    <div className={theme.classes.inputWrapper}>
                      <span className="pl-3 text-sm text-gray-500 font-bold border-r border-[#e5e3d7] pr-2">+91</span>
                      <input type="tel" pattern="[0-9]{10}" placeholder="10-digit mobile number" required className={theme.classes.inputText} value={phone} onChange={(e) => setPhone(e.target.value)} />
@@ -213,11 +275,11 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                  </div>
                  
                  <div>
-                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{authMode === 'register' ? 'Create Password' : 'Password'}</label>
+                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{authMode === 'register' ? t("auth.createPassword") : t("auth.password")}</label>
                    <div className={theme.classes.inputWrapper}>
                      <input type="password" placeholder="••••••••" required className={theme.classes.inputText} value={password} onChange={(e) => setPassword(e.target.value)} />
                    </div>
-                   {authMode === "register" && <p className="text-[10px] text-[#666666] mt-1 italic">Used to secure your wallet and legal records.</p>}
+                   {authMode === "register" && <p className="text-[10px] text-[#666666] mt-1 italic">{t("auth.passwordHint")}</p>}
                  </div>
               </>
             )}
@@ -228,13 +290,13 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                  {authMode === "register" && (
                    <>
                      <div>
-                       <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Operator Full Name</label>
+                       <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.operatorName")}</label>
                        <div className={theme.classes.inputWrapper}>
                          <input type="text" placeholder="e.g. Amit Sharma" required className={theme.classes.inputText} value={operatorName} onChange={(e) => setOperatorName(e.target.value)} />
                        </div>
                      </div>
                      <div>
-                       <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Organization Name / ID</label>
+                       <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.orgName")}</label>
                        <div className={theme.classes.inputWrapper}>
                          <input type="text" placeholder="e.g. Kisan Seva Kendra" required className={theme.classes.inputText} value={orgName} onChange={(e) => setOrgName(e.target.value)} />
                        </div>
@@ -242,13 +304,13 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                    </>
                  )}
                  <div>
-                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Email Address</label>
+                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.email")}</label>
                    <div className={theme.classes.inputWrapper}>
                      <input type="email" placeholder="operator@ngo.org" required className={theme.classes.inputText} value={email} onChange={(e) => setEmail(e.target.value)} />
                    </div>
                  </div>
                  <div>
-                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{authMode === 'register' ? 'Create Password' : 'Password'}</label>
+                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{authMode === 'register' ? t("auth.createPassword") : t("auth.password")}</label>
                    <div className={theme.classes.inputWrapper}>
                      <input type="password" placeholder="••••••••" required className={theme.classes.inputText} value={password} onChange={(e) => setPassword(e.target.value)} />
                    </div>
@@ -260,13 +322,13 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
             {selectedRole === "admin" && (
                <>
                  <div>
-                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Secure Admin ID</label>
+                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.adminId")}</label>
                    <div className={theme.classes.inputWrapper}>
                      <input type="text" placeholder="SYS-ADMIN-XX" required className={theme.classes.inputText} value={adminId} onChange={(e) => setAdminId(e.target.value)} />
                    </div>
                  </div>
                  <div>
-                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Master Password</label>
+                   <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{t("auth.masterPassword")}</label>
                    <div className={theme.classes.inputWrapper}>
                      <input type="password" placeholder="••••••••" required className={theme.classes.inputText} value={password} onChange={(e) => setPassword(e.target.value)} />
                    </div>
@@ -288,7 +350,7 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
               ) : (
                  <>
                    {authMode === "login" ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-                   {authMode === "login" ? `Authenticate as ${selectedRole.toUpperCase()}` : `Complete Registration`}
+                   {authMode === "login" ? t("auth.authenticateAs", { role: selectedRole.toUpperCase() }) : t("auth.completeRegistration")}
                  </>
               )}
             </button>
@@ -297,7 +359,7 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
         </div>
         
         <div className="bg-[#fbfaf5] border-t border-[#e5e3d7] p-4 text-center">
-           <p className="text-[#666666] text-[10px] uppercase font-bold tracking-widest">Annadata Secure Gateway v3.1</p>
+           <p className="text-[#666666] text-[10px] uppercase font-bold tracking-widest">{t("auth.gateway")}</p>
         </div>
       </div>
 
