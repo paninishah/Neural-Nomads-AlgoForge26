@@ -1,0 +1,247 @@
+/* ===========================
+   INDIA MAP — PREMIUM STYLES
+   =========================== */
+
+/* ---- Container ---- */
+.india-map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #050a05;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- SVG Canvas ---- */
+.india-map-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---- Region paths ---- */
+.region {
+  transition: opacity 0.4s ease;
+  will-change: opacity;
+  cursor: pointer;
+}
+
+/* Dim non-hovered regions */
+.regions-dimmed .region {
+  opacity: 0.25;
+}
+.regions-dimmed .region.hovered,
+.regions-dimmed .region.selected {
+  opacity: 1;
+}
+
+/* ---- Floating Tooltip ---- */
+.map-tooltip {
+  position: fixed;
+  z-index: 99999;          /* always on top of everything */
+  width: 260px;
+  background: rgba(10, 14, 10, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid #22c55e;
+  padding: 14px 16px;
+  pointer-events: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+}
+
+.map-tooltip-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.map-tooltip-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: #22c55e;
+  margin-bottom: 2px;
+  line-height: 1;
+}
+
+.map-tooltip-comparison {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.map-tooltip-sep {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 10px;
+}
+
+.map-tooltip-rec-label {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #facc15;
+  margin-bottom: 4px;
+}
+
+.map-tooltip-rec-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+/* ---- Loading spinner overlay ---- */
+.map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 10, 5, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.map-spinner {
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-top-color: #22c55e;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Back / Breadcrumb ---- */
+.map-breadcrumb {
+  position: absolute;
+  top: 80px;
+  left: 16px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.map-breadcrumb-trail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.map-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+  padding: 7px 14px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  align-self: flex-start;
+}
+
+.map-back-btn:hover {
+  background: rgba(34, 197, 94, 0.18);
+  transform: translateX(-3px);
+}
+
+/* ---- Hotspot pulse ---- */
+.hotspot-circle {
+  animation: pulse-ring 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0%   { r: 5; opacity: 0.8; }
+  70%  { r: 11; opacity: 0; }
+  100% { r: 5; opacity: 0; }
+}
+
+/* ---- Layer transition blur ---- */
+.map-transition-blur .india-map-svg {
+  filter: blur(3px);
+  transition: filter 0.3s ease;
+}
+
+/* ---- Bottom AI Panel ---- */
+.ai-analysis-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 80px;            /* leave room for right-side voice / zoom buttons */
+  z-index: 40;
+  background: rgba(8, 12, 8, 0.92);
+  backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ---- Intensity Scale ---- */
+.intensity-scale {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 14px;
+  width: 160px;
+}
+
+/* ---- Layer Pills ---- */
+.layer-pill-group {
+  display: flex;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  gap: 2px;
+}
+
+.layer-pill {
+  padding: 6px 16px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.35);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+  outline: none;
+}
+
+.layer-pill.active {
+  color: #000;
+  font-weight: 900;
+}
+
+/* Coloured active states */
+.layer-pill-market.active { background: #22c55e; }
+.layer-pill-fraud.active  { background: #ef4444; }
+.layer-pill-loan.active   { background: #3b82f6; }
+.layer-pill-legal.active  { background: #a855f7; }

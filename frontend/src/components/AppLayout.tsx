@@ -194,7 +194,11 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
         </header>
 
         {/* PAGE CONTENT (Scrollable area) */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6 relative">
+        <main className={`flex-1 relative ${
+          currentScreen === 'heatmap'
+            ? 'overflow-hidden p-0'          /* map fills entire area, no padding */
+            : 'overflow-x-hidden overflow-y-auto p-6'
+        }`}>
           {children}
         </main>
       </div>
