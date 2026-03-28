@@ -8,11 +8,13 @@ import {
   Briefcase,
   Search,
   Bell,
-  User,
+  LogOut,
   Menu,
-  X
+  X,
+  FileText
 } from "lucide-react";
 import type { Lang } from "@/pages/Index";
+import type { Role } from "@/components/RoleLogin";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -20,27 +22,29 @@ interface AppLayoutProps {
   onNavigate: (screen: any) => void;
   lang: Lang;
   onToggleLang: () => void;
+  role: Role;
+  onLogout: () => void;
 }
 
-const SIDEBAR_ITEMS = [
-  { id: "home", label: "Dashboard", icon: LayoutDashboard },
-  { id: "mandi", label: "Mandi Prices", icon: LineChart },
-  { id: "fraud", label: "Input Verification", icon: ShieldCheck },
-  { id: "loan", label: "Loan Decoder", icon: Landmark },
-  { id: "legal", label: "Legal Aid", icon: Scale },
-  { id: "wallet", label: "Farmer Wallet", icon: Briefcase }, // Replaced Case Management slot with Wallet as requested
-  { id: "heatmap", label: "Map Intelligence", icon: LayoutDashboard }, 
+const ALL_SIDEBAR_ITEMS = [
+  { id: "home", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "ngo", "farmer"] },
+  { id: "mandi", label: "Mandi Prices", icon: LineChart, roles: ["admin", "farmer"] },
+  { id: "fraud", label: "Input Verification", icon: ShieldCheck, roles: ["admin", "farmer", "ngo"] },
+  { id: "loan", label: "Loan Decoder", icon: Landmark, roles: ["admin", "farmer"] },
+  { id: "legal", label: "Legal Aid", icon: Scale, roles: ["admin", "farmer", "ngo"] },
+  { id: "wallet", label: "Farmer Wallet", icon: Briefcase, roles: ["farmer"] },
+  { id: "heatmap", label: "Map Intelligence", icon: LayoutDashboard, roles: ["admin", "ngo", "farmer"] }, 
 ];
 
 const SECONDARY_ITEMS = [
   { id: "lang", label: "English", action: true },
-  { id: "fpo", label: "FPO Dashboard" },
-  { id: "farmer", label: "Farmer View" },
-  { id: "ngo", label: "NGO Portal" },
 ];
 
-const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang }: AppLayoutProps) => {
+const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, role, onLogout }: AppLayoutProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Filter Sidebar based on role
+  const SIDEBAR_ITEMS = ALL_SIDEBAR_ITEMS.filter(item => item.roles.includes(role));
 
   // Derived Title for Header
   const activeItem = SIDEBAR_ITEMS.find(item => item.id === currentScreen);
@@ -106,6 +110,13 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang }: 
                {item.id === "lang" ? (lang === "en" ? "Hindi (Switch)" : "English (Switch)") : item.label}
              </button>
           ))}
+          <button 
+             onClick={onLogout}
+             className="w-full flex items-center px-4 py-2 text-xs font-bold transition-all text-red-300 hover:bg-red-500/10 hover:text-red-200 mt-4"
+           >
+             <LogOut className="w-3 h-3 mr-2" />
+             Sign Out System
+           </button>
         </div>
       </aside>
 

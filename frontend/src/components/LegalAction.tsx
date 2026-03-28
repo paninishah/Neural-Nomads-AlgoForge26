@@ -6,10 +6,11 @@ import {
 } from "lucide-react";
 import ScreenHeader from "./ScreenHeader";
 import type { Lang } from "@/pages/Index";
+import type { Role } from "@/components/RoleLogin";
 
 type Step = 'input' | 'analyzing' | 'detected' | 'dashboard' | 'submitted';
 
-export default function LegalAction({ onBack, lang }: { onBack: () => void; lang: Lang }) {
+export default function LegalAction({ onBack, lang, role }: { onBack: () => void; lang: Lang; role?: Role }) {
   const [step, setStep] = useState<Step>('input');
   const [inputText, setInputText] = useState("");
   const [draftText, setDraftText] = useState("I am filing this complaint against Rajesh Traders for selling unverified pesticide batches on 21/03/2026. The product caused severe damage to 2 acres of my wheat crop, resulting in a loss of ₹14,500. I request immediate compensation as per the district mandate.");
@@ -23,6 +24,60 @@ export default function LegalAction({ onBack, lang }: { onBack: () => void; lang
     }, 2500);
   };
 
+  // ----------------------------------------------------
+  // NGO FIELD OPERATOR LEGAL QUEUE VIEW
+  // ----------------------------------------------------
+  if (role === "ngo" || role === "admin") {
+    return (
+      <div className="w-full max-w-5xl mx-auto space-y-6 pb-10">
+        <div className="bg-white p-6 border-b border-[#e5e3d7] shadow-sm">
+           <h2 className="font-mukta font-bold text-2xl text-[#1a1a1a]">Legal Case Queue</h2>
+           <p className="font-hind text-gray-500 text-sm mt-1 mb-8">Review and respond to AI-prepared legal drafts submitted by farmers.</p>
+           
+           <div className="space-y-4">
+              {/* Active Pending Case */}
+              <div className="bg-[#fefdf9] p-5 border border-[#e5e3d7] hover:border-[#e18b2c]/30 hover:shadow-md transition-all group">
+                 <div className="flex justify-between items-start mb-4">
+                   <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 bg-[#e18b2c]/10 text-[#e18b2c] flex items-center justify-center border border-[#e18b2c]/20"><Scale className="w-5 h-5"/></div>
+                     <div>
+                       <h3 className="font-bold text-[#1a1a1a]">Trader Refusal to Pay MSP</h3>
+                       <p className="text-xs text-gray-500">Submitted by: Farmer #2841 (Karnal) • 2 hrs ago</p>
+                     </div>
+                   </div>
+                   <span className="bg-[#e18b2c]/10 text-[#8c5214] text-xs font-bold uppercase tracking-widest px-3 py-1 border border-[#e18b2c]/30">Pending Review</span>
+                 </div>
+                 
+                 <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="p-4 bg-white border border-[#e5e3d7]">
+                      <h4 className="text-xs uppercase font-bold text-gray-500 mb-2">Farmer's Statement</h4>
+                      <p className="text-sm font-hind text-gray-700">"The trader at the local mandi bought 50 quintals of wheat but didn't pay the agreed MSP. Now he is ignoring my calls."</p>
+                    </div>
+                    <div className="p-4 bg-[#f1f8f3] border border-[#408447]/20 border-l-4 border-l-[#408447]">
+                      <h4 className="text-xs uppercase font-bold text-[#408447] mb-2">AI Drafted Action</h4>
+                      <p className="text-sm font-bold text-gray-800">Formal Legal Notice (Section 420)</p>
+                      <p className="text-xs text-gray-600 mt-1">Draft ready. Recommends escalating to Sub-Divisional Magistrate.</p>
+                    </div>
+                 </div>
+
+                 <div className="flex gap-3 mt-4">
+                    <button className="bg-[#3174a1] text-white px-4 py-2 text-sm font-bold flex-1 hover:bg-[#1b435e] transition-colors shadow-sm">
+                       Review & File on behalf of Farmer
+                    </button>
+                    <button className="bg-[#c82b28] text-white px-4 py-2 text-sm font-bold hover:bg-[#8f1e1c] transition-colors shadow-sm">
+                       Reject
+                    </button>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ----------------------------------------------------
+  // FARMER LEGAL COMPANION UI
+  // ----------------------------------------------------
   return (
     <div className="space-y-6 w-full max-w-4xl mx-auto">
       {/* Remove global ScreenHeader to avoid duplication with AppLayout */}

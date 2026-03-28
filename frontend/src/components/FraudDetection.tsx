@@ -15,11 +15,12 @@ import {
 } from "lucide-react";
 import ScreenHeader from "./ScreenHeader";
 import VoiceButton from "./VoiceButton";
+import type { Role } from "@/components/RoleLogin";
 
 type ScanMode = "gathering" | "capturing_bottle" | "capturing_bill" | "capturing_qr" | "loading" | "result";
 type ResultType = "safe" | "suspicious" | "risk";
 
-const FraudDetection = ({ onBack, lang }: { onBack: () => void; lang?: any }) => {
+const FraudDetection = ({ onBack, lang, role }: { onBack: () => void; lang?: any, role?: Role }) => {
   const [mode, setMode] = useState<ScanMode>("gathering");
   const [inputs, setInputs] = useState({
     bottle: false,
@@ -38,9 +39,15 @@ const FraudDetection = ({ onBack, lang }: { onBack: () => void; lang?: any }) =>
 
   const processScan = () => {
     setMode("loading");
-    // Pseudo-random logic to show different states based on inputs provided
-    // If they provide all 3, let's show SAFE or RISK to demonstrate high confidence
-    // If they provide only 1, let's show SUSPICIOUS to demonstrate lower confidence
+    
+    // OUTPUT PRINCIPLE: Mocking exact JSON backend response structure as requested
+    const mockAiResponse = {
+       status: "success",
+       decision: "pending_manual_review",
+       message_text: "System requires field operator to verify labeling anomalies."
+    };
+    console.log("AI Backend Response:", mockAiResponse);
+
     setTimeout(() => {
       const count = Object.values(inputs).filter(Boolean).length;
       if (count === 3) setResultData("safe");
@@ -213,11 +220,48 @@ const FraudDetection = ({ onBack, lang }: { onBack: () => void; lang?: any }) =>
     </button>
   );
 
+  // ----------------------------------------------------
+  // NGO FIELD OPERATOR VIEW
+  // ----------------------------------------------------
+  if (role === "ngo" || role === "admin") {
+    return (
+      <div className="w-full max-w-4xl mx-auto space-y-6">
+        <div className="bg-white p-6 border-b border-[#e5e3d7] shadow-sm">
+           <h2 className="font-mukta font-bold text-2xl text-[#1a1a1a]">Input Verification Queue</h2>
+           <p className="font-hind text-gray-500 text-sm mt-1 mb-6">Review scans flagged by the AI for manual verification.</p>
+           
+           <div className="space-y-4">
+              <div className="bg-gray-50 p-4 border border-gray-200">
+                 <div className="flex justify-between items-start mb-3">
+                   <div>
+                     <h3 className="font-bold text-[#1a1a1a]">SuperGro Pesticide Scan</h3>
+                     <p className="text-xs text-gray-500">Submitted by: Farmer #9421 (Nashik)</p>
+                   </div>
+                   <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1">pending_manual_review</span>
+                 </div>
+                 <div className="flex gap-4 mb-4">
+                    <div className="w-24 h-24 bg-gray-200 border border-gray-300 flex items-center justify-center text-xs text-gray-500">Bottle Img</div>
+                    <div className="w-24 h-24 bg-gray-200 border border-gray-300 flex items-center justify-center text-xs text-gray-500">Receipt Img</div>
+                 </div>
+                 <div className="p-3 bg-red-50 border-l-2 border-red-500 text-xs text-red-700 mb-4 font-bold">
+                    AI OUTPUT: Price 30% below market average. Missing hologram on label.
+                 </div>
+                 <div className="flex gap-3">
+                    <button className="bg-[#c82b28] text-white px-4 py-2 text-sm font-bold flex-1 hover:bg-red-800 transition-colors">Mark as FAKE (Alert Area)</button>
+                    <button className="bg-[#408447] text-white px-4 py-2 text-sm font-bold flex-1 hover:bg-green-800 transition-colors">Verify as Authentic</button>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ----------------------------------------------------
+  // FARMER END USER VIEW
+  // ----------------------------------------------------
   return (
     <div className={`space-y-6 w-full max-w-4xl mx-auto`}>
-      <div className={mode !== "gathering" && mode !== "result" ? "dark" : ""}>
-        {/* Module specific back button handled inside specific modes instead of ScreenHeader */}
-      </div>
 
       <div className="px-5 mt-6">
         {mode === "gathering" && (
