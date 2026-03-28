@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.schemas import PriceCheckRequest, success, error
 from app.core.dependencies import get_current_user
+from app.repositories.help_repo import HelpRequestRepository
 from app.ml.price_model import get_price_stats
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,32 @@ def check_price(
         decision = "FAIR_PRICE"
         message = f"Aapko fair market rate mila hai. Farq sirf ₹{abs(difference):.0f} ka hai."
 
+    # --- Auto Fraud Reporting ---
+    fraud_complaint = None
+    if payload.report_fraud and status_str == "underpaid":
+        if not payload.user_id:
+            raise HTTPException(
+                status_code=400,
+                detail="user_id is required to report fraud automatically."
+            )
+        
+        help_repo = HelpRequestRepository(db)
+        description = (
+            f"Mandi Price Fraud Reported: {payload.crop} in {payload.location}. "
+            f"Expected Average: ₹{avg_price}, User Offered: ₹{user_price}. "
+            f"Difference: ₹{abs(difference):.0f} ({pct_diff}%)."
+        )
+        ticket = help_repo.create(
+            user_id=payload.user_id,
+            request_type="fraud",
+            description=description
+        )
+        fraud_complaint = {
+            "complaint_id": ticket.id,
+            "status": ticket.status
+        }
+        logger.info(f"Auto-fraud ticket created for {payload.user_id}: {ticket.id}")
+
     logger.info(
         f"Price check: crop={payload.crop}, loc={payload.location}, "
         f"user={user_price}, avg={avg_price}, status={status_str}"
@@ -65,5 +92,6 @@ def check_price(
             "message_text": message,
             "all_mandis": stats["all_mandis"],
             "data_points": stats["record_count"],
+            "fraud_complaint": fraud_complaint
         },
     )

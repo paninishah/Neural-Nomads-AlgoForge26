@@ -51,12 +51,17 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(String, primary_key=True, default=gen_uuid)
-    phone = Column(String(15), unique=True, nullable=False, index=True)
+    phone = Column(String(15), unique=True, nullable=True, index=True)
+    email = Column(String(100), unique=True, nullable=True, index=True)
+    name = Column(String(200), nullable=False)  # Display name for login users
+    full_name = Column(String(200), nullable=True)  # For NGO Operators
+    organization_name = Column(String(200), nullable=True)  # For NGO Org details
+    hashed_password = Column(String, nullable=False)
     role = Column(Enum(UserRole), default=UserRole.farmer, nullable=False)
     verification_status = Column(
         Enum(VerificationStatus), default=VerificationStatus.unverified, nullable=False
     )
-    phone_verified = Column(Boolean, default=True)  # auto-verified via OTP
+    phone_verified = Column(Boolean, default=False)
     ngo_verified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -73,6 +78,7 @@ class FarmerProfile(Base):
     user_id = Column(String, ForeignKey("users.id"), unique=True, nullable=False)
     name = Column(String(200), nullable=False)
     village = Column(String(200))
+    district = Column(String(200))
     state = Column(String(200))
     crop = Column(String(200))
     land_acres = Column(Float, default=0.0)

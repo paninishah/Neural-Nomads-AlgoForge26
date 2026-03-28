@@ -46,39 +46,50 @@ def client():
 
 
 @pytest.fixture(scope="session")
-def farmer_token(client):
-    resp = client.post("/auth/login", json={"phone": "8000000001", "role": "farmer"})
+def setup_users(client):
+    # Register core test users via the API
+    # Farmer and Admin use phone flow
+    client.post("/auth/register", json={"name": "Farmer 1", "phone": "8000000001", "password": "password123", "role": "farmer"})
+    client.post("/auth/register", json={"name": "Admin 1", "phone": "8000000003", "password": "password123", "role": "admin"})
+    
+    # NGO uses new email flow
+    client.post("/auth/ngo/register", json={
+        "email": "ngo@example.com",
+        "password": "password123",
+        "operator_full_name": "NGO Operator",
+        "organization_name": "Global Help NGO"
+    })
+    return True
+
+@pytest.fixture(scope="session")
+def farmer_token(client, setup_users):
+    resp = client.post("/auth/login", json={"phone": "8000000001", "password": "password123"})
     assert resp.status_code == 200
     return resp.json()["data"]["token"]
 
-
 @pytest.fixture(scope="session")
-def farmer_user_id(client):
-    resp = client.post("/auth/login", json={"phone": "8000000001", "role": "farmer"})
+def farmer_user_id(client, setup_users):
+    resp = client.post("/auth/login", json={"phone": "8000000001", "password": "password123"})
     return resp.json()["data"]["user_id"]
 
-
 @pytest.fixture(scope="session")
-def ngo_token(client):
-    resp = client.post("/auth/login", json={"phone": "8000000002", "role": "ngo"})
+def ngo_token(client, setup_users):
+    resp = client.post("/auth/ngo/login", json={"email": "ngo@example.com", "password": "password123"})
     assert resp.status_code == 200
     return resp.json()["data"]["token"]
 
-
 @pytest.fixture(scope="session")
-def ngo_user_id(client):
-    resp = client.post("/auth/login", json={"phone": "8000000002", "role": "ngo"})
+def ngo_user_id(client, setup_users):
+    resp = client.post("/auth/ngo/login", json={"email": "ngo@example.com", "password": "password123"})
     return resp.json()["data"]["user_id"]
 
-
 @pytest.fixture(scope="session")
-def admin_token(client):
-    resp = client.post("/auth/login", json={"phone": "8000000003", "role": "admin"})
+def admin_token(client, setup_users):
+    resp = client.post("/auth/login", json={"phone": "8000000003", "password": "password123"})
     assert resp.status_code == 200
     return resp.json()["data"]["token"]
 
-
 @pytest.fixture(scope="session")
-def admin_user_id(client):
-    resp = client.post("/auth/login", json={"phone": "8000000003", "role": "admin"})
+def admin_user_id(client, setup_users):
+    resp = client.post("/auth/login", json={"phone": "8000000003", "password": "password123"})
     return resp.json()["data"]["user_id"]

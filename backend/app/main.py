@@ -71,19 +71,23 @@ def _seed_data():
     """Create demo users for testing."""
     from app.database import SessionLocal
     from app.repositories.user_repo import UserRepository
+    from app.core.security import get_password_hash
 
     db = SessionLocal()
     try:
         repo = UserRepository(db)
         demo_users = [
-            ("9999999001", "admin"),
-            ("9999999002", "ngo"),
-            ("9999999003", "farmer"),
-            ("9999999004", "farmer"),
+            ("Admin User", "9999999001", "admin"),
+            ("Test NGO", "9999999002", "ngo"),
+            ("Farmer 1", "9999999003", "farmer"),
+            ("Farmer 2", "9999999004", "farmer"),
         ]
-        for phone, role in demo_users:
-            user, created = repo.get_or_create(phone=phone, role=role)
-            if created:
+        
+        hashed_pwd = get_password_hash("password123")
+        
+        for name, phone, role in demo_users:
+            if not repo.get_by_phone(phone):
+                user = repo.create_user(name=name, phone=phone, hashed_password=hashed_pwd, role=role)
                 logger.info(f"Seeded demo user: {phone} ({role})")
     except Exception as e:
         logger.error(f"Seed error: {e}")
