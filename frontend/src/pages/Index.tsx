@@ -5,8 +5,9 @@ import MandiPrice from "@/components/MandiPrice";
 import FraudDetection from "@/components/FraudDetection";
 import LoanDecoder from "@/components/LoanDecoder";
 import LegalAction from "@/components/LegalAction";
+import HeatmapIntelligence from "@/components/HeatmapIntelligence";
 
-type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal";
+type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap";
 export type Lang = "en" | "hi";
 
 const Index = () => {
@@ -24,6 +25,7 @@ const Index = () => {
       {screen === "fraud" && <FraudDetection onBack={() => navigate("home")} lang={lang} />}
       {screen === "loan" && <LoanDecoder onBack={() => navigate("home")} lang={lang} />}
       {screen === "legal" && <LegalAction onBack={() => navigate("home")} lang={lang} />}
+      {screen === "heatmap" && <HeatmapIntelligence onBack={() => navigate("home")} />}
     </div>
   );
 };

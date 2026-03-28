@@ -1,5 +1,17 @@
-import { useState } from "react";
-import { CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  Upload,
+  Mic,
+  Activity,
+  ArrowRight,
+  ShieldAlert,
+  HelpCircle,
+  FileSearch,
+  CheckCircle2,
+  AlertTriangle,
+  SlidersHorizontal,
+  FileClock
+} from "lucide-react";
 import ScreenHeader from "./ScreenHeader";
 import VoiceButton from "./VoiceButton";
 import type { Lang } from "@/pages/Index";
@@ -9,151 +21,347 @@ interface LoanDecoderProps {
   lang: Lang;
 }
 
+type Mode = "selection" | "pre_input" | "pre_result" | "post_input" | "post_result" | "loading";
+
 const content = {
   en: {
-    title: "Loan Guidance",
-    subtitle: "Understand and fix your loan application",
-    appTitle: "KCC Loan Application",
-    status: "Status: REJECTED",
-    whyTitle: "Why was it rejected?",
-    fixTitle: "Fix Plan",
-    complete: "complete",
-    reapply: "Reapply for Loan",
-    getHelp: "Get Expert Help 📞",
-    voiceCta: "Ask by voice",
-    reasons: [
-      { text: "Land record missing — Get from Patwari", status: "missing" },
-      { text: "Credit history weak — CIBIL score 580", status: "weak" },
-      { text: "Aadhaar verified", status: "ok" },
-      { text: "Income proof not submitted", status: "missing" },
-      { text: "Bank account linked", status: "ok" },
-    ],
-    steps: [
-      { title: "Get Land Record", desc: "Visit Patwari office, arrange 6/12 record" },
-      { title: "Fix Credit Score", desc: "Pay ₹2,000 EMI on old loan to improve CIBIL" },
-      { title: "Income Certificate", desc: "Get from Tehsildar office with ID proof" },
-      { title: "Reapply for KCC", desc: "Submit again in 15 days with all documents" },
-    ],
+    title: "Loan Assistant",
+    subtitle: "How can we help you today?",
+    preAppCard: "Check Approval Chances",
+    preAppDesc: "Forecast before applying",
+    postAppCard: "Understand Rejection",
+    postAppDesc: "Fix a rejected loan",
+
+    // Pre Input
+    incomeLabel: "Income (Annual ₹)",
+    landLabel: "Land (Acres)",
+    loanLabel: "Loan Amount (₹)",
+    checkChances: "Predict Chances",
+
+    // Post Input
+    uploadDoc: "Upload Notice / SMS",
+    voicePrompt: "Or tap mic: 'Mera loan reject ho gaya...'",
+    analyzeRej: "Analyze Rejection",
+
+    // Loading
+    processing: "AI is analyzing...",
+
+    // Pre Result
+    chanceHeader: "Approval Chance",
+    moderate: "Moderate Chance",
+    why: "Why?",
+    preWhyText: "Credit score is slightly low, Loan amount is moderately high.",
+    improve: "How to Improve",
+    improve1: "Increase credit score tracking",
+    improve2: "Reduce loan amount by ₹20k",
+    simTitle: "Simulation: If amount is lower",
+    simRes: "Chance goes up to 85%",
+
+    // Post Result
+    status: "Loan Rejected",
+    rootCause: "Root Cause",
+    causeText: "Low Credit Score (Delayed payments history)",
+    fixPlan: "Fix Plan",
+    fix1: "Clear pending loans",
+    fix2: "Improve repayment history",
+    reapply: "Reapply Strategy",
+    reapplyText: "Wait 2 months and reapply.",
   },
   hi: {
-    title: "लोन मार्गदर्शन",
-    subtitle: "अपने लोन आवेदन को समझें और ठीक करें",
-    appTitle: "KCC लोन आवेदन",
-    status: "स्थिति: अस्वीकृत",
-    whyTitle: "अस्वीकार क्यों हुआ?",
-    fixTitle: "सुधार योजना",
-    complete: "पूर्ण",
-    reapply: "लोन के लिए दोबारा आवेदन करें",
-    getHelp: "विशेषज्ञ सहायता 📞",
-    voiceCta: "बोलकर पूछिए",
-    reasons: [
-      { text: "भूमि रिकॉर्ड गायब — पटवारी से लें", status: "missing" },
-      { text: "क्रेडिट हिस्ट्री कमजोर — CIBIL स्कोर 580", status: "weak" },
-      { text: "आधार सत्यापित", status: "ok" },
-      { text: "आय प्रमाण जमा नहीं किया", status: "missing" },
-      { text: "बैंक खाता जुड़ा हुआ", status: "ok" },
-    ],
-    steps: [
-      { title: "भूमि रिकॉर्ड प्राप्त करें", desc: "पटवारी कार्यालय जाएँ, 6/12 रिकॉर्ड बनवाएँ" },
-      { title: "क्रेडिट स्कोर सुधारें", desc: "पुराने लोन की ₹2,000 EMI भरें" },
-      { title: "आय प्रमाणपत्र", desc: "तहसीलदार कार्यालय से ID प्रूफ के साथ प्राप्त करें" },
-      { title: "KCC के लिए दोबारा आवेदन करें", desc: "15 दिन में सभी दस्तावेजों के साथ जमा करें" },
-    ],
+    title: "लोन सहायक",
+    subtitle: "आज हम आपकी कैसे मदद कर सकते हैं?",
+    preAppCard: "मंजूरी की संभावना जांचें",
+    preAppDesc: "आवेदन से पहले अनुमान",
+    postAppCard: "अस्वीकृति को समझें",
+    postAppDesc: "खारिज लोन को ठीक करें",
+
+    incomeLabel: "आय (वार्षिक ₹)",
+    landLabel: "जमीन (एकड़)",
+    loanLabel: "लोन राशि (₹)",
+    checkChances: "संभावना जांचें",
+
+    uploadDoc: "नोटिस / SMS अपलोड करें",
+    voicePrompt: "या माइक दबाएं: 'मेरा लोन रिजेक्ट हो गया...'",
+    analyzeRej: "कारण का विश्लेषण करें",
+
+    processing: "AI विश्लेषण कर रहा है...",
+
+    chanceHeader: "मंजूरी की संभावना",
+    moderate: "मध्यम संभावना",
+    why: "क्यों?",
+    preWhyText: "क्रेडिट स्कोर थोड़ा कम है, लोन राशि अधिक है।",
+    improve: "कैसे सुधारें",
+    improve1: "क्रेडिट स्कोर ट्रैकिंग बढ़ाएं",
+    improve2: "लोन राशि ₹20k कम करें",
+    simTitle: "सिमुलेशन: यदि राशि कम हो",
+    simRes: "संभावना 85% तक बढ़ जाती है",
+
+    status: "लोन अस्वीकृत",
+    rootCause: "मूल कारण",
+    causeText: "कम क्रेडिट स्कोर (भुगतान में देरी का इतिहास)",
+    fixPlan: "सुधार योजना",
+    fix1: "लंबित लोन चुकाएं",
+    fix2: "भुगतान इतिहास सुधारें",
+    reapply: "पुनः आवेदन रणनीति",
+    reapplyText: "2 महीने रुकें और फिर आवेदन करें।",
   },
 };
 
 const LoanDecoder = ({ onBack, lang }: LoanDecoderProps) => {
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const t = content[lang];
+  const [mode, setMode] = useState<Mode>("selection");
+  const [nextMode, setNextMode] = useState<Mode>("selection");
+  
+  // Pre-flow inputs
+  const [valIncome, setValIncome] = useState(80000);
+  const [valLand, setValLand] = useState(2);
+  const [valLoan, setValLoan] = useState(150000);
 
-  const toggleStep = (i: number) => {
-    setCompletedSteps(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  const t = content[lang] || content.en;
+
+  const handleProcess = (target: Mode) => {
+    setMode("loading");
+    setNextMode(target);
+    setTimeout(() => {
+      setMode(target);
+    }, 1500);
   };
 
-  const progress = Math.round((completedSteps.length / t.steps.length) * 100);
-
   return (
-    <div className="min-h-screen pb-28">
-      <ScreenHeader onBack={onBack} title={t.title} icon="🏦" subtitle={t.subtitle} />
+    <div className="min-h-screen pb-28 bg-[#fdfaf5]">
+      <ScreenHeader
+        onBack={() => {
+          if (mode === "selection") onBack();
+          else if (mode === "pre_input" || mode === "post_input") setMode("selection");
+          else if (mode === "pre_result") setMode("pre_input");
+          else if (mode === "post_result") setMode("post_input");
+        }}
+        title={t.title}
+        icon="⚖️"
+        subtitle={mode === "selection" ? t.subtitle : ""}
+      />
 
-      <div className="px-5 space-y-4 mt-4">
-        {/* Status Card */}
-        <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-5" style={{ animation: "slide-up-fade 0.5s ease-out forwards" }}>
-          <div className="flex items-center gap-3 mb-1">
-            <AlertCircle className="w-6 h-6 text-destructive" />
-            <div>
-              <h3 className="text-base font-bold text-foreground font-mukta">{t.appTitle}</h3>
-              <p className="text-xs font-bold text-destructive font-hind">{t.status}</p>
+      <div className="px-5 mt-6">
+        {mode === "loading" && (
+          <div className="flex flex-col items-center justify-center py-32" style={{ animation: "slide-up-fade 0.3s ease-out forwards" }}>
+            <Activity className="w-16 h-16 text-primary animate-pulse mb-6" />
+            <p className="font-mukta font-bold text-xl text-foreground">{t.processing}</p>
+          </div>
+        )}
+
+        {mode === "selection" && (
+          <div className="space-y-4" style={{ animation: "slide-up-fade 0.3s ease-out forwards" }}>
+            <button
+              onClick={() => setMode("pre_input")}
+              className="w-full bg-white border-2 border-primary/20 hover:border-primary rounded-3xl p-6 text-left shadow-sm active:scale-[0.98] transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                  <FileSearch className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg font-mukta text-foreground">{t.preAppCard}</h3>
+                  <p className="text-sm font-hind text-muted-foreground">{t.preAppDesc}</p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-primary" />
+            </button>
+
+            <button
+              onClick={() => setMode("post_input")}
+              className="w-full bg-white border-2 border-orange-200 hover:border-orange-500 rounded-3xl p-6 text-left shadow-sm active:scale-[0.98] transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <HelpCircle className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg font-mukta text-foreground">{t.postAppCard}</h3>
+                  <p className="text-sm font-hind text-muted-foreground">{t.postAppDesc}</p>
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-orange-500" />
+            </button>
+          </div>
+        )}
+
+        {mode === "pre_input" && (
+          <div className="space-y-6" style={{ animation: "slide-up-fade 0.3s ease-out forwards" }}>
+            <div className="bg-white p-5 rounded-3xl border shadow-sm space-y-5">
+              <div>
+                <label className="text-sm font-bold font-mukta text-gray-700">{t.incomeLabel}</label>
+                <input
+                  type="range"
+                  min="20000"
+                  max="500000"
+                  step="10000"
+                  value={valIncome}
+                  onChange={(e) => setValIncome(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary mt-3"
+                />
+                <div className="text-right text-primary font-bold mt-1">₹{valIncome.toLocaleString()}</div>
+              </div>
+
+              <div>
+                <label className="text-sm font-bold font-mukta text-gray-700">{t.landLabel}</label>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="20"
+                  step="0.5"
+                  value={valLand}
+                  onChange={(e) => setValLand(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary mt-3"
+                />
+                <div className="text-right text-primary font-bold mt-1">{valLand} Acres</div>
+              </div>
+
+              <div>
+                <label className="text-sm font-bold font-mukta text-gray-700">{t.loanLabel}</label>
+                <input
+                  type="range"
+                  min="10000"
+                  max="1000000"
+                  step="10000"
+                  value={valLoan}
+                  onChange={(e) => setValLoan(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary mt-3"
+                />
+                <div className="text-right text-primary font-bold mt-1">₹{valLoan.toLocaleString()}</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleProcess("pre_result")}
+              className="w-full py-4 rounded-xl shadow-sm bg-primary text-white font-bold font-mukta text-lg active:scale-95 transition-transform"
+            >
+              {t.checkChances}
+            </button>
+          </div>
+        )}
+
+        {mode === "pre_result" && (
+          <div className="space-y-5" style={{ animation: "slide-up-fade 0.3s ease-out forwards" }}>
+            {/* Meter */}
+            <div className="bg-white rounded-3xl p-6 border shadow-sm text-center relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-full -mr-10 -mt-10 blur-2xl" />
+               <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t.chanceHeader}</h3>
+               <div className="text-6xl font-bold text-yellow-500 font-mukta my-2">72%</div>
+               <div className="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-sm font-bold mt-2">
+                 <AlertTriangle className="w-4 h-4" /> {t.moderate}
+               </div>
+            </div>
+
+            {/* Why & Improve */}
+            <div className="bg-white rounded-3xl p-5 border shadow-sm">
+               <h3 className="font-bold font-mukta text-gray-400 text-xs tracking-widest uppercase mb-3">{t.why}</h3>
+               <p className="font-hind text-foreground text-sm font-bold">{t.preWhyText}</p>
+               
+               <div className="w-full h-px bg-gray-100 my-4" />
+               
+               <h3 className="font-bold font-mukta text-gray-400 text-xs tracking-widest uppercase mb-3">{t.improve}</h3>
+               <ul className="space-y-2">
+                  <li className="flex items-center gap-2 text-sm font-hind text-gray-700">
+                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" /> {t.improve1}
+                  </li>
+                  <li className="flex items-center gap-2 text-sm font-hind text-gray-700">
+                     <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" /> {t.improve2}
+                  </li>
+               </ul>
+            </div>
+
+            {/* Simulation */}
+            <div className="bg-primary/5 rounded-3xl p-5 border border-primary/20 shadow-sm">
+               <div className="flex items-center gap-2 mb-3">
+                 <SlidersHorizontal className="w-5 h-5 text-primary" />
+                 <h3 className="font-bold font-mukta text-primary text-sm uppercase tracking-wider">{t.simTitle}</h3>
+               </div>
+               <p className="text-sm font-hind font-bold text-primary-foreground" style={{color: 'var(--primary)'}}>{t.simRes}</p>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Rejection Reasons */}
-        <div>
-          <h3 className="text-sm font-bold text-foreground font-mukta mb-3">{t.whyTitle}</h3>
-          <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
-            {t.reasons.map((r, i) => (
-              <div key={i} className="flex items-center gap-3 px-4 py-3.5" style={{ animation: `slide-up-fade 0.4s ease-out ${i * 0.08}s forwards`, opacity: 0 }}>
-                {r.status === "ok" ? (
-                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0" />
-                )}
-                <span className="text-sm text-foreground font-hind">{r.text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        {mode === "post_input" && (
+          <div className="space-y-6" style={{ animation: "slide-up-fade 0.3s ease-out forwards" }}>
+             <div className="bg-white p-8 rounded-3xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-center shadow-sm">
+               <Upload className="w-12 h-12 text-gray-300 mb-4" />
+               <p className="font-mukta font-bold text-gray-600">{t.uploadDoc}</p>
+             </div>
 
-        {/* Fix Plan */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-foreground font-mukta">{t.fixTitle}</h3>
-            <span className="text-xs font-bold text-primary font-hind">{progress}% {t.complete}</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
-          </div>
-          <div className="space-y-3">
-            {t.steps.map((step, i) => {
-              const done = completedSteps.includes(i);
-              return (
-                <button
-                  key={i}
-                  onClick={() => toggleStep(i)}
-                  className={`w-full text-left rounded-2xl p-4 border transition-all active:scale-[0.98] ${done ? "bg-primary/5 border-primary/30" : "bg-card border-border/50"}`}
-                  style={{ animation: `slide-up-fade 0.4s ease-out ${i * 0.1}s forwards`, opacity: 0 }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${done ? "bg-primary" : "bg-muted"}`}>
-                      {done ? <CheckCircle2 className="w-4 h-4 text-primary-foreground" /> : <span className="text-xs font-bold text-foreground font-mukta">{i + 1}</span>}
-                    </div>
-                    <div>
-                      <p className={`text-sm font-bold font-mukta ${done ? "text-primary line-through" : "text-foreground"}`}>{step.title}</p>
-                      <p className="text-xs text-muted-foreground font-hind mt-0.5">{step.desc}</p>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+             <div className="flex items-center gap-4">
+                <div className="h-px bg-gray-200 flex-1" />
+                <span className="text-xs font-bold text-gray-400 uppercase">OR</span>
+                <div className="h-px bg-gray-200 flex-1" />
+             </div>
 
-        {/* CTA */}
-        <div className="space-y-3 pt-2">
-          <button className="w-full py-3.5 rounded-xl bg-primary font-bold text-primary-foreground active:scale-[0.97] transition-transform font-mukta text-base flex items-center justify-center gap-2">
-            {t.reapply} <ArrowRight className="w-5 h-5" />
-          </button>
-          <button className="w-full py-3 rounded-xl bg-card border border-border font-bold text-foreground active:scale-[0.97] transition-transform font-mukta">{t.getHelp}</button>
-        </div>
+             <div className="bg-orange-50 p-6 rounded-3xl border border-orange-100 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
+               <VoiceButton size="lg" />
+               <p className="mt-4 font-hind font-bold text-orange-700/80 text-sm max-w-[200px]">{t.voicePrompt}</p>
+             </div>
+
+             <button
+              onClick={() => handleProcess("post_result")}
+              className="w-full py-4 rounded-xl shadow-sm bg-orange-500 text-white font-bold font-mukta text-lg active:scale-95 transition-transform"
+            >
+              {t.analyzeRej}
+            </button>
+          </div>
+        )}
+
+        {mode === "post_result" && (
+          <div className="space-y-5" style={{ animation: "slide-up-fade 0.3s ease-out forwards" }}>
+             {/* Status Header */}
+             <div className="bg-red-50 border border-red-200 rounded-3xl p-5 flex items-center gap-4 shadow-sm">
+               <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                 <ShieldAlert className="w-6 h-6" />
+               </div>
+               <div>
+                  <h2 className="text-xl font-bold font-mukta text-red-600">{t.status}</h2>
+               </div>
+             </div>
+
+             {/* Root Cause */}
+             <div className="bg-white rounded-3xl p-5 border shadow-sm">
+               <h3 className="font-bold font-mukta text-gray-400 text-xs tracking-widest uppercase mb-2">{t.rootCause}</h3>
+               <p className="font-hind text-foreground text-sm font-bold">{t.causeText}</p>
+             </div>
+
+             {/* Fix Plan */}
+             <div className="bg-white rounded-3xl p-5 border shadow-sm">
+               <h3 className="font-bold font-mukta text-gray-400 text-xs tracking-widest uppercase mb-3">{t.fixPlan}</h3>
+               <ul className="space-y-3">
+                  <li className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5"><span className="text-xs font-bold">1</span></div>
+                    <span className="text-sm font-hind text-gray-700 font-bold">{t.fix1}</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5"><span className="text-xs font-bold">2</span></div>
+                    <span className="text-sm font-hind text-gray-700 font-bold">{t.fix2}</span>
+                  </li>
+               </ul>
+             </div>
+
+             {/* Reapply */}
+             <div className="bg-blue-50 border border-blue-100 rounded-3xl p-5 flex items-center gap-4 shadow-sm">
+               <div className="w-10 h-10 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                 <FileClock className="w-5 h-5" />
+               </div>
+               <div>
+                  <h3 className="font-bold font-mukta text-blue-800 text-sm uppercase tracking-wider">{t.reapply}</h3>
+                  <p className="text-blue-700 text-sm font-bold font-hind">{t.reapplyText}</p>
+               </div>
+             </div>
+          </div>
+        )}
       </div>
 
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-        <div className="bg-card/95 backdrop-blur-md rounded-full px-5 py-3 shadow-lg border border-border/50 flex items-center gap-3">
-          <VoiceButton size="sm" />
-          <span className="text-sm font-hind text-muted-foreground">{t.voiceCta}</span>
+      {(mode === "pre_input" || mode === "post_input") && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+          <div className="bg-card/95 backdrop-blur-md rounded-full px-5 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-border/50 flex items-center gap-3">
+            <VoiceButton size="sm" />
+            <span className="text-sm font-hind font-bold text-primary cursor-pointer hover:underline">Ask by voice</span>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

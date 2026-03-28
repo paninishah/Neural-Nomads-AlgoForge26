@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { TrendingUp, Shield, Landmark, Scale } from "lucide-react";
+import { TrendingUp, Shield, Landmark, Scale, MapPin } from "lucide-react";
 import VoiceButton from "./VoiceButton";
 import LanguageSwitcher from "./LanguageSwitcher";
 import type { Lang } from "@/pages/Index";
@@ -127,6 +127,28 @@ const HomeDashboard = ({ onNavigate, lang, onToggleLang }: HomeDashboardProps) =
         <p className="text-xs opacity-70 mt-1">
           Sell in Azadpur mandi to earn more
         </p>
+      </motion.div>
+
+      {/* HEATMAP ENTRY POINT */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        onClick={() => onNavigate("heatmap")}
+        className="mx-5 mt-6 relative rounded-3xl overflow-hidden shadow-lg cursor-pointer active:scale-[0.98] transition-transform"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-green-900 via-emerald-800 to-green-900" />
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-green-400 rounded-full blur-3xl opacity-40 pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-400 rounded-full blur-3xl opacity-30 pointer-events-none" />
+        
+        <div className="relative p-6 flex flex-col items-center text-center">
+           <MapPin className="w-8 h-8 text-green-300 mb-2" />
+           <h3 className="font-mukta font-bold text-xl text-white">Your Region Intelligence</h3>
+           <p className="font-hind text-green-100/80 text-xs mt-1">Understand risks & opportunities around you instantly</p>
+           <div className="mt-4 px-6 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full text-white font-bold text-xs uppercase tracking-wider transition-colors inline-block">
+             View Live Map
+           </div>
+        </div>
       </motion.div>
 
       {/* STATS */}
