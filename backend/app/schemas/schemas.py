@@ -76,7 +76,7 @@ class UserOut(BaseModel):
 
 # ─── Profile ──────────────────────────────────────────────────────────────────
 
-class ProfileCreate(BaseModel):
+class FarmerProfileCreate(BaseModel):
     name: str = Field(..., min_length=2, max_length=200)
     village: Optional[str] = None
     district: Optional[str] = None
@@ -85,7 +85,7 @@ class ProfileCreate(BaseModel):
     land_acres: Optional[float] = Field(default=0.0, ge=0)
 
 
-class ProfileOut(BaseModel):
+class FarmerProfileOut(BaseModel):
     id: str
     user_id: str
     name: str
@@ -99,6 +99,72 @@ class ProfileOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class NGOProfileCreate(BaseModel):
+    organization_name: Optional[str] = None
+    registration_number: Optional[str] = None
+    website: Optional[str] = None
+    states_covered: Optional[list[str]] = None
+    districts_covered: Optional[list[str]] = None
+    focus_areas: Optional[list[str]] = None
+
+
+class NGOProfileOut(BaseModel):
+    id: str
+    user_id: str
+    organization_name: Optional[str]
+    registration_number: Optional[str]
+    website: Optional[str]
+    states_covered: list[str]
+    districts_covered: list[str]
+    focus_areas: list[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class AdminProfileCreate(BaseModel):
+    admin_id: Optional[str] = None
+
+
+class AdminProfileOut(BaseModel):
+    id: str
+    user_id: str
+    admin_id: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# For backward compatibility or internal polymorphic use
+class ProfileCreate(BaseModel):
+    # This can be used as a catch-all or just for farmers
+    name: Optional[str] = None
+    village: Optional[str] = None
+    district: Optional[str] = None
+    state: Optional[str] = None
+    crop: Optional[str] = None
+    land_acres: Optional[float] = None
+    # NGO fields
+    organization_name: Optional[str] = None
+    registration_number: Optional[str] = None
+    website: Optional[str] = None
+    states_covered: Optional[list[str]] = None
+    districts_covered: Optional[list[str]] = None
+    focus_areas: Optional[list[str]] = None
+    # Admin fields
+    admin_id: Optional[str] = None
+
+
+class ProfileOut(BaseModel):
+    status: str = "success"
+    profile_type: str  # farmer, ngo, admin
+    data: Any
 
 
 # ─── Document ─────────────────────────────────────────────────────────────────
@@ -177,9 +243,10 @@ class HeatmapPoint(BaseModel):
 
 class InputVerifyRequest(BaseModel):
     image: str  # base64 or URL
+    mode: str = Field(..., pattern=r"^(bottle|bill)$")
+    pesticide_name: Optional[str] = None
     batch_number: Optional[str] = None
     brand: Optional[str] = None
-    expiry_date: Optional[str] = None
 
 
 class InputVerifyResponse(BaseModel):
@@ -188,6 +255,7 @@ class InputVerifyResponse(BaseModel):
     issues: list[str]
     message: str
     extracted: dict
+    industry_data: Optional[dict] = None  # To show comparison info
 
 
 # ─── Loan ─────────────────────────────────────────────────────────────────────
@@ -259,3 +327,15 @@ class AdminOverrideRequest(BaseModel):
     user_id: str
     status: str
     reason: str
+
+
+# ─── New Integrations ─────────────────────────────────────────────────────────
+
+class VoiceRequest(BaseModel):
+    transcript: str
+
+class FinancialsRequest(BaseModel):
+    crop_type: str
+    quantity: float
+    revenue: float
+    expenses: float

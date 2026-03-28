@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { Role } from "@/components/RoleLogin";
+import { apiClient } from "@/lib/apiClient";
 
 // ── Default profiles per role ────────────────────────
 const defaultProfiles: Record<Role, any> = {
@@ -30,31 +31,131 @@ const defaultProfiles: Record<Role, any> = {
   },
 };
 
+// Seed initial profile from values stored in localStorage at login time,
+// so the UI shows real data immediately, not dummy placeholders.
+function getInitialProfile(role: Role): any {
+  const storedName  = localStorage.getItem("annadata_user_name");
+  const storedPhone = localStorage.getItem("annadata_user_phone");
+  const storedOrg   = localStorage.getItem("annadata_user_org");
+  const storedEmail = localStorage.getItem("annadata_user_email");
+
+  const base = { ...defaultProfiles[role] };
+
+  if (role === "farmer") {
+    if (storedName)  base.name  = storedName;
+    if (storedPhone) base.phone = "+91 " + storedPhone;
+  } else if (role === "ngo") {
+    if (storedName)  base.name  = storedName;
+    if (storedOrg)   base.org   = storedOrg;
+    if (storedEmail) base.email = storedEmail;
+  } else if (role === "admin") {
+    if (storedName)  { base.name = storedName; base.adminId = storedName; }
+  }
+
+  return base;
+}
+
 export const useProfile = (role: Role) => {
-  const key = `annadata_profile_${role}`;
+  // Use getInitialProfile so real user values appear straight away
+  const [profile, setProfile] = useState<any>(() => getInitialProfile(role));
+  const [loading, setLoading] = useState(true);
 
-  const [profile, setProfile] = useState<any>(() => {
-    try {
-      const stored = localStorage.getItem(key);
-      return stored ? JSON.parse(stored) : defaultProfiles[role];
-    } catch {
-      return defaultProfiles[role];
-    }
-  });
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const userId = localStorage.getItem("annadata_user_id");
+      if (!userId) {
+         setLoading(false);
+         return;
+      }
+      try {
+        const res = await apiClient.get(`/profile/${userId}`);
+        const data = res.data.data;
 
-  const updateProfile = useCallback((data: Partial<any>) => {
+        if (!data || !data.id) {
+          // No profile in DB yet — still show the localStorage data we already have
+          setLoading(false);
+          return;
+        }
+
+        // Profile exists in DB — merge it in
+        if (role === "farmer") {
+          setProfile((prev: any) => ({
+            ...prev,
+            name:      data.name      || prev.name,
+            village:   data.village   || prev.village,
+            district:  data.district  || prev.district,
+            state:     data.state     || prev.state,
+            farmSize:  data.land_acres ? String(data.land_acres) : prev.farmSize,
+            crops:     data.crop      ? [data.crop]              : prev.crops,
+          }));
+        } else if (role === "ngo") {
+          setProfile((prev: any) => ({
+            ...prev,
+            name:       data.name            || prev.name,
+            org:        data.organization_name|| prev.org,
+            regNumber:  data.registration_number || prev.regNumber,
+            website:    data.website         || prev.website,
+            states:     data.states_covered  && data.states_covered.length  ? data.states_covered  : prev.states,
+            districts:  data.districts_covered && data.districts_covered.length ? data.districts_covered : prev.districts,
+            focusAreas: data.focus_areas     && data.focus_areas.length     ? data.focus_areas     : prev.focusAreas,
+            verified:   data.ngo_verified    ?? prev.verified,
+          }));
+        } else if (role === "admin") {
+          setProfile((prev: any) => ({
+            ...prev,
+            adminId: data.admin_id || prev.adminId,
+          }));
+        }
+      } catch (err) {
+        console.error("Could not fetch profile from backend:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [role]);
+
+  const updateProfile = useCallback(async (data: Partial<any>) => {
+    // 1. Optimistic update
+    let nextProfile: any;
     setProfile((prev: any) => {
-      const next = { ...prev, ...data };
-      try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
-      return next;
+      nextProfile = { ...prev, ...data };
+      return nextProfile;
     });
-  }, [key]);
+    
+    // 2. Map frontend structures to ProfileCreate
+    const userId = localStorage.getItem("annadata_user_id");
+    if (!userId || !nextProfile) return;
+
+    try {
+      // Map based on role
+      const payload: any = {};
+      if (role === "farmer") {
+        payload.name = nextProfile.name;
+        payload.village = nextProfile.village;
+        payload.state = nextProfile.state;
+        payload.crop = nextProfile.crops && nextProfile.crops.length > 0 ? nextProfile.crops[0] : undefined;
+        payload.land_acres = nextProfile.farmSize ? parseFloat(nextProfile.farmSize) : undefined;
+      } else if (role === "ngo") {
+        payload.organization_name = nextProfile.org;
+        payload.registration_number = nextProfile.regNumber;
+        payload.website = nextProfile.website;
+        payload.states_covered = nextProfile.states;
+        payload.districts_covered = nextProfile.districts;
+        payload.focus_areas = nextProfile.focusAreas;
+      } else if (role === "admin") {
+        payload.admin_id = nextProfile.adminId;
+      }
+
+      await apiClient.post("/profile", payload);
+    } catch(e) {
+      console.error("Failed to sync profile updates", e);
+    }
+  }, [role]);
 
   const resetProfile = useCallback(() => {
-    const defaults = defaultProfiles[role];
-    setProfile(defaults);
-    try { localStorage.setItem(key, JSON.stringify(defaults)); } catch {}
-  }, [role, key]);
+    setProfile(getInitialProfile(role));
+  }, [role]);
 
-  return { profile, updateProfile, resetProfile };
+  return { profile, updateProfile, resetProfile, loading };
 };

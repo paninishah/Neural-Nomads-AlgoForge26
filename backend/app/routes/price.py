@@ -5,7 +5,7 @@ from app.database import get_db
 from app.schemas.schemas import PriceCheckRequest, success, error
 from app.core.dependencies import get_current_user
 from app.repositories.help_repo import HelpRequestRepository
-from app.ml.price_model import get_price_stats
+from app.ml.price_model import get_price_stats, get_model
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/check-price", tags=["Price Check"])
@@ -95,3 +95,69 @@ def check_price(
             "fraud_complaint": fraud_complaint
         },
     )
+
+
+@router.get("/crops")
+def list_crops(current_user=Depends(get_current_user)):
+    """
+    Return all unique crop names available in the dataset.
+    Used to populate the crop selector on the frontend.
+    """
+    try:
+        _, _, df = get_model()
+        crops = sorted(df["crop"].dropna().unique().tolist())
+        # Title-case for display
+        crops_titled = [c.title() for c in crops]
+        return success("Crops loaded", {"crops": crops_titled})
+    except Exception as e:
+        logger.error(f"Failed to load crops: {e}")
+        raise HTTPException(status_code=500, detail="Could not load crop data")
+
+
+@router.get("/recommend")
+def recommend_crops(
+    location: str = "",
+    current_user=Depends(get_current_user)
+):
+    """
+    Return top 5 crops with the highest average market price for a given location.
+    Used for the AI recommendation panel on the frontend.
+    """
+    try:
+        _, _, df = get_model()
+        location_lower = location.strip().lower()
+
+        if location_lower:
+            loc_df = df[
+                df["market"].str.contains(location_lower, na=False)
+                | df["district"].str.contains(location_lower, na=False)
+                | df["state"].str.contains(location_lower, na=False)
+            ]
+            if loc_df.empty:
+                loc_df = df  # fall back to national data
+        else:
+            loc_df = df
+
+        agg = (
+            loc_df.groupby("crop")["price_modal"]
+            .agg(["mean", "count"])
+            .reset_index()
+        )
+        agg.columns = ["crop", "avg_price", "count"]
+        # Only include crops with enough data points
+        agg = agg[agg["count"] >= 5].sort_values("avg_price", ascending=False)
+
+        top_crops = [
+            {
+                "crop": row["crop"].title(),
+                "avg_price": round(row["avg_price"], 2),
+                "data_points": int(row["count"]),
+            }
+            for _, row in agg.head(5).iterrows()
+        ]
+
+        scope = location.title() if location else "National"
+        return success(f"Top crops by price for {scope}", {"recommendations": top_crops, "scope": scope})
+    except Exception as e:
+        logger.error(f"Failed to get recommendations: {e}")
+        raise HTTPException(status_code=500, detail="Could not generate recommendations")

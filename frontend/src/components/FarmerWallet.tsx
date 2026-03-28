@@ -5,6 +5,8 @@ import {
   IndianRupee, TrendingUp, TrendingDown, Info, 
   MapPin, Store, AlertTriangle, ArrowRight, Activity, Calendar
 } from "lucide-react";
+import { apiClient } from "@/lib/apiClient";
+import { APIResponse, FinancialsResponse } from "@/lib/api";
 
 interface FarmerWalletProps {
   onNavigate: (s: any) => void;
@@ -13,17 +15,47 @@ interface FarmerWalletProps {
 const FarmerWallet = ({ onNavigate }: FarmerWalletProps) => {
   const [phase, setPhase] = useState<"input" | "calculating" | "dashboard">("input");
   
+  // Input States
+  const [valCrop, setValCrop] = useState("Wheat");
+  const [valQty, setValQty] = useState(20);
+  const [valRev, setValRev] = useState(42000);
+  const [valExp, setValExp] = useState(48000);
+
   // What-If Simulator States
   const [soldInBetterMandi, setSoldInBetterMandi] = useState(false);
   const [reducedInputCost, setReducedInputCost] = useState(false);
   
   // Base Data Model
-  const baseData = {
+  const [baseData, setBaseData] = useState({
     revenue: 42000,
     expenses: 48000,
     mandiLoss: 8000,
     pesticideLoss: 3000,
     transportCost: 1000
+  });
+
+  const handleGenerate = async () => {
+    setPhase("calculating");
+    try {
+      const resp = await apiClient.post<APIResponse<FinancialsResponse>>("/financials", {
+        crop_type: valCrop,
+        quantity: valQty,
+        revenue: valRev,
+        expenses: valExp
+      });
+      const data = resp.data.data;
+      setBaseData({
+        revenue: data.revenue,
+        expenses: data.expenses,
+        mandiLoss: data.mandi_loss,
+        pesticideLoss: data.pesticide_loss,
+        transportCost: data.transport_cost
+      });
+    } catch(e) {
+      console.error("Failed to fetch financials.", e);
+    } finally {
+      setTimeout(() => setPhase("dashboard"), 1000);
+    }
   };
 
   // Simulated Data based on "What-If"
@@ -73,13 +105,13 @@ const FarmerWallet = ({ onNavigate }: FarmerWalletProps) => {
                <div>
                  <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Crop Type</label>
                  <div className={theme.classes.inputWrapper}>
-                   <input type="text" defaultValue="Wheat" className={theme.classes.inputText} />
+                   <input type="text" value={valCrop} onChange={e => setValCrop(e.target.value)} className={theme.classes.inputText} />
                  </div>
                </div>
                <div>
                  <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Quantity (Quintals)</label>
                  <div className={theme.classes.inputWrapper}>
-                   <input type="number" defaultValue={20} className={theme.classes.inputText} />
+                   <input type="number" value={valQty} onChange={e => setValQty(Number(e.target.value))} className={theme.classes.inputText} />
                  </div>
                </div>
              </div>
@@ -88,7 +120,7 @@ const FarmerWallet = ({ onNavigate }: FarmerWalletProps) => {
                <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Total Sold For (Revenue - ₹)</label>
                <div className={theme.classes.inputWrapper}>
                  <IndianRupee className="w-4 h-4 text-gray-400 ml-3" />
-                 <input type="number" defaultValue={42000} className={theme.classes.inputText} />
+                 <input type="number" value={valRev} onChange={e => setValRev(Number(e.target.value))} className={theme.classes.inputText} />
                </div>
              </div>
 
@@ -96,15 +128,12 @@ const FarmerWallet = ({ onNavigate }: FarmerWalletProps) => {
                <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Total Expenses (Seeds, Fertilizer, etc. - ₹)</label>
                <div className={theme.classes.inputWrapper}>
                  <IndianRupee className="w-4 h-4 text-gray-400 ml-3" />
-                 <input type="number" defaultValue={48000} className={theme.classes.inputText} />
+                 <input type="number" value={valExp} onChange={e => setValExp(Number(e.target.value))} className={theme.classes.inputText} />
                </div>
              </div>
 
              <button 
-               onClick={() => {
-                 setPhase("calculating");
-                 setTimeout(() => setPhase("dashboard"), 2500);
-               }}
+               onClick={handleGenerate}
                className={theme.classes.btnPrimary + " w-full py-3 mt-4 text-lg"}
              >
                Generate Profit Intelligence

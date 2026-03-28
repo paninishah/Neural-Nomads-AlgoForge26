@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { theme } from "@/designSystem";
 import { useProfile } from "@/hooks/useProfile";
 import {
@@ -6,16 +6,11 @@ import {
   Users, Scale, Landmark, ShieldAlert, Save, Edit2, RotateCcw
 } from "lucide-react";
 import type { Role } from "@/components/RoleLogin";
+import { apiClient } from "@/lib/apiClient";
+import { APIResponse } from "@/lib/api";
 
 const INDIA_STATES  = ["Maharashtra", "Punjab", "Madhya Pradesh", "Uttar Pradesh", "Bihar", "Rajasthan", "Gujarat", "Karnataka", "Tamil Nadu", "West Bengal"];
 const FOCUS_OPTIONS = ["Fraud Awareness", "Legal Aid", "Loans", "Insurance", "Crop Advisory", "Water Rights", "Market Access"];
-
-const MOCK_STATS = {
-  farmersHelped: 1240,
-  activeCases: 87,
-  resolutionRate: "78%",
-  districtsCovered: 14,
-};
 
 function Chip({ label, active, onToggle }: { label: string; active: boolean; onToggle: () => void }) {
   return (
@@ -50,6 +45,32 @@ const NGOProfile = ({ role }: NGOProfileProps) => {
   const { profile, updateProfile, resetProfile } = useProfile(role);
   const [editing, setEditing] = useState(false);
   const [saved, setSaved]     = useState(false);
+  const [stats, setStats]     = useState({
+    farmers_helped: 0,
+    active_cases: 0,
+    resolution_rate: "0%",
+    districts_covered: 0
+  });
+
+  // Fetch real stats from backend
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await apiClient.get<APIResponse<any>>("/ngo/stats");
+        if (res.data.status === "success") {
+          setStats(res.data.data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch NGO stats", e);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // Real status from localStorage (set at login from /auth/me)
+  const verificationStatus = localStorage.getItem("annadata_verification_status") || "unverified";
+  const isVerified = verificationStatus === "verified" || verificationStatus === "auto_verified";
+  const email = localStorage.getItem("annadata_user_email") || "";
 
   const toggleFocus = (f: string) => {
     const areas = profile.focusAreas || [];
@@ -65,10 +86,11 @@ const NGOProfile = ({ role }: NGOProfileProps) => {
     });
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setEditing(false);
-    setTimeout(() => setSaved(false), 2500);
+  const handleSave = async () => {
+     // useProfile updates are optimistic and sync with backend automatically via its internal hook
+     setSaved(true);
+     setEditing(false);
+     setTimeout(() => setSaved(false), 2500);
   };
 
   return (
@@ -78,24 +100,24 @@ const NGOProfile = ({ role }: NGOProfileProps) => {
       <div className="bg-[#4a2600] text-white p-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-[#e18b2c] flex items-center justify-center text-2xl font-mukta font-black">
-            {(profile.org || "N")[0]}
+            {(profile.org || profile.name || "N")[0]}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-mukta font-black text-xl">{profile.org}</h1>
-              {profile.verified && (
+              <h1 className="font-mukta font-black text-xl">{profile.org || profile.name}</h1>
+                          {isVerified && (
                 <span className="bg-[#408447] text-white text-[9px] font-bold px-2 py-0.5 uppercase tracking-widest flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" /> Verified
                 </span>
               )}
-              {!profile.verified && (
+              {!isVerified && (
                 <span className="bg-[#e18b2c] text-white text-[9px] font-bold px-2 py-0.5 uppercase tracking-widest flex items-center gap-1">
                   <Clock className="w-3 h-3" /> Pending
                 </span>
               )}
             </div>
             <p className="text-[#e18b2c] text-xs font-bold uppercase tracking-widest mt-0.5">NGO · Annadata Partner</p>
-            <p className="text-white/60 text-xs mt-1">Reg: {profile.regNumber}</p>
+            <p className="text-white/60 text-xs mt-1">Reg: {profile.regNumber || "Pending Enrollment"}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -117,13 +139,13 @@ const NGOProfile = ({ role }: NGOProfileProps) => {
         </div>
       </div>
 
-      {/* ── Impact Metrics (Mock) ── */}
+      {/* ── Impact Metrics (Real) ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Farmers Helped", value: MOCK_STATS.farmersHelped.toLocaleString(), color: "#408447" },
-          { label: "Active Cases",   value: MOCK_STATS.activeCases,                    color: "#e18b2c" },
-          { label: "Resolution Rate",value: MOCK_STATS.resolutionRate,                 color: "#3174a1" },
-          { label: "Districts",       value: MOCK_STATS.districtsCovered,              color: "#c82b28" },
+          { label: "Farmers Helped", value: stats.farmers_helped.toLocaleString(), color: "#408447" },
+          { label: "Active Cases",   value: stats.active_cases,                    color: "#e18b2c" },
+          { label: "Resolution Rate",value: stats.resolution_rate,                 color: "#3174a1" },
+          { label: "Districts",       value: stats.districts_covered,              color: "#c82b28" },
         ].map(({ label, value, color }) => (
           <div key={label} className={`${theme.classes.statCardWrap} border-t-[3px]`} style={{ borderTopColor: color }}>
             <p className="text-xs font-bold uppercase text-[#666666] mb-1">{label}</p>
@@ -209,18 +231,24 @@ const NGOProfile = ({ role }: NGOProfileProps) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-bold text-[#1a1a1a]">
-              {profile.verified ? "Organisation Verified" : "Verification Pending"}
+              {isVerified ? "Organisation Verified" : "Verification Pending"}
             </p>
             <p className="text-xs text-[#666666] mt-0.5">
-              {profile.verified
+              {isVerified
                 ? "Your NGO is cleared for all platform integrations."
                 : "Submit documents to complete NGO verification."}
             </p>
           </div>
-          {profile.verified
+          {isVerified
             ? <span className={theme.classes.badgeSuccess}>Verified</span>
             : <span className={theme.classes.badgeWarning}>Pending</span>}
         </div>
+        {email && (
+          <div className="mt-4 pt-4 border-t border-[#e5e3d7]">
+            <p className="text-xs font-bold uppercase text-[#666666] mb-1">Registered Email</p>
+            <p className="text-sm font-hind text-[#1a1a1a]">{email}</p>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end">

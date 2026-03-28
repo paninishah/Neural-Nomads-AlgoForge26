@@ -60,6 +60,9 @@ const FarmerProfile = ({ role }: FarmerProfileProps) => {
   const [editing, setEditing]   = useState(false);
   const [saved, setSaved]       = useState(false);
 
+  // Phone is on the User model, not FarmerProfile — read from localStorage
+  const phone = localStorage.getItem("annadata_user_phone") || profile.phone;
+
   const toggleCrop = (crop: string) => {
     const crops = profile.crops || [];
     updateProfile({
@@ -143,7 +146,7 @@ const FarmerProfile = ({ role }: FarmerProfileProps) => {
             <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Phone (Read-only)</label>
             <div className="flex items-center gap-2 bg-gray-50 border border-[#e5e3d7] px-3 py-2">
               <Phone className="w-3.5 h-3.5 text-[#666666]" />
-              <span className="text-sm font-hind text-[#666666]">{profile.phone}</span>
+              <span className="text-sm font-hind text-[#666666]">{phone}</span>
             </div>
           </div>
 

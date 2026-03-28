@@ -152,7 +152,9 @@ def get_me(current_user=Depends(get_current_user)):
             "phone": current_user.phone,
             "email": current_user.email,
             "role": current_user.role,
-            "full_name": current_user.full_name,
+            "name": current_user.name,  # raw name field (farmers)
+            "full_name": current_user.full_name,  # NGO operator name
+            "display_name": current_user.full_name or current_user.name,  # always populated
             "organization_name": current_user.organization_name,
             "verification_status": current_user.verification_status,
             "phone_verified": current_user.phone_verified,

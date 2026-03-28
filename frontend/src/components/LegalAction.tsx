@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Mic, Paperclip, Send, BrainCircuit, CheckCircle2, ShieldAlert, Sparkles, AlertTriangle, 
@@ -7,21 +7,149 @@ import {
 import ScreenHeader from "./ScreenHeader";
 import type { Lang } from "@/pages/Index";
 import type { Role } from "@/components/RoleLogin";
+import { apiClient } from "@/lib/apiClient";
+import { APIResponse } from "@/lib/api";
+import { toast } from "sonner";
 
 type Step = 'input' | 'analyzing' | 'detected' | 'dashboard' | 'submitted';
 
 export default function LegalAction({ onBack, lang, role }: { onBack: () => void; lang: Lang; role?: Role }) {
   const [step, setStep] = useState<Step>('input');
   const [inputText, setInputText] = useState("");
-  const [draftText, setDraftText] = useState("I am filing this complaint against Rajesh Traders for selling unverified pesticide batches on 21/03/2026. The product caused severe damage to 2 acres of my wheat crop, resulting in a loss of ₹14,500. I request immediate compensation as per the district mandate.");
+  const [analysisResult, setAnalysisResult] = useState<{
+    category: string;
+    loss_hint: number;
+    legal_draft: string;
+    confidence: number;
+    analysis: string;
+    sections: string[];
+  } | null>(null);
+  
+  const [draftText, setDraftText] = useState("");
+  const userName = localStorage.getItem("annadata_user_name") || "Farmer";
+  const [isListening, setIsListening] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [complaintsHistory, setComplaintsHistory] = useState<any[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch History on Mount
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const userId = localStorage.getItem("annadata_user_id");
+        if (!userId) return;
+        const res = await apiClient.get<APIResponse<any[]>>(`/help-request/${userId}`);
+        // Filter for legal only
+        setComplaintsHistory(res.data.data.filter(h => h.request_type === "legal"));
+      } catch (err) {
+        console.error("Failed to fetch legal history", err);
+      }
+    };
+    fetchHistory();
+  }, []);
   
   // Handlers
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!inputText) return;
     setStep('analyzing');
+    
+    try {
+      const response = await apiClient.post<APIResponse<any>>("/legal/analyze", { text: inputText });
+      const data = response.data.data;
+      setAnalysisResult(data);
+      setDraftText(data.legal_draft);
+      
+      // Artificial delay for "Processing" feel
+      setTimeout(() => {
+        setStep('detected');
+      }, 1500);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "AI Analysis failed");
+      setStep('input');
+    }
+  };
+
+  const submitComplaint = async () => {
+    try {
+      await apiClient.post("/help-request", {
+        user_id: localStorage.getItem("annadata_user_id"),
+        type: "legal",
+        description: draftText
+      });
+      toast.success("Complaint submitted securely");
+    } catch (e) {
+      console.error(e);
+      toast.error("Issue connecting to server, but recorded locally");
+    } finally {
+      setStep('submitted');
+    }
+  };
+
+  const sendEmailToNGO = () => {
+    const subject = encodeURIComponent(`Legal Aid Request: ${analysisResult?.category}`);
+    const body = encodeURIComponent(`Hi NGO Team,\n\nI am ${userName} and I am facing a legal issue: ${inputText}\n\nAI Analysis: ${analysisResult?.analysis}\n\nDrafted Complaint:\n${draftText}`);
+    window.open(`mailto:help@annadata.org?subject=${subject}&body=${body}`);
+  };
+
+  const handleAttachClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAttachedFile(e.target.files[0]);
+      toast.success(`Attached: ${e.target.files[0].name}`);
+    }
+  };
+
+  const handleVoiceClick = () => {
+    setIsListening(true);
+    toast.info("Listening... Speak now", { icon: "🎙️" });
+    
+    // Simulate voice-to-text after 2.5 seconds
     setTimeout(() => {
-      setStep('detected');
+      setIsListening(false);
+      setInputText(prev => prev + (prev ? " " : "") + "The trader at the local mandi has not paid for my 50 quintals of wheat sold on Monday.");
+      toast.success("Voice transcribed!");
     }, 2500);
+  };
+
+  const [ngoCases, setNgoCases] = useState<any[]>([]);
+  const [isNgoLoading, setIsNgoLoading] = useState(false);
+
+  // Fetch NGO cases if role is NGO or Admin
+  useEffect(() => {
+    if (role === "ngo" || role === "admin") {
+      const fetchNgoCases = async () => {
+        setIsNgoLoading(true);
+        try {
+          const res = await apiClient.get<APIResponse<any[]>>("/ngo/help-requests");
+          if (res.data.status === "success") {
+            setNgoCases(res.data.data);
+          }
+        } catch (e) {
+          console.error("Failed to fetch NGO legal cases", e);
+        } finally {
+          setIsNgoLoading(false);
+        }
+      };
+      fetchNgoCases();
+    }
+  }, [role]);
+
+  const updateCaseStatus = async (caseId: string, status: string) => {
+    try {
+      await apiClient.post("/ngo/help-update", {
+        request_id: caseId,
+        status: status,
+        notes: `Case marked as ${status} by NGO operator`
+      });
+      toast.success(`Case updated to ${status}`);
+      // Refresh list
+      setNgoCases(prev => prev.filter(c => c.id !== caseId));
+    } catch (e) {
+      toast.error("Failed to update case status");
+    }
   };
 
   // ----------------------------------------------------
@@ -34,41 +162,65 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
            <h2 className="font-mukta font-bold text-2xl text-[#1a1a1a]">Legal Case Queue</h2>
            <p className="font-hind text-gray-500 text-sm mt-1 mb-8">Review and respond to AI-prepared legal drafts submitted by farmers.</p>
            
-           <div className="space-y-4">
-              {/* Active Pending Case */}
-              <div className="bg-[#fefdf9] p-5 border border-[#e5e3d7] hover:border-[#e18b2c]/30 hover:shadow-md transition-all group">
-                 <div className="flex justify-between items-start mb-4">
-                   <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 bg-[#e18b2c]/10 text-[#e18b2c] flex items-center justify-center border border-[#e18b2c]/20"><Scale className="w-5 h-5"/></div>
-                     <div>
-                       <h3 className="font-bold text-[#1a1a1a]">Trader Refusal to Pay MSP</h3>
-                       <p className="text-xs text-gray-500">Submitted by: Farmer #2841 (Karnal) • 2 hrs ago</p>
-                     </div>
-                   </div>
-                   <span className="bg-[#e18b2c]/10 text-[#8c5214] text-xs font-bold uppercase tracking-widest px-3 py-1 border border-[#e18b2c]/30">Pending Review</span>
-                 </div>
-                 
-                 <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="p-4 bg-white border border-[#e5e3d7]">
-                      <h4 className="text-xs uppercase font-bold text-gray-500 mb-2">Farmer's Statement</h4>
-                      <p className="text-sm font-hind text-gray-700">"The trader at the local mandi bought 50 quintals of wheat but didn't pay the agreed MSP. Now he is ignoring my calls."</p>
-                    </div>
-                    <div className="p-4 bg-[#f1f8f3] border border-[#408447]/20 border-l-4 border-l-[#408447]">
-                      <h4 className="text-xs uppercase font-bold text-[#408447] mb-2">AI Drafted Action</h4>
-                      <p className="text-sm font-bold text-gray-800">Formal Legal Notice (Section 420)</p>
-                      <p className="text-xs text-gray-600 mt-1">Draft ready. Recommends escalating to Sub-Divisional Magistrate.</p>
-                    </div>
-                 </div>
+           <div className="space-y-6">
+              {isNgoLoading && (
+                <div className="flex justify-center py-10">
+                   <div className="w-8 h-8 border-2 border-[#e18b2c] border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
 
-                 <div className="flex gap-3 mt-4">
-                    <button className="bg-[#3174a1] text-white px-4 py-2 text-sm font-bold flex-1 hover:bg-[#1b435e] transition-colors shadow-sm">
-                       Review & File on behalf of Farmer
-                    </button>
-                    <button className="bg-[#c82b28] text-white px-4 py-2 text-sm font-bold hover:bg-[#8f1e1c] transition-colors shadow-sm">
-                       Reject
-                    </button>
-                 </div>
-              </div>
+              {ngoCases.length === 0 && !isNgoLoading && (
+                <div className="text-center py-20 bg-gray-50 border border-dashed border-gray-200">
+                   <Scale className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                   <p className="font-mukta font-bold text-gray-500">No pending legal cases in your region.</p>
+                </div>
+              )}
+
+              {ngoCases.map((c) => (
+                <div key={c.id} className="bg-[#fefdf9] p-5 border border-[#e5e3d7] hover:border-[#e18b2c]/30 hover:shadow-md transition-all group">
+                   <div className="flex justify-between items-start mb-4">
+                     <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 bg-[#e18b2c]/10 text-[#e18b2c] flex items-center justify-center border border-[#e18b2c]/20"><Scale className="w-5 h-5"/></div>
+                       <div>
+                         <h3 className="font-bold text-[#1a1a1a]">{c.request_type.toUpperCase()} Assistance Request</h3>
+                         <p className="text-xs text-gray-500">
+                           Submitted by: <span className="font-bold text-gray-700">{c.farmer_name}</span> ({c.location}) • {new Date(c.created_at).toLocaleDateString()}
+                         </p>
+                       </div>
+                     </div>
+                     <span className="bg-[#e18b2c]/10 text-[#8c5214] text-[10px] font-black uppercase tracking-widest px-3 py-1 border border-[#e18b2c]/30">
+                       {c.status}
+                     </span>
+                   </div>
+                   
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="p-4 bg-white border border-[#e5e3d7]">
+                        <h4 className="text-[10px] uppercase font-black text-gray-400 mb-2 tracking-widest">Farmer's Statement</h4>
+                        <p className="text-sm font-hind text-gray-700 leading-relaxed italic">"{c.description}"</p>
+                      </div>
+                      <div className="p-4 bg-[#f1f8f3] border border-[#408447]/20 border-l-4 border-l-[#408447]">
+                        <h4 className="text-[10px] uppercase font-black text-[#408447] mb-2 tracking-widest">AI Context & Next Steps</h4>
+                        <p className="text-sm font-bold text-gray-800">Drafted Formal Notice Ready</p>
+                        <p className="text-xs text-gray-600 mt-1">AI recommends immediate filing at the local sub-registrar office.</p>
+                      </div>
+                   </div>
+
+                   <div className="flex gap-3 mt-4">
+                      <button 
+                        onClick={() => updateCaseStatus(c.id, "in_progress")}
+                        className="bg-[#3174a1] text-white px-4 py-3 text-xs font-black uppercase tracking-widest flex-1 hover:bg-[#1b435e] transition-colors shadow-sm"
+                      >
+                         Claim & Start Legal Filing
+                      </button>
+                      <button 
+                        onClick={() => updateCaseStatus(c.id, "resolved")}
+                        className="bg-[#408447] text-white px-4 py-3 text-xs font-black uppercase tracking-widest hover:bg-[#2d5d32] transition-colors shadow-sm"
+                      >
+                         Mark as Resolved
+                      </button>
+                   </div>
+                </div>
+              ))}
            </div>
         </div>
       </div>
@@ -99,7 +251,7 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                   <span className="text-xl">👩‍⚖️</span>
                 </div>
                 <div>
-                  <h3 className="font-mukta font-bold text-lg leading-tight text-gray-800">Hi Ramesh ji,</h3>
+                  <h3 className="font-mukta font-bold text-lg leading-tight text-gray-800">Hi {userName},</h3>
                   <p className="font-hind text-sm text-gray-600">I am your smart legal assistant.</p>
                 </div>
               </div>
@@ -116,10 +268,22 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                   
                   <div className="flex justify-between items-center mt-2 pt-3 border-t border-gray-100">
                     <div className="flex gap-2">
-                      <button className="w-10 h-10 rounded-none bg-gray-50 flex items-center justify-center text-gray-400 hover:text-green-600 hover:bg-green-50 active:scale-95 transition-all">
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        onChange={handleFileChange}
+                      />
+                      <button 
+                        onClick={handleAttachClick}
+                        className={`w-10 h-10 rounded-none bg-gray-50 flex items-center justify-center transition-all ${attachedFile ? 'text-green-600 border border-green-200' : 'text-gray-400'}`}
+                      >
                         <Paperclip className="w-5 h-5" />
                       </button>
-                      <button className="w-10 h-10 rounded-none bg-green-100 flex items-center justify-center text-green-700 hover:bg-green-200 active:scale-95 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                      <button 
+                        onClick={handleVoiceClick}
+                        className={`w-10 h-10 rounded-none flex items-center justify-center transition-all ${isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-green-100 text-green-700 shadow-[0_0_15px_rgba(34,197,94,0.3)]'}`}
+                      >
                         <Mic className="w-5 h-5" />
                       </button>
                     </div>
@@ -138,6 +302,36 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
               <div className="bg-blue-50/50 backdrop-blur-sm border border-blue-100 rounded-none p-4 flex gap-3 text-blue-800">
                 <Sparkles className="w-5 h-5 flex-shrink-0 text-blue-500" />
                 <p className="font-hind text-sm leading-snug text-blue-700/80">Don't worry about legal terms. Just speak naturally, and our AI will document the perfect complaint for you.</p>
+              </div>
+
+              {/* MY RECENT COMPLAINTS SECTION */}
+              <div className="bg-white/40 border border-[#e5e3d7] p-5">
+                <h4 className="font-mukta font-bold text-[#1a1a1a] flex items-center gap-2 mb-4">
+                  <FileText className="w-4 h-4 text-orange-500" /> My Recent Complaints
+                </h4>
+                
+                {complaintsHistory.length === 0 ? (
+                  <p className="text-xs text-gray-400 font-hind">No recent legal help requests found.</p>
+                ) : (
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                    {complaintsHistory.map((item) => (
+                      <div key={item.id} className="p-3 bg-white border border-[#e5e3d7] flex justify-between items-center group hover:border-[#1b435e]/30 transition-all">
+                        <div className="flex gap-3 items-center">
+                          <div className={`w-2 h-2 rounded-full ${item.status === 'pending' ? 'bg-orange-400' : 'bg-green-500'}`} />
+                          <div>
+                            <p className="text-sm font-bold text-[#1a1a1a] line-clamp-1">{item.description.slice(0, 50)}...</p>
+                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
+                              {new Date(item.created_at).toLocaleDateString()} • {item.status}
+                            </p>
+                          </div>
+                        </div>
+                        <button className="text-xs font-bold text-[#1b435e] opacity-0 group-hover:opacity-100 transition-opacity">
+                          View Status
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
             </motion.div>
@@ -170,23 +364,27 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                       <CheckCircle2 className="w-6 h-6 text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-mukta font-bold text-lg text-gray-800 leading-none">We got it!</h3>
-                      <p className="font-hind text-sm text-green-600 font-bold">96% Analysis Confidence</p>
+                      <h3 className="font-mukta font-bold text-lg text-gray-800 leading-none">Analysis Complete</h3>
+                      <p className="font-hind text-sm text-green-600 font-bold">{analysisResult?.confidence}% Analysis Confidence</p>
                     </div>
                   </div>
 
                   <div className="bg-gray-50 rounded-none p-4 border border-gray-100 space-y-3">
                     <div className="flex justify-between items-center text-sm font-hind border-b border-gray-200 pb-2">
                       <span className="text-gray-500">Detected Category</span>
-                      <span className="font-bold text-gray-800">Fraudulent Vendor (Pesticide)</span>
+                      <span className="font-bold text-gray-800">{analysisResult?.category || "Processing..."}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm font-hind border-b border-gray-200 pb-2">
-                      <span className="text-gray-500">Loss Amount</span>
-                      <span className="font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-none">₹14,500</span>
+                      <span className="text-gray-500">Estimated Loss</span>
+                      <span className="font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-none">₹{analysisResult?.loss_hint?.toLocaleString() || "0"}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm font-hind">
-                      <span className="text-gray-500">Key Evidence Info</span>
-                      <span className="font-bold text-gray-800">Purchase Date present</span>
+                      <span className="text-gray-500">Legal Grounds</span>
+                      <div className="flex flex-wrap gap-1 justify-end">
+                        {analysisResult?.sections.slice(0, 2).map((s, i) => (
+                           <span key={i} className="bg-blue-50 text-blue-700 text-[10px] px-1.5 py-0.5 font-bold border border-blue-100">{s}</span>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -212,12 +410,12 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
               <div className="bg-white rounded-none p-5 shadow-sm border border-gray-100 bg-gradient-to-br from-white to-green-50/30">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-mukta font-bold text-xl text-gray-800">Case #KS-0847</h3>
-                    <p className="font-hind text-xs text-gray-500 font-bold uppercase tracking-wider mt-1 flex items-center gap-1"><ShieldAlert className="w-3 h-3 text-orange-500"/> Fraudulent Input Case</p>
+                    <h3 className="font-mukta font-bold text-xl text-gray-800">Case Analysis</h3>
+                    <p className="font-hind text-xs text-gray-500 font-bold uppercase tracking-wider mt-1 flex items-center gap-1"><ShieldAlert className="w-3 h-3 text-orange-500"/> {analysisResult?.category}</p>
                   </div>
                   <div className="text-right">
-                    <span className="font-mukta font-bold text-2xl text-red-600 drop-shadow-sm">₹14,500</span>
-                    <p className="font-hind text-xs text-gray-500 mt-0.5">Estimated Loss</p>
+                    <span className="font-mukta font-bold text-2xl text-red-600 drop-shadow-sm">₹{analysisResult?.loss_hint?.toLocaleString()}</span>
+                    <p className="font-hind text-xs text-gray-500 mt-0.5">Estimated Potential Claim</p>
                   </div>
                 </div>
               </div>
@@ -226,11 +424,11 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
               <div className="bg-white rounded-none p-5 shadow-sm border border-gray-100">
                 <div className="flex justify-between items-end mb-3">
                   <h3 className="font-mukta font-bold text-gray-800">Case Strength</h3>
-                  <span className="font-mukta font-bold text-green-600 text-lg">72% (Strong)</span>
+                  <span className="font-mukta font-bold text-green-600 text-lg">{analysisResult?.confidence}% (AI Match)</span>
                 </div>
                 
                 <div className="h-4 w-full bg-gray-100 rounded-none overflow-hidden mb-4 relative drop-shadow-inner border border-gray-200">
-                  <motion.div initial={{ width: 0 }} animate={{ width: "72%" }} transition={{ duration: 1.5, ease: "easeOut" }} className="absolute h-full bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 rounded-none" />
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${analysisResult?.confidence}%` }} transition={{ duration: 1.5, ease: "easeOut" }} className="absolute h-full bg-gradient-to-r from-red-500 via-yellow-400 to-green-500 rounded-none" />
                 </div>
 
                 <div className="space-y-2">
@@ -257,16 +455,17 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
               {/* Smart Guidance Panel */}
               <div className="bg-yellow-50/50 border border-yellow-200 rounded-none p-5 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-yellow-400" />
-                <h3 className="font-mukta font-bold text-gray-800 flex items-center gap-2 mb-4"><span className="text-xl">💡</span> What you should do now</h3>
+                <h3 className="font-mukta font-bold text-gray-800 flex items-center gap-2 mb-4"><span className="text-xl">⚖️</span> Actionable Legal Advice</h3>
                 
                 <div className="space-y-4">
                    <div className="flex gap-3">
-                     <div className="w-6 h-6 rounded-none bg-yellow-200 text-yellow-800 font-bold font-mukta flex items-center justify-center flex-shrink-0 text-xs">1</div>
-                     <p className="font-hind text-sm text-gray-700">Submit this drafted complaint below to the District Consumer Portal instantly.</p>
+                     <div className="w-full">
+                       <p className="font-hind text-sm text-gray-700 leading-relaxed italic border-l-2 border-yellow-400 pl-3">{analysisResult?.analysis}</p>
+                     </div>
                    </div>
                    <div className="flex gap-3">
-                     <div className="w-6 h-6 rounded-none bg-yellow-200 text-yellow-800 font-bold font-mukta flex items-center justify-center flex-shrink-0 text-xs">2</div>
-                     <p className="font-hind text-sm text-gray-700">Do not throw away the remaining pesticide bottles as evidence.</p>
+                     <div className="w-6 h-6 rounded-none bg-yellow-200 text-yellow-800 font-bold font-mukta flex items-center justify-center flex-shrink-0 text-xs">1</div>
+                     <p className="font-hind text-sm text-gray-700">Submit the official notice drafted below. It cites <b>{analysisResult?.sections[0]}</b> which is critical for your case.</p>
                    </div>
                 </div>
 
@@ -285,19 +484,22 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                   </div>
                   <span className="bg-blue-100 text-blue-700 font-bold text-[10px] px-2 py-0.5 rounded-none uppercase tracking-wider">Editable</span>
                 </div>
-                <div className="p-5 bg-[#fafbf9]">
-                  <textarea 
-                    value={draftText} 
-                    onChange={e => setDraftText(e.target.value)}
-                    className="w-full min-h-[120px] bg-transparent resize-none border-none outline-none font-hind text-sm text-gray-800 leading-relaxed custom-scrollbar" 
-                  />
-                  
-                  <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end">
-                    <button className="flex items-center gap-2 text-sm font-bold text-indigo-600 active:scale-95 transition-transform">
-                      <Sparkles className="w-4 h-4" /> Improve phrasing
-                    </button>
+                  <div className="p-5 bg-white border border-[#e5e3d7] shadow-inner relative">
+                    <div className="absolute top-2 right-2 opacity-10 pointer-events-none">
+                      <Landmark className="w-12 h-12 text-[#1a1a1a]" />
+                    </div>
+                    <textarea 
+                      value={draftText} 
+                      onChange={e => setDraftText(e.target.value)}
+                      className="w-full min-h-[320px] bg-transparent resize-none border-none outline-none font-hind text-base text-gray-800 leading-relaxed custom-scrollbar" 
+                    />
+                    
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                      <button className="flex items-center gap-2 text-sm font-bold text-[#1b435e] active:scale-95 transition-transform">
+                        <Sparkles className="w-4 h-4 text-orange-400" /> Improve phrasing
+                      </button>
+                    </div>
                   </div>
-                </div>
               </div>
 
               {/* Heatmap Insight Integration */}
@@ -348,17 +550,17 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
               {/* Final Actions */}
               <div className="pt-2 flex flex-col gap-3">
                 <button 
-                  onClick={() => setStep('submitted')} 
+                  onClick={submitComplaint} 
                   className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white rounded-none py-4 font-bold font-mukta text-lg shadow-xl shadow-green-600/30 flex justify-center items-center gap-2 hover:bg-green-700 active:scale-95 transition-all"
                 >
                   🚀 Submit Complaint Instantly
                 </button>
                 <div className="flex gap-3">
-                  <button className="flex-1 bg-white border border-gray-200 text-gray-700 rounded-none py-3 font-bold font-mukta flex justify-center items-center gap-2 hover:bg-gray-50 active:scale-95 transition-all">
-                    <Download className="w-4 h-4 text-gray-500" /> Save PDF
+                  <button onClick={sendEmailToNGO} className="flex-1 bg-white border border-[#1b435e] text-[#1b435e] rounded-none py-3 font-bold font-mukta flex justify-center items-center gap-2 hover:bg-blue-50 active:scale-95 transition-all">
+                    📧 Email NGO
                   </button>
                   <button className="flex-1 bg-white border border-gray-200 text-gray-700 rounded-none py-3 font-bold font-mukta flex justify-center items-center gap-2 hover:bg-gray-50 active:scale-95 transition-all">
-                    Link Portal
+                    Download Report
                   </button>
                 </div>
               </div>

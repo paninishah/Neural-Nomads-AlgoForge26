@@ -15,33 +15,46 @@ router = APIRouter(prefix="/loan", tags=["Loan / Credit"])
 # Mock loan providers
 LOAN_OPTIONS = [
     {
-        "provider": "NABARD Kisan Credit",
-        "interest": 4.0,
-        "max_amount": 300000,
-        "tenure_months": 60,
-        "requirements": ["Verified land document", "Aadhaar card", "Crop plan"],
+      "provider": "NABARD Kisan Credit",
+      "interest": 4,
+      "max_amount": 300000,
+      "tenure_months": 60,
+      "requirements": [
+        "Verified land document",
+        "Aadhaar card",
+        "Crop plan"
+      ]
     },
     {
-        "provider": "SBI Agri Loan",
-        "interest": 6.5,
-        "max_amount": 500000,
-        "tenure_months": 84,
-        "requirements": ["Verified Aadhaar", "2 years farming record"],
+      "provider": "SBI Agri Loan",
+      "interest": 6.5,
+      "max_amount": 500000,
+      "tenure_months": 84,
+      "requirements": [
+        "Verified Aadhaar",
+        "2 years farming record"
+      ]
     },
     {
-        "provider": "NBFC AgriFinance",
-        "interest": 9.5,
-        "max_amount": 100000,
-        "tenure_months": 36,
-        "requirements": ["Phone verified", "Basic profile"],
+      "provider": "NBFC AgriFinance",
+      "interest": 9.5,
+      "max_amount": 100000,
+      "tenure_months": 36,
+      "requirements": [
+        "Phone verified",
+        "Basic profile"
+      ]
     },
     {
-        "provider": "PM Kisan Samman Fund",
-        "interest": 0.0,
-        "max_amount": 6000,
-        "tenure_months": 12,
-        "requirements": ["Registered farmer", "Land record"],
-    },
+      "provider": "PM Kisan Samman Fund",
+      "interest": 0,
+      "max_amount": 6000,
+      "tenure_months": 12,
+      "requirements": [
+        "Registered farmer",
+        "Land record"
+      ]
+    }
 ]
 
 
@@ -65,7 +78,7 @@ def check_loan_eligibility(
     avg_confidence = doc_repo.get_avg_confidence(payload.user_id)
 
     profile_repo = ProfileRepository(db)
-    profile = profile_repo.get_by_user_id(payload.user_id)
+    profile = profile_repo.get_by_user_id(payload.user_id, user.role)
 
     trust = ai_service.calculate_trust_score(
         user_id=payload.user_id,
@@ -112,6 +125,103 @@ def check_loan_eligibility(
             "reason": reason,
             "factors": trust["factors"],
         },
+    )
+
+
+@router.post("/check-credibility")
+def check_credibility(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Advanced Credibility Check: OCR Name Match + Trust Score Breakdown.
+    Predicts amounts based on the final point-based trust level.
+    """
+    if current_user.role != "farmer":
+        raise HTTPException(status_code=403, detail="Only farmers can check loan credibility")
+
+    user_id = current_user.id
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(user_id)
+    
+    doc_repo = DocumentRepository(db)
+    docs = doc_repo.get_by_user_id(user_id)
+    
+    profile_repo = ProfileRepository(db)
+    profile = profile_repo.get_by_user_id(user_id, user.role)
+
+    # 1. OCR Name Match Verification
+    # Find latest identity document (aadhaar or ration_card)
+    latest_id_doc = None
+    for d in sorted(docs, key=lambda x: x.uploaded_at, reverse=True):
+        if d.doc_type in ["aadhaar", "ration_card"] and d.status != "rejected":
+            latest_id_doc = d
+            break
+
+    name_match = False
+    ocr_name = "Not Found"
+    profile_name = user.name
+    
+    if latest_id_doc:
+        try:
+            import json
+            fields = json.loads(latest_id_doc.extracted_fields)
+            # Aadhaar uses 'name', Ration Card uses 'head_of_family'
+            extracted_name = fields.get("name") or fields.get("head_of_family")
+            if extracted_name:
+                ocr_name = extracted_name
+                # Simple fuzzy match: if first names or full names overlap significantly
+                if extracted_name.lower().strip() == profile_name.lower().strip():
+                    name_match = True
+        except:
+            pass
+
+    # 2. Calculate Trust Score using the point breakdown logic
+    avg_confidence = doc_repo.get_avg_confidence(user_id)
+    if name_match:
+        # Boost confidence to max if names match (helps fulfill the 'AI Confidence' boost)
+        avg_confidence = max(avg_confidence, 0.85)
+
+    trust = ai_service.calculate_trust_score(
+        user_id=user_id,
+        phone_verified=user.phone_verified,
+        has_documents=len(docs) > 0,
+        document_count=len(docs),
+        avg_ai_confidence=avg_confidence,
+        ngo_verified=user.ngo_verified,
+        profile_complete=profile is not None and bool(profile.village and profile.crop),
+    )
+
+    score = trust["score"]
+    
+    # 3. Predict amounts based on score
+    # Scales linearly with trust score above a threshold
+    base_max = 500000
+    base_recommended = 200000
+    
+    if score >= 40:
+        multiplier = score / 100
+        max_amount = round(base_max * multiplier, -3)
+        recommended_amount = round(base_recommended * multiplier, -3)
+        eligible = True
+    else:
+        max_amount = 0
+        recommended_amount = 0
+        eligible = False
+
+    return success(
+        "Credibility check complete",
+        {
+            "user_name": profile_name,
+            "ocr_name": ocr_name,
+            "name_match": name_match,
+            "trust_score": score,
+            "trust_factors": trust["factors"],
+            "eligible": eligible,
+            "max_amount": max_amount,
+            "recommended_amount": recommended_amount,
+            "loan_options": LOAN_OPTIONS
+        }
     )
 
 

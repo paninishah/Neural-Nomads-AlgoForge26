@@ -29,11 +29,22 @@ def get_price_heatmap(
         )
 
     logger.info(f"Heatmap data returned for crop={crop}: {len(data)} points")
-    return success(
-        f"Heatmap data for '{crop}' – {len(data)} market locations",
-        {
-            "crop": crop,
-            "total_markets": len(data),
-            "locations": data,
-        },
-    )
+@router.get("/summary")
+def get_heatmap_summary(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Returns aggregated modal prices as geographical hotspots.
+    Used for the dashboard interactive pulse map.
+    """
+    from app.ml.price_model import get_market_hotspots
+    data = get_market_hotspots()
+    
+    if not data:
+        raise HTTPException(
+            status_code=404,
+            detail="No market data available for geographical pulse map",
+        )
+    
+    return success("Geographical market pulse data successfully fetched", data)

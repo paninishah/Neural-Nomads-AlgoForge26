@@ -66,7 +66,9 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    profile = relationship("FarmerProfile", back_populates="user", uselist=False, cascade="all, delete")
+    farmer_profile = relationship("FarmerProfile", back_populates="user", uselist=False, cascade="all, delete")
+    ngo_profile = relationship("NGOProfile", back_populates="user", uselist=False, cascade="all, delete")
+    admin_profile = relationship("AdminProfile", back_populates="user", uselist=False, cascade="all, delete")
     documents = relationship("Document", back_populates="user", cascade="all, delete")
     help_requests = relationship("HelpRequest", back_populates="user", cascade="all, delete", foreign_keys="[HelpRequest.user_id]")
 
@@ -85,7 +87,36 @@ class FarmerProfile(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user = relationship("User", back_populates="profile")
+    user = relationship("User", back_populates="farmer_profile")
+
+
+class NGOProfile(Base):
+    __tablename__ = "ngo_profiles"
+
+    id = Column(String, primary_key=True, default=gen_uuid)
+    user_id = Column(String, ForeignKey("users.id"), unique=True, nullable=False)
+    organization_name = Column(String(200)) # Local copy for profile
+    registration_number = Column(String(100))
+    website = Column(String(200))
+    states_covered = Column(Text, default="[]")  # JSON string
+    districts_covered = Column(Text, default="[]")  # JSON string
+    focus_areas = Column(Text, default="[]")  # JSON string
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="ngo_profile")
+
+
+class AdminProfile(Base):
+    __tablename__ = "admin_profiles"
+
+    id = Column(String, primary_key=True, default=gen_uuid)
+    user_id = Column(String, ForeignKey("users.id"), unique=True, nullable=False)
+    admin_id = Column(String(50))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="admin_profile")
 
 
 class Document(Base):
@@ -130,3 +161,19 @@ class NGOVerification(Base):
     action = Column(String(20), nullable=False)  # approve | reject
     notes = Column(Text, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PesticideScan(Base):
+    __tablename__ = "pesticide_scans"
+
+    id = Column(String, primary_key=True, default=gen_uuid)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    pesticide_name = Column(String(200))
+    extracted_mrp = Column(Float, default=0.0)
+    bill_price = Column(Float, default=0.0)
+    status = Column(String(50), default="genuine") # genuine | suspicious | fraud
+    ai_findings = Column(Text, default="") # Detailed reason for flag
+    ngo_notes = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")

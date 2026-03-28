@@ -15,7 +15,7 @@ from app.ai import service as ai_service
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
-ALLOWED_TYPES = {"aadhaar", "land", "bill"}
+ALLOWED_TYPES = {"aadhaar", "land", "bill", "ration_card"}
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".pdf", ".webp"}
 
 
@@ -80,21 +80,32 @@ async def upload_document(
     )
 
     # Run AI verification
-    ai_result = ai_service.verify_document(
-        user_id=user_id, doc_type=doc_type, file_path=str(file_path)
-    )
+    try:
+        ai_result = ai_service.verify_document(
+            user_id=user_id, doc_type=doc_type, file_path=str(file_path)
+        )
 
-    # Update doc with AI result
-    doc = doc_repo.update_ai_result(
-        doc_id=doc.id,
-        status=ai_result["status"],
-        confidence=ai_result["confidence"],
-        extracted_fields=ai_result["extracted_fields"],
-        notes=ai_result["notes"],
-    )
+        # Update doc with AI result
+        doc = doc_repo.update_ai_result(
+            doc_id=doc.id,
+            status=ai_result["status"],
+            confidence=ai_result["confidence"],
+            extracted_fields=ai_result["extracted_fields"],
+            notes=ai_result["notes"],
+        )
 
-    # Update user verification status
-    user_repo.update_verification_status(user_id, ai_result["status"])
+        # Update user verification status
+        user_repo.update_verification_status(user_id, ai_result["status"])
+    except Exception as e:
+        logger.error(f"AI Verification Error for {user_id}: {e}", exc_info=True)
+        return success("Document uploaded but AI verification failed (System error)", {
+                "document_id": doc.id,
+                "doc_type": doc.doc_type,
+                "status": "needs_manual_review",
+                "ai_confidence": 0.0,
+                "extracted_fields": "{}",
+                "ai_notes": f"Backend Error: {str(e)}",
+            })
 
     logger.info(
         f"Document uploaded for {user_id}: type={doc_type}, "

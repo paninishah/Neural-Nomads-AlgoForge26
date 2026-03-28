@@ -21,24 +21,23 @@ def get_all_users(
     db: Session = Depends(get_db),
     current_user=Depends(admin_required),
 ):
-    """Get all users with optional role filter."""
+    """Get all users with enriched profile details."""
     repo = UserRepository(db)
-    users = repo.get_all(skip=skip, limit=limit)
-
-    if role:
-        users = [u for u in users if u.role == role]
+    users = repo.get_all(skip=skip, limit=limit, role=role)
 
     return success(
         f"Found {len(users)} user(s)",
         [
             {
-                "id": u.id,
-                "phone": u.phone,
-                "role": u.role,
-                "verification_status": u.verification_status,
-                "phone_verified": u.phone_verified,
-                "ngo_verified": u.ngo_verified,
-                "created_at": u.created_at.isoformat(),
+                "id": u["id"],
+                "phone": u["phone"],
+                "email": u["email"],
+                "role": u["role"],
+                "verification_status": u["verification_status"],
+                "phone_verified": u["phone_verified"],
+                "ngo_verified": u["ngo_verified"],
+                "profile": u["profile"],
+                "created_at": u["created_at"].isoformat() if u["created_at"] else None,
             }
             for u in users
         ],

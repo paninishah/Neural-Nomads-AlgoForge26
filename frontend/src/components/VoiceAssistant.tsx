@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, X, Play, Square, Loader2, MessageSquare, ChevronRight, Store, ShieldCheck, Scale, Landmark, Wallet } from "lucide-react";
 import { theme } from "@/designSystem";
+import { apiClient } from "@/lib/apiClient";
+import { APIResponse, IntentResponse } from "@/lib/api";
 
 type AssistantState = "idle" | "listening" | "thinking" | "responding";
 
@@ -10,44 +12,11 @@ interface VoiceAssistantProps {
   onNavigate: (screen: any) => void;
 }
 
-const INTENT_MAP: Record<string, any> = {
-  "bhaav": "mandi",
-  "mandi": "mandi",
-  "price": "mandi",
-  "asli": "fraud",
-  "fraud": "fraud",
-  "pesticide": "fraud",
-  "duplicate": "fraud",
-  "karz": "loan",
-  "loan": "loan",
-  "bank": "loan",
-  "paisaa": "wallet",
-  "wallet": "wallet",
-  "profit": "wallet",
-  "munafa": "wallet",
-  "nuksan": "wallet",
-  "law": "legal",
-  "legal": "legal",
-  "court": "legal",
-  "police": "legal",
-  "complaint": "legal",
-  "shikayat": "legal",
-};
-
 const VoiceAssistant = ({ role, onNavigate }: VoiceAssistantProps) => {
   const [state, setState] = useState<AssistantState>("idle");
   const [transcript, setTranscript] = useState("");
   const [response, setResponse] = useState<{ text: string; sub: string; screen?: any } | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
-
-  // Intent Detection simulation
-  const detectIntent = (text: string) => {
-    const lower = text.toLowerCase();
-    for (const key in INTENT_MAP) {
-      if (lower.includes(key)) return INTENT_MAP[key];
-    }
-    return null;
-  };
 
   const startListening = () => {
     setState("listening");
@@ -62,32 +31,23 @@ const VoiceAssistant = ({ role, onNavigate }: VoiceAssistantProps) => {
     }, 2000);
   };
 
-  const processInput = (text: string) => {
-    const intent = detectIntent(text);
-    
-    setTimeout(() => {
-      let resText = "I see you're asking about something else. How can I help?";
-      let resSub = "You can ask about prices, loans, or product safety.";
-      let resScreen = null;
-
-      if (intent === "mandi") {
-        resText = "Yes, wheat prices are up by 15% today!";
-        resSub = "Nashik Mandi is reporting ₹2,450/qtl. It's a great time to sell.";
-        resScreen = "mandi";
-      } else if (intent === "fraud") {
-        resText = "I can help you check that product.";
-        resSub = "Please scan the bottle label clearly so I can verify the batch.";
-        resScreen = "fraud";
-      } else if (intent === "wallet") {
-        resText = "Your seasonal profit is looks healthy.";
-        resSub = "You've earned ₹1.2L so far. Want to see the detailed breakdown?";
-        resScreen = "wallet";
-      }
-
-      setResponse({ text: resText, sub: resSub, screen: resScreen });
+  const processInput = async (text: string) => {
+    try {
+      const resp = await apiClient.post<APIResponse<IntentResponse>>("/voice/intent", {
+        transcript: text
+      });
+      const data = resp.data.data;
+      
+      setResponse({ text: data.text, sub: data.sub, screen: data.screen });
+      setState("responding");
+      speak(data.text);
+    } catch (e) {
+      console.error(e);
+      const resText = "I couldn't process that right now. Please try again.";
+      setResponse({ text: resText, sub: "Connection error", screen: null });
       setState("responding");
       speak(resText);
-    }, 2000);
+    }
   };
 
   const speak = (text: string) => {

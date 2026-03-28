@@ -29,6 +29,9 @@ from app.routes import (
     help_request,
     ngo,
     admin,
+    voice,
+    financials,
+    legal,
 )
 
 # Logging configuration
@@ -124,7 +127,13 @@ Complete backend API for the ANNADATA agri-tech platform:
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -137,8 +146,13 @@ from fastapi.encoders import jsonable_encoder
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    headers = {
+        "Access-Control-Allow-Origin": request.headers.get("origin", "http://localhost:8080"),
+        "Access-Control-Allow-Credentials": "true",
+    }
     return JSONResponse(
         status_code=422,
+        headers=headers,
         content={
             "status": "error",
             "message_text": "Validation failed",
@@ -150,8 +164,13 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error on {request.method} {request.url}: {exc}")
+    headers = {
+        "Access-Control-Allow-Origin": request.headers.get("origin", "http://localhost:8080"),
+        "Access-Control-Allow-Credentials": "true",
+    }
     return JSONResponse(
         status_code=500,
+        headers=headers,
         content={
             "status": "error",
             "message_text": "Internal server error",
@@ -173,6 +192,9 @@ app.include_router(loan.router)
 app.include_router(help_request.router)
 app.include_router(ngo.router)
 app.include_router(admin.router)
+app.include_router(voice.router)
+app.include_router(financials.router)
+app.include_router(legal.router)
 
 
 # ─── Health Check ─────────────────────────────────────────────────────────────

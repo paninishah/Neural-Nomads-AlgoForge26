@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { theme } from "@/designSystem";
 import { 
   Users, AlertTriangle, FileText, IndianRupee, 
@@ -7,6 +9,12 @@ import {
 } from "lucide-react";
 import type { Lang } from "@/pages/Index";
 import { Role } from "@/components/RoleLogin";
+import { apiClient } from "@/lib/apiClient";
+import { APIResponse } from "@/lib/api";
+import AdminDashboard from "./AdminDashboard";
+import NGOReview from "./NGOReview";
+import NGOProfile from "./profile/NGOProfile";
+import PriceTicker from "./PriceTicker";
 
 interface HomeDashboardProps {
   onNavigate: (screen: "mandi" | "fraud" | "loan" | "legal" | "heatmap") => void;
@@ -16,209 +24,270 @@ interface HomeDashboardProps {
 }
 
 // ----------------------------------------------------------------------
-// ADMIN DASHBOARD (The massive Intelligence OS built previously)
+// ADMIN DASHBOARD (Professional Control Center)
 // ----------------------------------------------------------------------
-const AdminDashboard = ({ onNavigate }: { onNavigate: any }) => {
-  return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
-      {/* 4 TOP STAT CARDS */}
-      <div className={theme.classes.statGroup}>
-        <div className={`${theme.classes.statCardWrap} ${theme.classes.borderTopGreen} flex items-center justify-between`}>
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <Users className="w-5 h-5 text-[#408447]" />
-              <h3 className="text-2xl font-bold font-mukta text-[#1a1a1a]">14,832</h3>
-            </div>
-            <p className="text-xs text-[#666666] font-hind mt-1">Farmers Protected</p>
-          </div>
-        </div>
-
-        <div className={`${theme.classes.statCardWrap} ${theme.classes.borderTopOrange} flex items-center justify-between`}>
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <AlertTriangle className="w-5 h-5 text-[#e18b2c]" />
-              <h3 className="text-2xl font-bold font-mukta text-[#1a1a1a]">2,347</h3>
-            </div>
-            <p className="text-xs text-[#666666] font-hind mt-1">Anomalies Detected</p>
-          </div>
-        </div>
-
-        <div className={`${theme.classes.statCardWrap} ${theme.classes.borderTopBlue} flex items-center justify-between`}>
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <FileText className="w-5 h-5 text-[#3174a1]" />
-              <h3 className="text-2xl font-bold font-mukta text-[#1a1a1a]">891</h3>
-            </div>
-            <p className="text-xs text-[#666666] font-hind mt-1">Cases Filed</p>
-          </div>
-        </div>
-
-        <div className={`${theme.classes.statCardWrap} ${theme.classes.borderTopYellow} flex items-center justify-between`}>
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <IndianRupee className="w-5 h-5 text-[#d4cb7e]" />
-              <h3 className="text-2xl font-bold font-mukta text-[#1a1a1a]">4.2 Cr</h3>
-            </div>
-            <p className="text-xs text-[#666666] font-hind mt-1">Farmer Losses Recovered</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT COLUMN (Span 2) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Live Anomaly Feed */}
-          <div className={`${theme.classes.card} h-[400px] flex flex-col`}>
-            <div className="p-4 border-b border-[#e5e3d7] flex items-center justify-between bg-white">
-              <h2 className={theme.classes.heading2}>System Wide Anomaly Feed</h2>
-              <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-1 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse" /> LIVE
-              </span>
-            </div>
-            <div className="p-4 overflow-y-auto flex-1 space-y-5">
-              <div className="flex gap-3">
-                <div className="w-2.5 h-2.5 bg-[#c82b28] mt-1.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-hind text-[#1a1a1a]"><strong>Azadpur Mandi:</strong> Wheat at ₹1,840/qtl — Likely trader exploitation.</p>
-                  <p className="text-xs text-gray-500 mt-1">12 min ago</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-2.5 h-2.5 bg-[#e18b2c] mt-1.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-hind text-[#1a1a1a]"><strong>Karnal Mandi:</strong> Wheat at ₹2,100/qtl — Below MSP.</p>
-                  <p className="text-xs text-gray-500 mt-1">45 min ago</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-2.5 h-2.5 bg-[#c82b28] mt-1.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-hind text-[#1a1a1a]"><strong>Input Alert:</strong> Unregistered pesticide dealer in Nashik. 12 farmers at risk.</p>
-                  <p className="text-xs text-gray-500 mt-1">1 hr ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Quick Actions */}
-          <div className={theme.classes.card}>
-            <div className="p-4 border-b border-[#e5e3d7]">
-              <h2 className={theme.classes.heading2}>System Actions</h2>
-            </div>
-            <div className="grid grid-cols-2 gap-px bg-[#e5e3d7] p-[1px]">
-               <button onClick={() => onNavigate("heatmap")} className="bg-white p-5 hover:bg-gray-50 flex items-center gap-4 transition-colors text-left text-sm font-bold"><MapPin className="w-5 h-5 text-[#3174a1]" /> Regional Map</button>
-               <button onClick={() => onNavigate("fraud")} className="bg-white p-5 hover:bg-gray-50 flex items-center gap-4 transition-colors text-left text-sm font-bold"><ShieldCheck className="w-5 h-5 text-[#c82b28]" /> Audit Fraud Logs</button>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN */}
-        <div className="space-y-6">
-          {/* Chart Area */}
-          <div className={theme.classes.card}>
-             <div className="p-4 border-b border-[#e5e3d7]"><h2 className={theme.classes.heading2}>Wheat Price Trend</h2></div>
-             <div className="p-4 h-[250px] relative">
-               <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-x-12 inset-y-8 w-[calc(100%-3rem)] h-[calc(100%-3rem)] overflow-visible">
-                 <polyline points="0,30 20,32 40,28 60,35 75,45 85,75 100,85" fill="none" stroke="#d4cb7e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-               </svg>
-             </div>
-          </div>
-          {/* Recent Cases */}
-          <div className={theme.classes.card}>
-             <div className="p-4 border-b border-[#e5e3d7]"><h2 className={theme.classes.heading2}>Escalated Cases</h2></div>
-             <div className="w-full overflow-x-auto">
-               <table className="w-full text-left border-collapse text-sm">
-                 <tbody className="text-sm">
-                   <tr className="border-b hover:bg-gray-50 transition-colors">
-                     <td className="p-3 font-bold">#CF-4872</td>
-                     <td className="p-3 text-gray-600">Fake Seeds</td>
-                     <td className="p-3"><span className="bg-red-100 text-red-700 font-bold text-[10px] px-2 py-0.5 uppercase">Escalated</span></td>
-                   </tr>
-                 </tbody>
-               </table>
-             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+const AdminSection = () => {
+  return <AdminDashboard />;
 };
 
 
 // ----------------------------------------------------------------------
 // NGO DASHBOARD (Field operator focus)
 // ----------------------------------------------------------------------
-const NgoDashboard = ({ onNavigate }: { onNavigate: any }) => {
+const NgoDashboardSection = () => {
+  const [activeSubView, setActiveSubView] = useState<"stats" | "review" | "profile">("stats");
+  const ngoName = localStorage.getItem("annadata_user_name") || "Field Operator";
+  const ngoOrg  = localStorage.getItem("annadata_user_org") || "Your NGO";
+  
+  const [pendingFarmers, setPendingFarmers] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        const farmersRes = await apiClient.get<APIResponse<any[]>>("/ngo/farmers", { params: { filter_status: "needs_manual_review" } });
+        if (farmersRes.data.status === "success") {
+          setPendingFarmers(farmersRes.data.data.slice(0, 5));
+        }
+
+        const scansRes = await apiClient.get<APIResponse<any[]>>("/ngo/pending-scans");
+        const helpRes = await apiClient.get<APIResponse<any[]>>("/ngo/help-requests");
+        
+        const combinedAlerts = [];
+        if (scansRes.data.status === "success") {
+          scansRes.data.data.forEach(s => combinedAlerts.push({ ...s, type: 'scan', priority: 'high' }));
+        }
+        if (helpRes.data.status === "success") {
+          helpRes.data.data.forEach(h => combinedAlerts.push({ ...h, type: 'help', priority: 'medium' }));
+        }
+        
+        setAlerts(combinedAlerts.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 4));
+      } catch (e) { console.error(e); } finally { setLoading(false); }
+    };
+    fetchDashboardData();
+  }, []);
+
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6">
       <div className="bg-[#13311c] text-white p-6 border-l-4 border-[#e18b2c] shadow-sm mb-6 flex items-center justify-between">
          <div>
-            <h2 className="font-mukta font-bold text-2xl mb-1">Field Operator Active</h2>
-            <p className="font-hind text-white/80">You have <span className="text-[#d4cb7e] font-bold">12 pending verifications</span> in Nashik District.</p>
+            <h2 className="font-mukta font-bold text-2xl mb-1">Welcome, {ngoName}</h2>
+            <p className="font-hind text-white/80">{ngoOrg} · Infrastructure Access</p>
          </div>
-         <button onClick={() => onNavigate("fraud")} className="bg-[#e18b2c] text-white px-4 py-2 font-bold text-sm tracking-wide">
-            Start Verification Batch
-         </button>
+         <div className="flex gap-2">
+            <button 
+              onClick={() => setActiveSubView("stats")}
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${activeSubView === 'stats' ? 'bg-[#e18b2c] text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            >
+               Dash
+            </button>
+            <button 
+              onClick={() => setActiveSubView("review")}
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${activeSubView === 'review' ? 'bg-[#e18b2c] text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            >
+               Review Queue
+            </button>
+            <button 
+              onClick={() => setActiveSubView("profile")}
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${activeSubView === 'profile' ? 'bg-[#e18b2c] text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            >
+               Organization
+            </button>
+         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {activeSubView === "stats" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ animation: "slide-up-fade 0.4s ease-out" }}>
+          {/* Verification Queue Preview */}
+          <div className={theme.classes.card}>
+            <div className="p-4 border-b border-[#e5e3d7] bg-gray-50 flex justify-between items-center">
+              <h2 className={theme.classes.heading2}>Pending Identity Review</h2>
+              <span className={theme.classes.badgeInfo}>{pendingFarmers.length} Flagged</span>
+            </div>
+            <div>
+              {loading ? (
+                <div className="p-10 flex justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
+              ) : pendingFarmers.length === 0 ? (
+                <div className="p-10 text-center text-gray-400 font-bold text-sm italic">Queue is clear.</div>
+              ) : (
+                <div className="p-0">
+                  {pendingFarmers.map(f => (
+                    <div key={f.user_id} className="p-4 border-b border-gray-100 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                       <div>
+                          <p className="font-bold text-[#1a1a1a]">{f.name}</p>
+                          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-black">{f.location}</p>
+                       </div>
+                       <button onClick={() => setActiveSubView("review")} className="text-[#3174a1] text-[10px] font-black uppercase tracking-widest border border-[#3174a1]/20 px-3 py-1 hover:bg-[#3174a1] hover:text-white transition-all">Review</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* AI Field Alerts */}
+          <div className={theme.classes.card}>
+            <div className="p-4 border-b border-[#e5e3d7] bg-[#fdf2f2] flex justify-between items-center">
+              <h2 className={theme.classes.heading2 + " text-[#c82b28]"}>High-Priority Alerts</h2>
+              <span className={theme.classes.badgeError}>Field Action</span>
+            </div>
+            <div className="p-0 overflow-y-auto max-h-[350px]">
+                {loading ? (
+                  <div className="p-10 flex justify-center"><div className="w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin" /></div>
+                ) : alerts.length === 0 ? (
+                  <div className="p-10 text-center text-gray-400 font-bold text-sm italic">Global status nominal.</div>
+                ) : (
+                  alerts.map((alert, idx) => (
+                    <div key={idx} className="p-4 border-b border-gray-100 flex gap-4 hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => setActiveSubView("review")}>
+                      <div className="mt-1">
+                        {alert.priority === 'high' ? <AlertTriangle className="w-5 h-5 text-[#c82b28]" /> : <Clock className="w-5 h-5 text-[#e18b2c]" />}
+                      </div>
+                      <div>
+                          <p className="font-bold text-sm text-[#1a1a1a]">
+                            {alert.type === 'scan' ? `Suspicious Input: ${alert.pesticide_name}` : `Legal Assistance: ${alert.farmer_name}`}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">{alert.description || `Mismatch: ₹${alert.bill_price} vs ₹${alert.extracted_mrp}`}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSubView === "review" && (
+        <div style={{ animation: "slide-up-fade 0.4s ease-out" }}>
+           <NGOReview />
+        </div>
+      )}
+
+      {activeSubView === "profile" && (
+        <div style={{ animation: "slide-up-fade 0.4s ease-out" }}>
+           <NGOProfile role="ngo" />
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+
+// ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
+// PRESENTATION READY HEATMAPS (Hardcoded for "Wow" factor)
+// ----------------------------------------------------------------------
+const PresentationHeatmaps = () => {
+  const [activeTab, setActiveTab] = useState<"map" | "grid">("map");
+
+  const hardcodedPoints = [
+    { id: 1, name: "Azadpur Mandi", price: 2100, lat: 28.7, lng: 77.1, intensity: 0.9, color: "#f59e0b" },
+    { id: 2, name: "Vashi Market", price: 1850, lat: 19.1, lng: 73.0, intensity: 0.7, color: "#6366f1" },
+    { id: 3, name: "Nashik Hub", price: 3200, lat: 20.0, lng: 73.8, intensity: 1.0, color: "#f59e0b" },
+    { id: 4, name: "Karnal Wheat", price: 1950, lat: 29.7, lng: 76.9, intensity: 0.8, color: "#6366f1" },
+    { id: 5, name: "Nagpur Orange", price: 4500, lat: 21.1, lng: 79.1, intensity: 1.0, color: "#f59e0b" },
+    { id: 6, name: "Lucknow Potato", price: 1200, lat: 26.8, lng: 80.9, intensity: 0.4, color: "#6366f1" },
+    { id: 7, name: "Kolkata Jute", price: 5600, lat: 22.6, lng: 88.3, intensity: 1.0, color: "#f59e0b" },
+    { id: 8, name: "Bangalore Silk", price: 8200, lat: 12.9, lng: 77.6, intensity: 0.9, color: "#f59e0b" },
+  ];
+
+  const project = (lat: number, lng: number) => {
+    const x = ((lng - 68.7) / (97.25 - 68.7)) * 100;
+    const y = 100 - ((lat - 8.4) / (37.6 - 8.4)) * 100;
+    return { x: `${x}%`, y: `${y}%` };
+  };
+
+  const GridHeatmap = () => (
+    <div className="grid grid-cols-8 grid-rows-4 gap-2 h-full p-4 relative overflow-hidden bg-black/40">
+       {[...Array(32)].map((_, i) => {
+         const intensity = Math.random();
+         return (
+           <motion.div 
+             key={i}
+             initial={{ opacity: 0, scale: 0.8 }}
+             animate={{ 
+               opacity: [0.3, 0.8, 0.3],
+               scale: intensity > 0.8 ? [1, 1.05, 1] : 1,
+               backgroundColor: intensity > 0.8 ? "#f59e0b" : intensity > 0.5 ? "#6366f1" : "rgba(255,255,255,0.05)"
+             }}
+             transition={{ duration: 2 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 2 }}
+             className="w-full h-full border border-white/5 rounded-sm relative flex items-center justify-center"
+           >
+              {intensity > 0.8 && (
+                <div className="absolute inset-0 bg-amber-500/20 blur-md animate-pulse" />
+              )}
+              {intensity > 0.9 && <Activity className="w-3 h-3 text-white/50" />}
+           </motion.div>
+         )
+       })}
+       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <p className="text-[80px] font-black text-white/5 uppercase tracking-tighter">Market Matrix</p>
+       </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex bg-black/5 p-1 w-fit rounded-none border border-black/10">
+         <button onClick={() => setActiveTab("map")} className={`px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'map' ? 'bg-black text-white' : 'text-gray-400 hover:text-black'}`}>Geospatial Pulse</button>
+         <button onClick={() => setActiveTab("grid")} className={`px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'grid' ? 'bg-black text-white' : 'text-gray-400 hover:text-black'}`}>Market Matrix</button>
+      </div>
+
+      <div className="relative h-[400px] bg-[#0a0a0a] overflow-hidden border border-white/5 shadow-2xl">
+        {/* SHARED BG ELEMENTS */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none" 
+             style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '25px 25px' }} />
         
-        {/* Verification Queue */}
-        <div className={theme.classes.card}>
-           <div className="p-4 border-b border-[#e5e3d7] bg-gray-50 flex justify-between items-center">
-             <h2 className={theme.classes.heading2}>Pending Identity Verification</h2>
-             <span className={theme.classes.badgeInfo}>AI Flagged</span>
+        {activeTab === "map" ? (
+          <>
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full p-8 opacity-20 stroke-[#333] fill-none stroke-[0.5]">
+              <path d="M30,10 L45,5 L60,8 L70,20 L82,45 L78,65 L65,85 L50,92 L35,88 L20,75 L15,50 L20,30 Z" />
+            </svg>
+            {hardcodedPoints.map((p) => {
+              const { x, y } = project(p.lat, p.lng);
+              return (
+                <div key={p.id} className="absolute group cursor-pointer" style={{ left: x, top: y, transform: 'translate(-50%, -50%)' }}>
+                  <motion.div animate={{ scale: [1, 2.5], opacity: [0.6, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute inset-0 w-4 h-4 rounded-full" style={{ backgroundColor: p.color }} />
+                  <div className="w-2 h-2 rounded-full relative z-20 shadow-[0_0_10px_white]" style={{ backgroundColor: p.color }} />
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-2 bg-black/90 border border-white/10 rounded-none opacity-0 group-hover:opacity-100 transition-opacity z-50 min-w-[100px]">
+                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{p.name}</p>
+                    <p className="text-xs font-bold text-white mt-0.5">₹{(p.price/100).toFixed(1)}k</p>
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        ) : (
+          <GridHeatmap />
+        )}
+
+        {/* OVERLAYS */}
+        <div className="absolute top-4 left-4 z-40 flex items-center gap-3">
+           <div className="flex items-center gap-2">
+             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping" />
+             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Intelligence Stream 0x82f</p>
            </div>
-           <div>
-             <table className="w-full text-left border-collapse">
-               <tbody className="text-sm font-hind">
-                 <tr className="border-b border-gray-100 hover:bg-gray-50">
-                   <td className="p-4">
-                     <p className="font-bold text-[#1a1a1a]">Ramesh Yadav</p>
-                     <p className="text-xs text-gray-500">ID Verification #8821</p>
-                   </td>
-                   <td className="p-4 text-right">
-                     <div className="flex gap-2 justify-end">
-                       <button className="text-green-600 hover:bg-green-50 p-2"><CheckCircle className="w-5 h-5"/></button>
-                       <button className="text-red-600 hover:bg-red-50 p-2"><XCircle className="w-5 h-5"/></button>
-                     </div>
-                   </td>
-                 </tr>
-                 <tr className="hover:bg-gray-50">
-                   <td className="p-4">
-                     <p className="font-bold text-[#1a1a1a]">Manish Kumar</p>
-                     <p className="text-xs text-gray-500">Loan Rejection Review #7712</p>
-                   </td>
-                   <td className="p-4 text-right">
-                     <button className="text-blue-600 text-xs font-bold uppercase underline">Review Case</button>
-                   </td>
-                 </tr>
-               </tbody>
-             </table>
-           </div>
+           <div className="w-px h-3 bg-white/20" />
+           <p className="text-[10px] font-bold text-amber-500 uppercase tracking-tight">Anomalies Detected: 12</p>
         </div>
 
-        {/* AI Fraud Flags for Field Operator */}
-        <div className={theme.classes.card}>
-           <div className="p-4 border-b border-[#e5e3d7] bg-[#fdf2f2] flex justify-between items-center">
-             <h2 className={theme.classes.heading2 + " text-[#c82b28]"}>High-Priority Field Alerts</h2>
-             <span className={theme.classes.badgeError}>Requires Action</span>
-           </div>
-           <div className="p-0">
-              <div className="p-4 border-b border-gray-100 flex gap-4 hover:bg-gray-50 cursor-pointer">
-                 <div className="mt-1"><AlertTriangle className="w-5 h-5 text-[#c82b28]" /></div>
-                 <div>
-                    <p className="font-bold text-sm text-[#1a1a1a]">Pesticide Fraud Ring Detected</p>
-                    <p className="text-xs text-gray-600 mt-1">AI flagged 3 similar fake pesticide scans from dealer "Bharat Krishi Kendra" in your sector.</p>
-                 </div>
-              </div>
-              <div className="p-4 flex gap-4 hover:bg-gray-50 cursor-pointer">
-                 <div className="mt-1"><Clock className="w-5 h-5 text-[#e18b2c]" /></div>
-                 <div>
-                    <p className="font-bold text-sm text-[#1a1a1a]">Urgent Legal Overdue</p>
-                    <p className="text-xs text-gray-600 mt-1">Case #CF-4871 requires physical documentation collection from farmer.</p>
-                 </div>
-              </div>
-           </div>
+        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end z-40 pointer-events-none">
+          <div className="flex gap-4">
+             <div className="flex items-center gap-2">
+               <div className="w-2 h-2 rounded-full bg-amber-500" />
+               <span className="text-[9px] font-bold text-gray-500 uppercase">High Intensity</span>
+             </div>
+             <div className="flex items-center gap-2">
+               <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_#6366f1]" />
+               <span className="text-[9px] font-bold text-gray-500 uppercase">System Nominal</span>
+             </div>
+          </div>
+          <div className="text-right">
+             <p className="text-[40px] font-black text-white/5 uppercase leading-none mb-[-5px]">Annadata</p>
+             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Market OS v4.0</p>
+          </div>
         </div>
       </div>
     </div>
@@ -227,23 +296,30 @@ const NgoDashboard = ({ onNavigate }: { onNavigate: any }) => {
 
 
 // ----------------------------------------------------------------------
-// FARMER DASHBOARD (Simple, actionable, no system data)
+// FARMER DASHBOARD (Updated with Live Market Intelligence)
 // ----------------------------------------------------------------------
 const FarmerDashboard = ({ onNavigate }: { onNavigate: any }) => {
+  const userName         = localStorage.getItem("annadata_user_name") || "Farmer";
+  const verificationStatus = localStorage.getItem("annadata_verification_status") || "unverified";
+  const verificationLabel  = verificationStatus === "verified" ? "Verified"
+                           : verificationStatus === "auto_verified" ? "Auto-Verified"
+                           : verificationStatus === "rejected" ? "Rejected"
+                           : "Pending Review";
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
       
       {/* Friendly Greeting */}
       <div className="bg-[#408447] text-white p-6 shadow-sm border border-[#13311c]/20">
-         <h2 className="font-mukta font-bold text-2xl">Good Morning, Suresh!</h2>
+         <h2 className="font-mukta font-bold text-2xl">Good Morning, {userName}!</h2>
          <div className="mt-4 flex flex-wrap gap-4">
             <div className="bg-black/10 px-4 py-2 flex items-center gap-2">
                <Store className="w-4 h-4 text-[#d4cb7e]" />
-               <span className="font-bold text-sm">Nashik Mandi (Open)</span>
+               <span className="font-bold text-sm">Mandi Prices Available</span>
             </div>
             <div className="bg-black/10 px-4 py-2 flex items-center gap-2">
                <Activity className="w-4 h-4 text-green-300" />
-               <span className="font-bold text-sm">Verification: Approved</span>
+               <span className="font-bold text-sm">Verification: {verificationLabel}</span>
             </div>
          </div>
       </div>
@@ -273,31 +349,9 @@ const FarmerDashboard = ({ onNavigate }: { onNavigate: any }) => {
          </button>
       </div>
 
-      {/* AI Trust / Recent Decisions (Requirement 3 from output principle) */}
-      <div className={theme.classes.card + " mt-8"}>
-         <div className="p-4 border-b border-[#e5e3d7] bg-gray-50">
-            <h2 className={theme.classes.heading2}>Recent System Decisions</h2>
-         </div>
-         <div className="p-5 space-y-4">
-            
-            {/* Example of the AI output principle requirement */}
-            <div className="bg-[#f1f8f3] border-l-4 border-[#408447] p-4 flex gap-4">
-              <CheckCircle className="w-5 h-5 text-[#408447] shrink-0" />
-              <div>
-                 <p className="font-bold text-sm text-[#1a1a1a]">Input Status: Verified</p>
-                 <p className="text-sm font-hind text-gray-700 mt-1">The SuperGro fertilizer you scanned yesterday is authentic. You are good to use it.</p>
-              </div>
-            </div>
-
-            <div className="bg-[#fdf5e8] border-l-4 border-[#e18b2c] p-4 flex gap-4">
-              <Clock className="w-5 h-5 text-[#e18b2c] shrink-0" />
-              <div>
-                 <p className="font-bold text-sm text-[#1a1a1a]">Complaint Status: Pending NGO Review</p>
-                 <p className="text-sm font-hind text-gray-700 mt-1">Your case (#CF-4871) regarding the loan rejection is waiting for a local field operator to verify the documents.</p>
-              </div>
-            </div>
-
-         </div>
+      {/* Live Market Analysis */}
+      <div className="mt-8 h-[350px]">
+         <PriceTicker />
       </div>
     </div>
   );
@@ -308,8 +362,8 @@ const FarmerDashboard = ({ onNavigate }: { onNavigate: any }) => {
 // MAIN EXPORT
 // ----------------------------------------------------------------------
 const HomeDashboard = ({ onNavigate, role }: HomeDashboardProps) => {
-  if (role === "admin") return <AdminDashboard onNavigate={onNavigate} />;
-  if (role === "ngo") return <NgoDashboard onNavigate={onNavigate} />;
+  if (role === "admin") return <AdminSection />;
+  if (role === "ngo") return <NgoDashboardSection />;
   return <FarmerDashboard onNavigate={onNavigate} />;
 };
 

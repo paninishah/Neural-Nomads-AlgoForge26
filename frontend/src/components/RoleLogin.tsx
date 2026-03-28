@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { theme } from "@/designSystem";
 import { Shield, Sprout, Briefcase, ArrowRight, UserPlus, LogIn } from "lucide-react";
+import { apiClient } from "@/lib/apiClient";
+import { toast } from "sonner";
+import { APIResponse, LoginResponse } from "@/lib/api";
 
 export type Role = "farmer" | "ngo" | "admin";
 type AuthMode = "login" | "register";
@@ -14,13 +17,82 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Form states
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [stateName, setStateName] = useState("");
+  const [district, setDistrict] = useState("");
+  
+  const [email, setEmail] = useState("");
+  const [operatorName, setOperatorName] = useState("");
+  const [orgName, setOrgName] = useState("");
+  const [adminId, setAdminId] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate network request
-    setTimeout(() => {
-      onLogin(selectedRole);
-    }, 1200);
+    try {
+      let res;
+      if (selectedRole === "farmer") {
+        if (authMode === "login") {
+          res = await apiClient.post<APIResponse<LoginResponse>>("/auth/login", { phone, password });
+        } else {
+          res = await apiClient.post<APIResponse<LoginResponse>>("/auth/register", { name, phone, password, state: stateName, district, role: "farmer" });
+        }
+      } else if (selectedRole === "ngo") {
+        if (authMode === "login") {
+          res = await apiClient.post<APIResponse<LoginResponse>>("/auth/ngo/login", { email, password });
+        } else {
+          res = await apiClient.post<APIResponse<LoginResponse>>("/auth/ngo/register", { email, password, operator_full_name: operatorName, organization_name: orgName });
+        }
+      } else if (selectedRole === "admin") {
+        // Mock admin phone is usually used here (e.g. 9999999001 for "SYS-ADMIN-XX")
+        const loginPhone = adminId.includes("SYS") ? "9999999001" : adminId; 
+        res = await apiClient.post<APIResponse<LoginResponse>>("/auth/login", { phone: loginPhone, password });
+      }
+
+      if (res?.data.status === "success" || res?.data.token) {
+        const d = res.data.data;
+        if (d.token)   localStorage.setItem("annadata_token", d.token);
+        if (d.user_id) localStorage.setItem("annadata_user_id", d.user_id);
+        if (d.role)    localStorage.setItem("annadata_role", d.role);
+        // Store registration form location immediately (available even before profile is created)
+        if (stateName) localStorage.setItem("annadata_user_state", stateName);
+        if (district)  localStorage.setItem("annadata_user_district", district);
+
+        // Fetch full user details from /auth/me now that token is set
+        try {
+          const meRes = await apiClient.get("/auth/me");
+          const me = meRes.data.data;
+          // display_name is always populated (full_name for NGO, name for farmer/admin)
+          if (me.display_name) localStorage.setItem("annadata_user_name", me.display_name);
+          if (me.organization_name) localStorage.setItem("annadata_user_org", me.organization_name);
+          if (me.phone)             localStorage.setItem("annadata_user_phone", me.phone);
+          if (me.email)             localStorage.setItem("annadata_user_email", me.email);
+          if (me.verification_status) localStorage.setItem("annadata_verification_status", me.verification_status);
+
+          // Fetch profile to get state/district for mandi location filtering
+          if (d.user_id) {
+            try {
+              const profileRes = await apiClient.get(`/profile/${d.user_id}`);
+              const prof = profileRes.data.data;
+              if (prof?.state)    localStorage.setItem("annadata_user_state", prof.state);
+              if (prof?.district) localStorage.setItem("annadata_user_district", prof.district);
+            } catch { /* profile may not exist yet for new users */ }
+          }
+        } catch (meErr) {
+          console.warn("Could not fetch user details from /auth/me", meErr);
+        }
+
+        toast.success(res.data.message_text || "Success");
+        onLogin(selectedRole);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || err.message || "Failed to authenticate");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // If user switches to Admin, force mode to login (admins can't self-register)
@@ -113,20 +185,20 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                      <div>
                        <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Full Name</label>
                        <div className={theme.classes.inputWrapper}>
-                         <input type="text" placeholder="e.g. Ramesh Kumar" required className={theme.classes.inputText} />
+                         <input type="text" placeholder="e.g. Ramesh Kumar" required className={theme.classes.inputText} value={name} onChange={(e) => setName(e.target.value)} />
                        </div>
                      </div>
                      <div className="grid grid-cols-2 gap-4">
                        <div>
                          <label className="block text-xs font-bold uppercase text-[#666666] mb-1">State</label>
                          <div className={theme.classes.inputWrapper}>
-                           <input type="text" placeholder="e.g. Punjab" required className={theme.classes.inputText} />
+                           <input type="text" placeholder="e.g. Punjab" required className={theme.classes.inputText} value={stateName} onChange={(e) => setStateName(e.target.value)} />
                          </div>
                        </div>
                        <div>
                          <label className="block text-xs font-bold uppercase text-[#666666] mb-1">District</label>
                          <div className={theme.classes.inputWrapper}>
-                           <input type="text" placeholder="e.g. Ludhiana" required className={theme.classes.inputText} />
+                           <input type="text" placeholder="e.g. Ludhiana" required className={theme.classes.inputText} value={district} onChange={(e) => setDistrict(e.target.value)} />
                          </div>
                        </div>
                      </div>
@@ -136,14 +208,14 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                    <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Phone Number</label>
                    <div className={theme.classes.inputWrapper}>
                      <span className="pl-3 text-sm text-gray-500 font-bold border-r border-[#e5e3d7] pr-2">+91</span>
-                     <input type="tel" pattern="[0-9]{10}" placeholder="10-digit mobile number" required className={theme.classes.inputText} />
+                     <input type="tel" pattern="[0-9]{10}" placeholder="10-digit mobile number" required className={theme.classes.inputText} value={phone} onChange={(e) => setPhone(e.target.value)} />
                    </div>
                  </div>
                  
                  <div>
                    <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{authMode === 'register' ? 'Create Password' : 'Password'}</label>
                    <div className={theme.classes.inputWrapper}>
-                     <input type="password" placeholder="••••••••" required className={theme.classes.inputText} />
+                     <input type="password" placeholder="••••••••" required className={theme.classes.inputText} value={password} onChange={(e) => setPassword(e.target.value)} />
                    </div>
                    {authMode === "register" && <p className="text-[10px] text-[#666666] mt-1 italic">Used to secure your wallet and legal records.</p>}
                  </div>
@@ -158,13 +230,13 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                      <div>
                        <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Operator Full Name</label>
                        <div className={theme.classes.inputWrapper}>
-                         <input type="text" placeholder="e.g. Amit Sharma" required className={theme.classes.inputText} />
+                         <input type="text" placeholder="e.g. Amit Sharma" required className={theme.classes.inputText} value={operatorName} onChange={(e) => setOperatorName(e.target.value)} />
                        </div>
                      </div>
                      <div>
                        <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Organization Name / ID</label>
                        <div className={theme.classes.inputWrapper}>
-                         <input type="text" placeholder="e.g. Kisan Seva Kendra" required className={theme.classes.inputText} />
+                         <input type="text" placeholder="e.g. Kisan Seva Kendra" required className={theme.classes.inputText} value={orgName} onChange={(e) => setOrgName(e.target.value)} />
                        </div>
                      </div>
                    </>
@@ -172,13 +244,13 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                  <div>
                    <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Email Address</label>
                    <div className={theme.classes.inputWrapper}>
-                     <input type="email" placeholder="operator@ngo.org" required className={theme.classes.inputText} />
+                     <input type="email" placeholder="operator@ngo.org" required className={theme.classes.inputText} value={email} onChange={(e) => setEmail(e.target.value)} />
                    </div>
                  </div>
                  <div>
                    <label className="block text-xs font-bold uppercase text-[#666666] mb-1">{authMode === 'register' ? 'Create Password' : 'Password'}</label>
                    <div className={theme.classes.inputWrapper}>
-                     <input type="password" placeholder="••••••••" required className={theme.classes.inputText} />
+                     <input type="password" placeholder="••••••••" required className={theme.classes.inputText} value={password} onChange={(e) => setPassword(e.target.value)} />
                    </div>
                  </div>
               </>
@@ -190,13 +262,13 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
                  <div>
                    <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Secure Admin ID</label>
                    <div className={theme.classes.inputWrapper}>
-                     <input type="text" placeholder="SYS-ADMIN-XX" required className={theme.classes.inputText} />
+                     <input type="text" placeholder="SYS-ADMIN-XX" required className={theme.classes.inputText} value={adminId} onChange={(e) => setAdminId(e.target.value)} />
                    </div>
                  </div>
                  <div>
                    <label className="block text-xs font-bold uppercase text-[#666666] mb-1">Master Password</label>
                    <div className={theme.classes.inputWrapper}>
-                     <input type="password" placeholder="••••••••" required className={theme.classes.inputText} />
+                     <input type="password" placeholder="••••••••" required className={theme.classes.inputText} value={password} onChange={(e) => setPassword(e.target.value)} />
                    </div>
                  </div>
                </>

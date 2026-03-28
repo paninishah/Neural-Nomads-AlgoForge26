@@ -1,6 +1,7 @@
 import { theme } from "@/designSystem";
 import { Shield, Users, AlertTriangle, Landmark } from "lucide-react";
 import type { Role } from "@/components/RoleLogin";
+import { useProfile } from "@/hooks/useProfile";
 
 const MOCK_ADMIN_STATS = {
   totalFarmers: 48230,
@@ -14,6 +15,8 @@ interface AdminProfileProps {
 }
 
 const AdminProfile = ({ role }: AdminProfileProps) => {
+  const { profile } = useProfile(role);
+  
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-10">
 
@@ -23,7 +26,7 @@ const AdminProfile = ({ role }: AdminProfileProps) => {
           <Shield className="w-7 h-7 text-[#d4cb7e]" />
         </div>
         <div>
-          <h1 className="font-mukta font-black text-xl">System Administrator</h1>
+          <h1 className="font-mukta font-black text-xl">{profile.name}</h1>
           <p className="text-[#d4cb7e] text-xs font-bold uppercase tracking-widest">Admin · Annadata OS</p>
           <p className="text-white/50 text-xs mt-1">Full platform access · Restricted</p>
         </div>
@@ -57,8 +60,8 @@ const AdminProfile = ({ role }: AdminProfileProps) => {
 
         <div className="space-y-4">
           {[
-            { label: "Display Name",  value: "System Administrator" },
-            { label: "Admin ID",      value: "SYS-ADMIN-01" },
+            { label: "Display Name",  value: profile.name },
+            { label: "Admin ID",      value: profile.adminId },
             { label: "Access Level",  value: "Full Platform Access" },
             { label: "Last Login",    value: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) },
           ].map(({ label, value }) => (

@@ -249,4 +249,59 @@ def get_heatmap_data(crop: str) -> list:
             "lng": lng,
         })
 
-    return result[:100]  # limit for performance
+def get_market_hotspots() -> list:
+    """
+    Returns a list of geographical points with price intensity for market pulse.
+    Robustly handles CSV column names using positional indexing.
+    """
+    import pandas as pd
+    import numpy as np
+    import hashlib
+
+    # Load data directly to ensure we have the most recent buffer
+    df = pd.read_csv(DATA_PATH)
+    if df.empty: return []
+
+    # Map state names to coordinates for projection
+    STATE_COORDS = {
+        "chattisgarh": (21.2787, 81.8661), "maharashtra": (19.7515, 75.7139),
+        "punjab": (31.1471, 75.3412), "gujarat": (22.2587, 71.1924),
+        "uttar pradesh": (26.8467, 80.9462), "rajasthan": (27.0238, 74.2179),
+        "madhya pradesh": (22.9734, 78.6569), "karnataka": (15.3173, 75.7139),
+        "andhra pradesh": (15.9129, 79.7400), "telangana": (18.1124, 79.0193),
+        "haryana": (29.0588, 76.0856), "bihar": (25.0961, 85.3131),
+        "west bengal": (22.9868, 87.8550), "odisha": (20.9517, 85.0985),
+    }
+
+    # Extract top 100 entries for the 'pulse' visual
+    # Positional mapping: State=0, Market=2, Commodity=3, Modal_Price=8
+    data = []
+    # Drop rows with corrupted price data
+    df.iloc[:, 8] = pd.to_numeric(df.iloc[:, 8], errors="coerce")
+    df = df.dropna(subset=[df.columns[8]])
+    
+    # Get top 80 most active/recent entries
+    subset = df.tail(80)
+
+    for _, row in subset.iterrows():
+        state = str(row.iloc[0]).strip().lower()
+        market = str(row.iloc[2]).strip()
+        commodity = str(row.iloc[3]).strip()
+        price = float(row.iloc[8])
+
+        base_lat, base_lng = STATE_COORDS.get(state, (20.5937, 78.9629))
+        # Unique offset per market
+        h = int(hashlib.md5(market.encode()).hexdigest(), 16)
+        lat = base_lat + (h % 100 - 50) / 10
+        lng = base_lng + (h % 100 - 50) / 10
+
+        data.append({
+            "id": h % 100000,
+            "name": f"{market} ({commodity})",
+            "price": price,
+            "lat": lat,
+            "lng": lng,
+            "intensity": min(1.0, max(0.1, price / 4000))  # Intensity based on 4k price cap
+        })
+
+    return data

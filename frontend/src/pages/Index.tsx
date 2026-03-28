@@ -10,6 +10,8 @@ import LegalAction from "@/components/LegalAction";
 import ProfilePage from "@/components/profile/ProfilePage";
 import AppLayout from "@/components/AppLayout";
 import RoleLogin, { Role } from "@/components/RoleLogin";
+import NGODashboard from "@/components/NGODashboard";
+import AdminDashboard from "@/components/AdminDashboard";
 
 type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap" | "wallet" | "profile";
 export type Lang = "en" | "hi";
@@ -39,10 +41,12 @@ const Index = () => {
 
   return (
     <AppLayout currentScreen={screen} onNavigate={navigate} lang={lang} onToggleLang={toggleLang} role={role} onLogout={handleLogout}>
-      {screen === "home" && <HomeDashboard onNavigate={navigate} lang={lang} onToggleLang={toggleLang} role={role} />}
+      {screen === "home" && (
+        <HomeDashboard onNavigate={navigate} lang={lang} onToggleLang={toggleLang} role={role} />
+      )}
       {screen === "mandi" && <MandiPrice onBack={() => navigate("home")} lang={lang} />}
-      {screen === "fraud" && <FraudDetection onBack={() => navigate("home")} lang={lang} role={role} />}
-      {screen === "loan" && <LoanDecoder onBack={() => navigate("home")} lang={lang} />}
+      {screen === "fraud" && <FraudDetection onBack={() => navigate("home")} role={role} />}
+      {screen === "loan" && <LoanDecoder onBack={() => navigate("home")} />}
       {screen === "legal" && <LegalAction onBack={() => navigate("home")} lang={lang} role={role} />}
       {screen === "wallet"  && <FarmerWallet onNavigate={navigate} />}
       {screen === "heatmap" && <HeatmapIntelligence onBack={() => navigate("home")} />}

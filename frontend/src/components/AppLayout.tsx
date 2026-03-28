@@ -44,6 +44,13 @@ const SECONDARY_ITEMS = [
 
 const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, role, onLogout }: AppLayoutProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const userName = localStorage.getItem("annadata_user_name") || "User";
+  const userInitials = userName
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   // Filter Sidebar based on role
   const SIDEBAR_ITEMS = ALL_SIDEBAR_ITEMS.filter(item => item.roles.includes(role));
@@ -193,7 +200,7 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
               onClick={() => onNavigate('profile')}
               title="My Profile"
             >
-              RS
+              {userInitials}
             </div>
           </div>
         </header>

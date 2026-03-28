@@ -1,25 +1,51 @@
 from sqlalchemy.orm import Session
-from app.models.models import FarmerProfile
+from app.models.models import FarmerProfile, NGOProfile, AdminProfile, UserRole
 from datetime import datetime
+import json
 
 
 class ProfileRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_by_user_id(self, user_id: str) -> FarmerProfile | None:
-        return self.db.query(FarmerProfile).filter(FarmerProfile.user_id == user_id).first()
+    def get_by_user_id(self, user_id: str, role: str):
+        if role == UserRole.farmer:
+            return self.db.query(FarmerProfile).filter(FarmerProfile.user_id == user_id).first()
+        elif role == UserRole.ngo:
+            return self.db.query(NGOProfile).filter(NGOProfile.user_id == user_id).first()
+        elif role == UserRole.admin:
+            return self.db.query(AdminProfile).filter(AdminProfile.user_id == user_id).first()
+        return None
 
-    def create_or_update(self, user_id: str, data: dict) -> FarmerProfile:
-        profile = self.get_by_user_id(user_id)
+    def create_or_update(self, user_id: str, role: str, data: dict):
+        profile = self.get_by_user_id(user_id, role)
+        
+        # Prepare data for DB
+        processed_data = {}
+        for k, v in data.items():
+            if v is None:
+                continue
+            if isinstance(v, list):
+                processed_data[k] = json.dumps(v)
+            else:
+                processed_data[k] = v
+
         if profile:
-            for key, value in data.items():
-                if value is not None:
-                    setattr(profile, key, value)
+            for key, value in processed_data.items():
+                setattr(profile, key, value)
             profile.updated_at = datetime.utcnow()
         else:
-            profile = FarmerProfile(user_id=user_id, **data)
-            self.db.add(profile)
+            if role == UserRole.farmer:
+                profile = FarmerProfile(user_id=user_id, **processed_data)
+            elif role == UserRole.ngo:
+                profile = NGOProfile(user_id=user_id, **processed_data)
+            elif role == UserRole.admin:
+                profile = AdminProfile(user_id=user_id, **processed_data)
+            
+            if profile:
+                self.db.add(profile)
+        
         self.db.commit()
-        self.db.refresh(profile)
+        if profile:
+            self.db.refresh(profile)
         return profile
