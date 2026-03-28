@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700;800&family=Hind:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 60 56% 91%;
+    --foreground: 120 50% 10%;
+
+    --card: 48 50% 93%;
+    --card-foreground: 120 50% 10%;
+
+    --popover: 48 50% 93%;
+    --popover-foreground: 120 50% 10%;
+
+    --primary: 120 52% 24%;
+    --primary-foreground: 60 56% 96%;
+
+    --secondary: 48 90% 58%;
+    --secondary-foreground: 120 50% 10%;
+
+    --muted: 40 30% 85%;
+    --muted-foreground: 120 15% 35%;
+
+    --accent: 48 90% 58%;
+    --accent-foreground: 120 50% 10%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 60 56% 96%;
+
+    --border: 35 30% 75%;
+    --input: 35 30% 80%;
+    --ring: 120 52% 24%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 48 40% 90%;
+    --sidebar-foreground: 120 50% 10%;
+    --sidebar-primary: 120 52% 24%;
+    --sidebar-primary-foreground: 60 56% 96%;
+    --sidebar-accent: 48 90% 58%;
+    --sidebar-accent-foreground: 120 50% 10%;
+    --sidebar-border: 35 30% 75%;
+    --sidebar-ring: 120 52% 24%;
+
+    /* Custom tokens */
+    --kisan-green: 120 52% 24%;
+    --kisan-green-light: 122 39% 35%;
+    --kisan-yellow: 48 96% 58%;
+    --kisan-yellow-muted: 45 70% 72%;
+    --kisan-red: 0 72% 50%;
+    --kisan-parchment: 60 56% 91%;
+    --kisan-cream: 48 50% 93%;
+    --kisan-soil: 25 40% 25%;
+    --kisan-warm-shadow: 30 40% 30%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Mukta', 'Hind', sans-serif;
+  }
+}
+
+@layer utilities {
+  .texture-jute {
+    position: relative;
+  }
+  .texture-jute::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/jute-texture.png');
+    background-repeat: repeat;
+    background-size: 200px;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .paper-card {
+    @apply bg-card rounded-2xl border border-border/50;
+    box-shadow: 0 1px 3px hsl(var(--kisan-warm-shadow) / 0.08);
+  }
+
+  .stamp-effect {
+    border: 3px solid hsl(var(--kisan-red));
+    border-radius: 4px;
+    padding: 0.5rem 1.5rem;
+    transform: rotate(-8deg);
+    font-weight: 800;
+    text-transform: uppercase;
+    color: hsl(var(--kisan-red));
+    opacity: 0.85;
+  }
+
+  .glassmorphism {
+    @apply bg-white/20 backdrop-blur-glass border border-white/25 rounded-2xl shadow-lg;
+  }
+
+  .glassmorphism-sm {
+    @apply bg-white/20 backdrop-blur-glass border border-white/25 rounded-lg shadow-md;
+  }
+
+  .glassmorphism:hover {
+    @apply bg-white/30 transition-all;
+  }
+
+  .glassmorphism-sm:hover {
+    @apply bg-white/30 transition-all;
+  }
+}
+
+/* Animations */
+@keyframes wheat-sway {
+  0%, 100% { transform: rotate(-1.5deg) translateX(0); }
+  25% { transform: rotate(0.5deg) translateX(2px); }
+  50% { transform: rotate(1.5deg) translateX(-1px); }
+  75% { transform: rotate(-0.5deg) translateX(1px); }
+}
+
+@keyframes float-card {
+  0%, 100% { transform: translateY(0) rotate(var(--card-rotate, -1deg)); }
+  50% { transform: translateY(-6px) rotate(var(--card-rotate, -1deg)); }
+}
+
+@keyframes mic-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 hsl(var(--kisan-green) / 0.4),
+                0 0 0 0 hsl(var(--kisan-green) / 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 0 12px hsl(var(--kisan-green) / 0),
+                0 0 0 24px hsl(var(--kisan-green) / 0);
+  }
+}
+
+@keyframes slide-up-fade {
+  0% { opacity: 0; transform: translateY(30px) rotate(var(--card-rotate, 0deg)); }
+  100% { opacity: 1; transform: translateY(0) rotate(var(--card-rotate, 0deg)); }
+}
+
+@keyframes ripple {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes stamp-in {
+  0% { transform: rotate(-8deg) scale(3); opacity: 0; }
+  60% { transform: rotate(-8deg) scale(0.9); opacity: 1; }
+  100% { transform: rotate(-8deg) scale(1); opacity: 0.85; }
+}
+
+@keyframes page-flip {
+  0% { transform: perspective(1200px) rotateY(0deg); }
+  100% { transform: perspective(1200px) rotateY(-5deg); }
+}
+
+@keyframes wave-flow {
+  0% { d: path("M0,20 Q25,10 50,20 T100,20"); }
+  50% { d: path("M0,20 Q25,30 50,20 T100,20"); }
+  100% { d: path("M0,20 Q25,10 50,20 T100,20"); }
+}
