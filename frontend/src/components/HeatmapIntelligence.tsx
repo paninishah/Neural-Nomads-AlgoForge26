@@ -102,54 +102,38 @@ const HeatmapIntelligence = ({ onBack }) => {
   };
 
   return (
-    <div className={`min-h-screen relative overflow-hidden bg-gradient-to-br ${data.theme} transition-colors duration-1000`}>
+    <div className={`min-h-screen relative overflow-hidden bg-transparent transition-colors duration-1000`}>
       {/* Grain texture overlay */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0">
         <div className="w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       </div>
 
       {loading ? (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-transparent backdrop-blur-sm">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ repeat: Infinity, duration: 1.5, repeatType: "reverse" }}
-            className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-6"
+            className="w-16 h-16 rounded-none bg-[#2d5a27]/10 flex items-center justify-center mb-6"
           >
-            <MapPin className="w-8 h-8 text-white" />
+            <MapPin className="w-8 h-8 text-[#2d5a27]" />
           </motion.div>
-          <p className="text-white font-mukta font-bold text-xl tracking-wide">Live data loading...</p>
-          <p className="text-white/50 font-hind text-sm mt-2">showing sample insights</p>
+          <p className="text-[#1a2f1c] font-mukta font-bold text-xl tracking-wide">Live data loading...</p>
+          <p className="text-[#4a5d4e] font-hind text-sm mt-2">showing sample insights</p>
         </div>
       ) : null}
 
-      {/* HEADER CONTROLS */}
-      <div className="relative z-40 pt-10 px-5">
-        <div className="flex justify-between items-start mb-6">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-md border border-white/10 flex items-center justify-center text-white active:scale-95 transition-transform"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          
-          <div className="text-right">
-            <h1 className={`font-mukta font-bold text-2xl tracking-wide ${data.gradientText} bg-clip-text text-transparent drop-shadow-md`}>
-              Your Region Intelligence
-            </h1>
-            <p className="font-hind text-white/70 text-xs mt-1">Understand risks & opportunities around you instantly</p>
-          </div>
-        </div>
-
+      {/* LAYER CONTROLS */}
+      <div className="relative z-40 px-5 py-4 w-full max-w-lg mx-auto">
         {/* PILL-SHAPED LAYER TOGGLE */}
-        <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-1.5 rounded-full flex shadow-2xl relative">
+        <div className="bg-white/80 backdrop-blur-xl border border-[#e5e3d7] p-1.5 rounded-none flex shadow-sm relative">
           {(["market", "fraud", "loan", "legal"] as Layer[]).map((l, i) => {
             const isActive = layer === l;
             return (
               <button
                 key={l}
                 onClick={() => { setLayer(l); setSelectedZone(null); }}
-                className={`flex-1 flex flex-col items-center justify-center py-2.5 rounded-full relative z-10 transition-all duration-300 ${isActive ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+                className={`flex-1 flex flex-col items-center justify-center py-2.5 rounded-none relative z-10 transition-all duration-300 ${isActive ? 'text-[#1a2f1c]' : 'text-[#4a5d4e]/60 hover:text-[#4a5d4e]'}`}
               >
                 {l === "market" && <TrendingUp className="w-5 h-5 mb-1" />}
                 {l === "fraud" && <ShieldAlert className="w-5 h-5 mb-1" />}
@@ -159,7 +143,7 @@ const HeatmapIntelligence = ({ onBack }) => {
                 {isActive && (
                   <motion.div
                     layoutId="pillIndicator"
-                    className="absolute inset-0 bg-white/15 border border-white/20 rounded-full -z-10 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                    className="absolute inset-0 bg-white/60 border border-[#2d5a27]/20 rounded-none -z-10 shadow-sm"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
                 )}
@@ -196,7 +180,7 @@ const HeatmapIntelligence = ({ onBack }) => {
                     <motion.div
                       animate={{ scale: [1, 2, 1], opacity: [0.3, 0, 0.3] }}
                       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute w-32 h-32 rounded-full blur-xl pointer-events-none"
+                      className="absolute w-32 h-32 rounded-none blur-xl pointer-events-none"
                       style={{ backgroundColor: dotColor, left: '-4rem', top: '-4rem' }}
                     />
                   )}
@@ -207,10 +191,10 @@ const HeatmapIntelligence = ({ onBack }) => {
                     className={`relative cursor-pointer transition-all duration-300 ${isSelected ? 'scale-125 z-50' : 'hover:scale-110'}`}
                   >
                     <div 
-                      className="w-16 h-16 rounded-3xl backdrop-blur-md flex items-center justify-center relative shadow-lg"
+                      className="w-16 h-16 rounded-none backdrop-blur-md flex items-center justify-center relative shadow-lg"
                       style={{ backgroundColor: bgColor, border: `1px solid ${strokeColor}` }}
                     >
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: dotColor, boxShadow: `0 0 10px ${dotColor}` }} />
+                      <div className="w-3 h-3 rounded-none" style={{ backgroundColor: dotColor, boxShadow: `0 0 10px ${dotColor}` }} />
                     </div>
                   </div>
 
@@ -222,12 +206,12 @@ const HeatmapIntelligence = ({ onBack }) => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 5, scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        className="absolute top-1/2 left-1/2 -translate-y-1/2 ml-10 w-48 bg-black/60 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl z-50 pointer-events-none"
+                        className="absolute top-1/2 left-1/2 -translate-y-1/2 ml-10 w-48 bg-white/80 backdrop-blur-xl border border-[#2d5a27]/20 rounded-none p-4 shadow-2xl z-50 pointer-events-none"
                       >
-                        <h4 className="text-white font-mukta font-bold text-lg leading-tight">{zone.name}</h4>
-                        <p className="text-white/60 text-xs font-bold uppercase tracking-wider mt-1">{data.title}</p>
+                        <h4 className="text-[#1a2f1c] font-mukta font-bold text-lg leading-tight">{zone.name}</h4>
+                        <p className="text-[#4a5d4e] text-xs font-bold uppercase tracking-wider mt-1">{data.title}</p>
                         <p className="text-3xl font-mukta font-bold mt-2" style={{ color: dotColor }}>{zone.value}</p>
-                        <p className="text-white/80 text-xs font-hind mt-3 leading-snug">{zone.insight}</p>
+                        <p className="text-[#1a2f1c] font-bold text-xs font-hind mt-3 leading-snug">{zone.insight}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -241,7 +225,7 @@ const HeatmapIntelligence = ({ onBack }) => {
       {/* FLOATING LEGEND */}
       <div className="absolute top-[35%] left-5 z-20 w-8 flex flex-col items-center gap-2">
         <span className="text-[10px] font-bold text-white/50 uppercase origin-left -rotate-90 whitespace-nowrap mb-6">{data.legend.high}</span>
-        <div className={`w-3 h-32 rounded-full bg-gradient-to-b ${data.legend.gradient} shadow-[0_0_15px_rgba(255,255,255,0.1)]`} />
+        <div className={`w-3 h-32 rounded-none bg-gradient-to-b ${data.legend.gradient} shadow-[0_0_15px_rgba(255,255,255,0.1)]`} />
         <span className="text-[10px] font-bold text-white/50 uppercase origin-left -rotate-90 whitespace-nowrap mt-8">{data.legend.low}</span>
       </div>
 
@@ -255,16 +239,16 @@ const HeatmapIntelligence = ({ onBack }) => {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="absolute bottom-0 left-0 w-full z-50 p-4"
           >
-            <div className="bg-black/60 backdrop-blur-2xl border border-white/15 rounded-[2rem] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
-              <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5 cursor-pointer" onClick={() => setPanelOpen(false)} />
+            <div className="bg-white/80 backdrop-blur-2xl border border-[#2d5a27]/20 rounded-none p-6 shadow-[0_-10px_40px_rgba(45,90,39,0.1)]">
+              <div className="w-12 h-1 bg-[#2d5a27]/20 rounded-none mx-auto mb-5 cursor-pointer" onClick={() => setPanelOpen(false)} />
               
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center flex-shrink-0 text-white shadow-inner">
+                <div className="w-12 h-12 rounded-none bg-[#f4f1e1] flex items-center justify-center flex-shrink-0 text-[#2d5a27] shadow-inner">
                   <LayerIcon className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-white/50 text-xs uppercase font-bold tracking-widest mb-1">Smart Engine Insight</h3>
-                  <p className="text-white text-base font-hind leading-relaxed font-bold">
+                  <h3 className="text-[#4a5d4e] text-xs uppercase font-bold tracking-widest mb-1">Smart Engine Insight</h3>
+                  <p className="text-[#1a2f1c] text-base font-hind leading-relaxed font-bold">
                     {data.panelInsights}
                   </p>
                 </div>
@@ -278,7 +262,7 @@ const HeatmapIntelligence = ({ onBack }) => {
       {!panelOpen && (
         <button 
           onClick={() => setPanelOpen(true)}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 bg-black/60 backdrop-blur-xl border border-white/15 rounded-full px-6 py-3 text-white font-bold text-sm shadow-xl flex items-center gap-2 active:scale-95 transition-transform"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/80 backdrop-blur-xl border border-[#2d5a27]/20 rounded-none px-6 py-3 text-[#1a2f1c] font-bold text-sm shadow-xl flex items-center gap-2 active:scale-95 transition-transform"
         >
           <ChevronUp className="w-4 h-4" /> Expand Insights
         </button>

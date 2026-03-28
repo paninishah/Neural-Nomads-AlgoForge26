@@ -24,15 +24,7 @@ export default function MandiPage({ onBack }: any) {
   const diff = crop.market - crop.your;
 
   return (
-    <div className="min-h-screen pb-32 relative bg-gradient-to-b from-[#f5f7f4] via-[#eef3ef] to-[#e8efe9]">
-
-      {/* 🌿 Glow */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-[-100px] left-[-100px] w-[300px] h-[300px] bg-green-300/20 blur-3xl rounded-full" />
-        <div className="absolute bottom-[-120px] right-[-100px] w-[300px] h-[300px] bg-yellow-300/20 blur-3xl rounded-full" />
-      </div>
-
-      <ScreenHeader onBack={onBack} title="Market Intelligence" icon="📊" />
+    <div className="space-y-6 w-full max-w-5xl mx-auto">
 
       <div className="px-5 mt-4 space-y-5">
 
@@ -40,7 +32,7 @@ export default function MandiPage({ onBack }: any) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-green-600 to-green-700 text-white p-5 rounded-2xl shadow-xl"
+          className="bg-gradient-to-r from-green-600 to-green-700 text-white p-5 rounded-none shadow-xl"
         >
           <p className="text-sm opacity-80">Smart Insight</p>
           <h2 className="text-xl font-bold mt-1">
@@ -57,7 +49,7 @@ export default function MandiPage({ onBack }: any) {
             <button
               key={i}
               onClick={() => setSelected(i)}
-              className={`flex-1 py-2 rounded-xl font-semibold ${
+              className={`flex-1 py-2 rounded-none font-semibold ${
                 selected === i
                   ? "bg-green-700 text-white"
                   : "bg-white/80 backdrop-blur border"
@@ -78,7 +70,7 @@ export default function MandiPage({ onBack }: any) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className={`p-4 rounded-2xl flex justify-between items-center ${
+                className={`p-4 rounded-none flex justify-between items-center ${
                   m.best
                     ? "bg-green-100 border-2 border-green-500 scale-[1.02]"
                     : "bg-white/80 border"
@@ -103,7 +95,7 @@ export default function MandiPage({ onBack }: any) {
         </div>
 
         {/* 📊 PRICE COMPARISON */}
-        <div className="bg-white/80 backdrop-blur rounded-2xl p-4 border">
+        <div className="bg-white/80 backdrop-blur rounded-none p-4 border">
           <h3 className="font-semibold mb-3">Your Price vs Market</h3>
 
           {/* Your */}
@@ -112,7 +104,7 @@ export default function MandiPage({ onBack }: any) {
               <span>You</span>
               <span>₹{crop.your}</span>
             </div>
-            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-3 bg-gray-200 rounded-none overflow-hidden">
               <div
                 className="h-full bg-yellow-400 transition-all duration-700"
                 style={{ width: `${(crop.your / crop.market) * 100}%` }}
@@ -126,7 +118,7 @@ export default function MandiPage({ onBack }: any) {
               <span>Market</span>
               <span>₹{crop.market}</span>
             </div>
-            <div className="h-3 bg-gray-200 rounded-full">
+            <div className="h-3 bg-gray-200 rounded-none">
               <div className="h-full bg-green-600 w-full" />
             </div>
           </div>
@@ -138,7 +130,7 @@ export default function MandiPage({ onBack }: any) {
         </div>
 
         {/* 📈 TREND */}
-        <div className="bg-white/80 rounded-2xl p-4 border">
+        <div className="bg-white/80 rounded-none p-4 border">
           <h3 className="font-semibold mb-3">7-Day Trend</h3>
 
           <div className="flex items-end gap-1 h-24">
@@ -152,7 +144,7 @@ export default function MandiPage({ onBack }: any) {
                   key={i}
                   initial={{ height: 0 }}
                   animate={{ height: `${h}%` }}
-                  className={`flex-1 rounded-t ${
+                  className={`flex-1 rounded-none ${
                     i === trend.length - 1
                       ? "bg-green-600"
                       : "bg-green-300"
@@ -169,7 +161,7 @@ export default function MandiPage({ onBack }: any) {
         </div>
 
         {/* 🤖 AI */}
-        <div className="bg-green-50 border-l-4 border-green-600 rounded-2xl p-4">
+        <div className="bg-green-50 border-l-4 border-green-600 rounded-none p-4">
           <h3 className="font-bold text-green-800">AI Recommendation</h3>
           <p className="mt-1 text-sm">
             <span className="font-bold">WAIT 2 DAYS</span> — price expected ₹2250
@@ -177,7 +169,7 @@ export default function MandiPage({ onBack }: any) {
         </div>
 
         {/* 💬 NEGOTIATION */}
-        <div className="bg-yellow-50 border rounded-2xl p-4">
+        <div className="bg-yellow-50 border rounded-none p-4">
           <h3 className="font-semibold mb-2">Negotiation Script</h3>
           <p className="italic text-sm">
             "Bhaiya mandi mein ₹2180 chal raha hai, aap kam de rahe ho."
@@ -187,7 +179,7 @@ export default function MandiPage({ onBack }: any) {
 
       {/* 🎤 VOICE */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
-        <div className="bg-green-600 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2">
+        <div className="bg-green-600 text-white px-6 py-3 rounded-none shadow-lg flex items-center gap-2">
           <VoiceButton size="sm" />
           Ask by voice
         </div>

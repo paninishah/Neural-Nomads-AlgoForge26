@@ -6,6 +6,8 @@ import FraudDetection from "@/components/FraudDetection";
 import LoanDecoder from "@/components/LoanDecoder";
 import LegalAction from "@/components/LegalAction";
 import HeatmapIntelligence from "@/components/HeatmapIntelligence";
+import AppLayout from "@/components/AppLayout";
+import { theme } from "@/designSystem";
 
 type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap";
 export type Lang = "en" | "hi";
@@ -17,16 +19,20 @@ const Index = () => {
   const navigate = (s: Screen) => setScreen(s);
   const toggleLang = () => setLang(l => (l === "en" ? "hi" : "en"));
 
+  if (screen === "hero") {
+    // Keep hero separate as it's the landing page wrapper before they log into the OS
+    return <HeroLanding onEnter={() => navigate("home")} lang={lang} onToggleLang={toggleLang} />;
+  }
+
   return (
-    <div className="min-h-screen bg-background font-mukta texture-jute overflow-x-hidden">
-      {screen === "hero" && <HeroLanding onEnter={() => navigate("home")} lang={lang} onToggleLang={toggleLang} />}
+    <AppLayout currentScreen={screen} onNavigate={navigate} lang={lang} onToggleLang={toggleLang}>
       {screen === "home" && <HomeDashboard onNavigate={navigate} lang={lang} onToggleLang={toggleLang} />}
       {screen === "mandi" && <MandiPrice onBack={() => navigate("home")} lang={lang} />}
       {screen === "fraud" && <FraudDetection onBack={() => navigate("home")} lang={lang} />}
       {screen === "loan" && <LoanDecoder onBack={() => navigate("home")} lang={lang} />}
       {screen === "legal" && <LegalAction onBack={() => navigate("home")} lang={lang} />}
       {screen === "heatmap" && <HeatmapIntelligence onBack={() => navigate("home")} />}
-    </div>
+    </AppLayout>
   );
 };
 

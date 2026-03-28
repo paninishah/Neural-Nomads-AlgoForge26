@@ -25,7 +25,7 @@ const VoiceButton = ({ size = "md", label }: VoiceButtonProps) => {
     <div className="flex flex-col items-center gap-2">
       <button
         onClick={() => setActive(!active)}
-        className={`relative ${sizes[size]} rounded-full flex items-center justify-center transition-all duration-300 bg-primary text-primary-foreground ${
+        className={`relative ${sizes[size]} rounded-none flex items-center justify-center transition-all duration-300 bg-primary text-primary-foreground ${
           active ? "scale-110 shadow-[0_0_30px_hsl(var(--kisan-green)/0.5)]" : ""
         }`}
         style={{
@@ -34,8 +34,8 @@ const VoiceButton = ({ size = "md", label }: VoiceButtonProps) => {
       >
         {active && (
           <>
-            <span className="absolute inset-0 rounded-full border-2 border-primary animate-ripple" style={{ animationDelay: "0s" }} />
-            <span className="absolute inset-0 rounded-full border-2 border-primary animate-ripple" style={{ animationDelay: "0.5s" }} />
+            <span className="absolute inset-0 rounded-none border-2 border-primary animate-ripple" style={{ animationDelay: "0s" }} />
+            <span className="absolute inset-0 rounded-none border-2 border-primary animate-ripple" style={{ animationDelay: "0.5s" }} />
           </>
         )}
         <Mic className={`${iconSizes[size]} relative z-10`} />
@@ -48,7 +48,7 @@ const VoiceButton = ({ size = "md", label }: VoiceButtonProps) => {
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="w-1 rounded-full bg-primary"
+              className="w-1 rounded-none bg-primary"
               style={{
                 height: `${8 + Math.sin(Date.now() / 200 + i) * 8}px`,
                 animation: `wheat-sway ${0.6 + i * 0.08}s ease-in-out infinite`,

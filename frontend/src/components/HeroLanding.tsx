@@ -114,7 +114,7 @@ const HeroLanding = ({ onEnter, lang, onToggleLang }: HeroLandingProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent">
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img src={heroFarm} alt="Indian wheat field at sunrise" className="w-full h-full object-cover scale-110" style={{ filter: "blur(1px)" }} />
@@ -145,13 +145,13 @@ const HeroLanding = ({ onEnter, lang, onToggleLang }: HeroLandingProps) => {
             </p>
             <p className="text-sm md:text-base text-primary-foreground/60 font-hind mb-8">{t.subtext}</p>
             <div className="flex flex-col sm:flex-row items-start gap-4 mb-10 lg:mb-0">
-              <button onClick={onEnter} className="flex items-center gap-2.5 px-8 py-4 rounded-lg bg-kisan-yellow text-foreground font-bold text-lg shadow-xl active:scale-[0.97] transition-transform font-mukta" style={{ boxShadow: "0 6px 24px hsl(48 96% 58% / 0.35)" }}>{t.cta1}</button>
-              <button onClick={onEnter} className="px-6 py-4 rounded-lg border-2 border-primary-foreground/30 text-primary-foreground font-semibold text-base hover:bg-primary-foreground/10 transition-colors font-mukta">{t.cta2}</button>
+              <button onClick={onEnter} className="flex items-center gap-2.5 px-8 py-4 rounded-none bg-kisan-yellow text-foreground font-bold text-lg shadow-xl active:scale-[0.97] transition-transform font-mukta" style={{ boxShadow: "0 6px 24px hsl(48 96% 58% / 0.35)" }}>{t.cta1}</button>
+              <button onClick={onEnter} className="px-6 py-4 rounded-none border-2 border-primary-foreground/30 text-primary-foreground font-semibold text-base hover:bg-primary-foreground/10 transition-colors font-mukta">{t.cta2}</button>
             </div>
           </div>
 
           <div className={`flex-shrink-0 w-full lg:w-[380px] transition-all duration-1000 delay-300 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}>
-            <div className="rounded-2xl border border-primary-foreground/10 overflow-hidden" style={{ background: "hsl(48 50% 93% / 0.95)", boxShadow: "0 20px 60px hsl(0 0% 0% / 0.35)" }}>
+            <div className="rounded-none border border-primary-foreground/10 overflow-hidden" style={{ background: "hsl(48 50% 93% / 0.95)", boxShadow: "0 20px 60px hsl(0 0% 0% / 0.35)" }}>
               <div className="px-5 pt-5 pb-3 border-b border-border/40">
                 <p className="text-xs text-muted-foreground font-hind mb-1">{t.mockHeader}</p>
                 <p className="text-base font-bold text-foreground font-mukta">{t.mockTitle}</p>
@@ -163,7 +163,7 @@ const HeroLanding = ({ onEnter, lang, onToggleLang }: HeroLandingProps) => {
                       <p className="text-sm font-semibold text-foreground font-mukta">{item.label}</p>
                       <p className="text-xs text-muted-foreground font-hind">You: {item.you} · Market: {item.market}</p>
                     </div>
-                    <span className={`text-sm font-bold font-mukta px-2.5 py-1 rounded-md ${item.alert ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>{item.diff}</span>
+                    <span className={`text-sm font-bold font-mukta px-2.5 py-1 rounded-none ${item.alert ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>{item.diff}</span>
                   </div>
                 ))}
               </div>
@@ -202,7 +202,7 @@ const HeroLanding = ({ onEnter, lang, onToggleLang }: HeroLandingProps) => {
             <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground font-mukta mb-3">{t.voiceTitle}</h2>
             <p className="text-primary-foreground/70 font-hind text-base mb-8 max-w-md mx-auto">{t.voiceDesc}</p>
             <div className="flex justify-center mb-8"><VoiceButton /></div>
-            <button onClick={onEnter} className="px-8 py-4 rounded-lg bg-kisan-yellow text-foreground font-bold text-lg shadow-xl active:scale-[0.97] transition-transform font-mukta" style={{ boxShadow: "0 6px 24px hsl(48 96% 58% / 0.3)" }}>{t.voiceCta}</button>
+            <button onClick={onEnter} className="px-8 py-4 rounded-none bg-kisan-yellow text-foreground font-bold text-lg shadow-xl active:scale-[0.97] transition-transform font-mukta" style={{ boxShadow: "0 6px 24px hsl(48 96% 58% / 0.3)" }}>{t.voiceCta}</button>
           </div>
         </RevealSection>
       </section>
