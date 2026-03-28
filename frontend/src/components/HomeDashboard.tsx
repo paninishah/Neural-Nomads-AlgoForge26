@@ -24,6 +24,7 @@ interface HomeDashboardProps {
   onToggleLang: () => void;
   role: Role;
   openChat?: () => void;
+  onStartTour?: () => void;
 }
 
 // ----------------------------------------------------------------------
@@ -301,10 +302,10 @@ const PresentationHeatmaps = () => {
 // ----------------------------------------------------------------------
 // MAIN EXPORT
 // ----------------------------------------------------------------------
-const HomeDashboard = ({ onNavigate, role, openChat }: HomeDashboardProps) => {
+const HomeDashboard = ({ onNavigate, role, openChat, onStartTour }: HomeDashboardProps) => {
   if (role === "admin") return <AdminSection />;
   if (role === "ngo") return <NgoDashboardSection />;
-  return <FarmerDashboard onNavigate={onNavigate} openChat={openChat || (() => {})} />;
+  return <FarmerDashboard onNavigate={onNavigate} openChat={openChat || (() => {})} onStartTour={onStartTour} />;
 };
 
 export default HomeDashboard;

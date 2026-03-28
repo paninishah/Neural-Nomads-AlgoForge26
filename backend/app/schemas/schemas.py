@@ -56,6 +56,7 @@ class LoginResponse(BaseModel):
     role: str
     token: str
     verification_status: str
+    onboarding_completed: bool
 
 
 class UserOut(BaseModel):
@@ -66,6 +67,7 @@ class UserOut(BaseModel):
     verification_status: str
     phone_verified: bool
     ngo_verified: bool
+    onboarding_completed: bool
     full_name: Optional[str] = None
     organization_name: Optional[str] = None
     created_at: datetime

@@ -46,6 +46,7 @@ def register_ngo(payload: NGORegisterRequest, db: Session = Depends(get_db)):
             "role": user.role,
             "token": token,
             "verification_status": user.verification_status,
+            "onboarding_completed": True,
         },
     )
 
@@ -72,6 +73,7 @@ def login_ngo(payload: NGOLoginRequest, db: Session = Depends(get_db)):
             "role": user.role,
             "token": token,
             "verification_status": user.verification_status,
+            "onboarding_completed": True,
         },
     )
 
@@ -111,7 +113,9 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         {
             "user_id": user.id,
             "role": user.role,
+            "token": "", 
             "verification_status": user.verification_status,
+            "onboarding_completed": user.onboarding_completed,
         },
     )
 
@@ -138,8 +142,22 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
             "role": user.role,
             "token": token,
             "verification_status": user.verification_status,
+            "onboarding_completed": user.onboarding_completed,
         },
     )
+
+
+@router.post("/onboarding/complete")
+def complete_onboarding(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """Mark onboarding as completed for the current user."""
+    repo = UserRepository(db)
+    success_flag = repo.complete_onboarding(current_user.id)
+    if not success_flag:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"status": "success", "message_text": "Onboarding marked as complete"}
 
 
 @router.get("/me")
@@ -157,6 +175,7 @@ def get_me(current_user=Depends(get_current_user)):
             "display_name": current_user.full_name or current_user.name,  # always populated
             "organization_name": current_user.organization_name,
             "verification_status": current_user.verification_status,
+            "onboarding_completed": current_user.onboarding_completed,
             "phone_verified": current_user.phone_verified,
             "ngo_verified": current_user.ngo_verified,
             "created_at": current_user.created_at.isoformat(),

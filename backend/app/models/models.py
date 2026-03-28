@@ -68,6 +68,7 @@ class User(Base):
     )
     phone_verified = Column(Boolean, default=False)
     ngo_verified = Column(Boolean, default=False)
+    onboarding_completed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

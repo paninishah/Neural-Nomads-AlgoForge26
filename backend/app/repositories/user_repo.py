@@ -22,7 +22,8 @@ class UserRepository:
             phone=phone, 
             hashed_password=hashed_password, 
             role=role, 
-            phone_verified=True
+            phone_verified=True,
+            onboarding_completed=(role != "farmer")
         )
         self.db.add(user)
         self.db.commit()
@@ -39,7 +40,8 @@ class UserRepository:
             role=UserRole.ngo,
             phone_verified=False,
             ngo_verified=False, # NGO starts as unverified
-            verification_status=VerificationStatus.unverified
+            verification_status=VerificationStatus.unverified,
+            onboarding_completed=True
         )
         self.db.add(user)
         self.db.commit()
@@ -109,6 +111,15 @@ class UserRepository:
         self.db.commit()
         self.db.refresh(user)
         return user
+
+    def complete_onboarding(self, user_id: str) -> bool:
+        user = self.get_by_id(user_id)
+        if not user:
+            return False
+        user.onboarding_completed = True
+        user.updated_at = datetime.utcnow()
+        self.db.commit()
+        return True
 
     def get_farmers_by_status(self, status: str) -> list[User]:
         return (

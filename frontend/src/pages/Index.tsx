@@ -14,6 +14,7 @@ import RoleLogin, { Role } from "@/components/RoleLogin";
 import NGODashboard from "@/components/NGODashboard";
 import AdminDashboard from "@/components/AdminDashboard";
 import VoiceAssistant from "@/components/VoiceAssistant";
+import OnboardingTour from "@/components/onboarding/OnboardingTour";
 
 type Screen = "vine" | "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap" | "wallet" | "profile";
 export type Lang = "en" | "hi";
@@ -22,6 +23,9 @@ const Index = () => {
   const [screen, setScreen] = useState<Screen>("vine");
   const [lang, setLang] = useState<Lang>("en");
   const [role, setRole] = useState<Role | null>(null);
+  const [isTourActive, setIsTourActive] = useState(false);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(localStorage.getItem("annadata_onboarding_completed") === "true");
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const navigate = (s: Screen) => setScreen(s);
   const toggleLang = () => setLang(l => (l === "en" ? "hi" : "en"));
@@ -29,6 +33,8 @@ const Index = () => {
   const handleLogout = () => {
     setRole(null);
     setScreen("home");
+    setShowOnboarding(false);
+    setIsTourActive(false);
   };
 
   if (screen === "vine") {
@@ -48,6 +54,7 @@ const Index = () => {
           lang={lang} 
           onToggleLang={toggleLang} 
           role={role} 
+          onStartTour={() => setIsTourActive(true)}
         />
       )}
       {screen === "mandi" && <MandiPrice onBack={() => navigate("home")} lang={lang} />}
@@ -60,6 +67,14 @@ const Index = () => {
       
       {role === "farmer" && (
         <VoiceAssistant role={role} onNavigate={navigate} />
+      )}
+
+      {role === "farmer" && (!onboardingCompleted || isTourActive) && (
+        <OnboardingTour onComplete={() => {
+          localStorage.setItem("annadata_onboarding_completed", "true");
+          setOnboardingCompleted(true);
+          setIsTourActive(false);
+        }} />
       )}
     </AppLayout>
   );

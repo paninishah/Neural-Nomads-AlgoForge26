@@ -116,6 +116,9 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
         if (d.token)   localStorage.setItem("annadata_token", d.token);
         if (d.user_id) localStorage.setItem("annadata_user_id", d.user_id);
         if (d.role)    localStorage.setItem("annadata_role", d.role);
+        if (d.onboarding_completed !== undefined) {
+          localStorage.setItem("annadata_onboarding_completed", String(d.onboarding_completed));
+        }
         // Store registration form location immediately (available even before profile is created)
         if (stateName) localStorage.setItem("annadata_user_state", stateName);
         if (district)  localStorage.setItem("annadata_user_district", district);
@@ -130,6 +133,9 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
           if (me.phone)             localStorage.setItem("annadata_user_phone", me.phone);
           if (me.email)             localStorage.setItem("annadata_user_email", me.email);
           if (me.verification_status) localStorage.setItem("annadata_verification_status", me.verification_status);
+          if (me.onboarding_completed !== undefined) {
+            localStorage.setItem("annadata_onboarding_completed", String(me.onboarding_completed));
+          }
 
           // Fetch profile to get state/district for mandi location filtering
           if (d.user_id) {

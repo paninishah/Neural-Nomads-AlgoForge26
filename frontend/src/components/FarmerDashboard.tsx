@@ -5,7 +5,7 @@ import {
   Store, Landmark, ShieldCheck, 
   MessageSquare, Bot, List, 
   ChevronRight, Clock, CheckCircle2,
-  AlertCircle, Map
+  AlertCircle, Map, CloudRain, Activity
 } from "lucide-react";
 import { apiClient } from "@/lib/apiClient";
 import { APIResponse } from "@/lib/api";
@@ -13,9 +13,10 @@ import { APIResponse } from "@/lib/api";
 interface FarmerDashboardProps {
   onNavigate: (screen: string) => void;
   openChat?: () => void;
+  onStartTour?: () => void;
 }
 
-const FarmerDashboard = ({ onNavigate, openChat }: FarmerDashboardProps) => {
+const FarmerDashboard = ({ onNavigate, openChat, onStartTour }: FarmerDashboardProps) => {
   const { t } = useTranslation();
   const userName = localStorage.getItem("annadata_user_name") || "Farmer";
   const userId = localStorage.getItem("annadata_user_id");
@@ -41,12 +42,13 @@ const FarmerDashboard = ({ onNavigate, openChat }: FarmerDashboardProps) => {
   }, [userId]);
 
   const ACTIONS = [
-    { id: "mandi",     label: t("nav.mandiPrices"),       icon: Store,        color: "bg-[#f1f8f3] text-[#408447] border-[#408447]/20" },
-    { id: "loan",      label: t("nav.loanDecoder"),       icon: Landmark,     color: "bg-[#eef6fc] text-[#3174a1] border-[#3174a1]/20" },
-    { id: "fraud",     label: t("nav.inputVerification"), icon: ShieldCheck,  color: "bg-[#fdf2f2] text-[#c82b28] border-[#c82b28]/20" },
-    { id: "legal",     label: t("nav.legalAid"),          icon: MessageSquare, color: "bg-[#fdf5e8] text-[#e18b2c] border-[#e18b2c]/20" },
-    { id: "heatmap",   label: t("nav.mapIntelligence"),   icon: Map,          color: "bg-[#f0f9ff] text-[#0369a1] border-[#0369a1]/20" },
-    { id: "wallet",    label: t("nav.farmerWallet"),      icon: List,         color: "bg-gray-50 text-gray-700 border-gray-200" },
+    { id: "mandi",     label: t("nav.mandiPrices"),       icon: Store,        color: "bg-[#f1f8f3] text-[#408447] border-[#408447]/20", tourId: "tour-mandi" },
+    { id: "loan",      label: t("nav.loanDecoder"),       icon: Landmark,     color: "bg-[#eef6fc] text-[#3174a1] border-[#3174a1]/20", tourId: "tour-loan" },
+    { id: "fraud",     label: t("nav.inputVerification"), icon: ShieldCheck,  color: "bg-[#fdf2f2] text-[#c82b28] border-[#c82b28]/20", tourId: "tour-fraud" },
+    { id: "legal",     label: t("nav.legalAid"),          icon: MessageSquare, color: "bg-[#fdf5e8] text-[#e18b2c] border-[#e18b2c]/20", tourId: "tour-legal" },
+    { id: "weather",   label: t("nav.weather"),           icon: CloudRain,    color: "bg-[#f5f3ff] text-[#7c3aed] border-[#7c3aed]/20", tourId: "tour-weather" },
+    { id: "heatmap",   label: t("nav.mapIntelligence"),   icon: Map,          color: "bg-[#f0f9ff] text-[#0369a1] border-[#0369a1]/20", tourId: "tour-heatmap" },
+    { id: "wallet",    label: t("nav.farmerWallet"),      icon: List,         color: "bg-gray-50 text-gray-700 border-gray-200", tourId: "tour-wallet" },
   ];
 
   return (
@@ -61,7 +63,28 @@ const FarmerDashboard = ({ onNavigate, openChat }: FarmerDashboardProps) => {
           <p className="mt-2 text-white/70 font-medium max-w-md">
             {t("dashboard.oneScreenSubtitle")}
           </p>
+          <div id="tour-ai" className="mt-4 p-3 bg-white/10 backdrop-blur-md rounded border border-white/10 inline-flex items-center gap-2">
+             <Bot className="w-4 h-4 text-[#d4cb7e]" />
+             <span className="text-xs font-bold uppercase tracking-widest">{t("onboarding.aiTitle")}</span>
+             <ChevronRight className="w-3 h-3 text-white/40" />
+          </div>
         </div>
+        
+        {/* Manual Tour Trigger */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onStartTour}
+          className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 px-6 py-3 flex items-center gap-3 text-white transition-all group shadow-xl"
+        >
+          <div className="w-8 h-8 rounded-full bg-[#d4cb7e] flex items-center justify-center group-hover:bg-[#408447] transition-colors">
+            <Activity className="w-4 h-4 text-[#1a1a1a]" />
+          </div>
+          <div className="text-left">
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-60 leading-none mb-1">Guide</p>
+            <p className="text-sm font-bold leading-none">{t("common.viewTour", "Take a Tour")}</p>
+          </div>
+        </motion.button>
       </div>
 
       {/* Grid Interface */}
@@ -69,6 +92,7 @@ const FarmerDashboard = ({ onNavigate, openChat }: FarmerDashboardProps) => {
         {ACTIONS.map((action) => (
           <motion.button
             key={action.id}
+            id={action.tourId}
             whileHover={{ y: -4, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onNavigate(action.id)}

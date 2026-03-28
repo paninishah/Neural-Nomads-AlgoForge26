@@ -7,7 +7,8 @@
     "legalAid": "Legal Aid",
     "farmerWallet": "Farmer Wallet",
     "mapIntelligence": "Map Intelligence",
-    "myProfile": "My Profile"
+    "myProfile": "My Profile",
+    "weather": "Weather Intelligence"
   },
   "common": {
     "search": "Search farmers, cases, crops...",
@@ -17,6 +18,13 @@
     "cancel": "Cancel",
     "back": "Back",
     "save": "Save",
+    "next": "Next",
+    "skip": "Skip",
+    "finish": "Finish",
+    "start": "Start Tour",
+    "step": "Step",
+    "close": "Close",
+    "maybeLater": "Maybe Later",
     "language": "Language"
   },
   "auth": {
@@ -198,5 +206,22 @@
     "checkPesticide": "Check Pesticide",
     "sellCrop": "Sell Crop",
     "connectError": "I'm having trouble connecting right now. Please try again later."
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to Annadata! 🌾",
+    "welcomeSub": "Let's take a quick tour and see how this app can help you earn more.",
+    "mandiTitle": "Live Mandi Prices",
+    "mandiDesc": "See today's crop prices in markets near you. Sell at the right time and get higher profits.",
+    "fraudTitle": "Fertilizer & Medicine Check",
+    "fraudDesc": "Check if your pesticide is genuine. Avoid fraud and save your farm.",
+    "loanTitle": "Loan Guidance",
+    "loanDesc": "Understand why loans get rejected and know what to do next.",
+    "weatherTitle": "Weather Insights",
+    "weatherDesc": "Predict rain and plan your farming activities better.",
+    "aiTitle": "Smart Advice",
+    "aiDesc": "Get smart suggestions to earn more. Just speak and ask!",
+    "readyTitle": "You're Ready! 🎉",
+    "readyDesc": "Now you're ready for smart farming. All the best!",
+    "startFarming": "Start Farming"
   }
 }
