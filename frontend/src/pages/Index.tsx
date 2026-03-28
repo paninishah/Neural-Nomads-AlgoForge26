@@ -4,12 +4,13 @@ import HomeDashboard from "@/components/HomeDashboard";
 import MandiPrice from "@/components/MandiPrice";
 import FraudDetection from "@/components/FraudDetection";
 import LoanDecoder from "@/components/LoanDecoder";
-import LegalAction from "@/components/LegalAction";
 import HeatmapIntelligence from "@/components/HeatmapIntelligence";
+import FarmerWallet from "@/components/FarmerWallet";
+import LegalAction from "@/components/LegalAction";
 import AppLayout from "@/components/AppLayout";
 import { theme } from "@/designSystem";
 
-type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap";
+type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap" | "wallet";
 export type Lang = "en" | "hi";
 
 const Index = () => {
@@ -31,6 +32,7 @@ const Index = () => {
       {screen === "fraud" && <FraudDetection onBack={() => navigate("home")} lang={lang} />}
       {screen === "loan" && <LoanDecoder onBack={() => navigate("home")} lang={lang} />}
       {screen === "legal" && <LegalAction onBack={() => navigate("home")} lang={lang} />}
+      {screen === "wallet" && <FarmerWallet onNavigate={navigate} />}
       {screen === "heatmap" && <HeatmapIntelligence onBack={() => navigate("home")} />}
     </AppLayout>
   );

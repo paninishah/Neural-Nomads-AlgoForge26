@@ -28,7 +28,8 @@ const SIDEBAR_ITEMS = [
   { id: "fraud", label: "Input Verification", icon: ShieldCheck },
   { id: "loan", label: "Loan Decoder", icon: Landmark },
   { id: "legal", label: "Legal Aid", icon: Scale },
-  { id: "heatmap", label: "Map Intelligence", icon: Briefcase }, // Reused "Case Management" slot for Heatmap
+  { id: "wallet", label: "Farmer Wallet", icon: Briefcase }, // Replaced Case Management slot with Wallet as requested
+  { id: "heatmap", label: "Map Intelligence", icon: LayoutDashboard }, 
 ];
 
 const SECONDARY_ITEMS = [
