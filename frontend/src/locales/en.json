@@ -54,7 +54,15 @@
     "trustScore": "Trust Score",
     "riskZone": "Risk Zone",
     "activeModules": "Active Modules",
-    "todayAlerts": "Today's Alerts"
+    "todayAlerts": "Today's Alerts",
+    "oneScreenSubtitle": "Everything your farm needs, right here on one screen.",
+    "requestStatus": "Your Request Status",
+    "seeAll": "See All",
+    "noRequests": "You haven't made any requests yet.",
+    "assistantTip": "Assistant Tip",
+    "assistantTipText": "You can ask me to help with your crop listing or loan eligibility. Just tap the purple bot button!",
+    "myRequests": "My Requests",
+    "annadataAi": "Annadata AI"
   },
   "mandi": {
     "title": "Mandi Price Intelligence",
@@ -71,7 +79,11 @@
     "currentPrice": "Current Price",
     "bestPrice": "Best Price",
     "market": "Market",
-    "perQuintal": "per quintal"
+    "perQuintal": "per quintal",
+    "aiRecommendations": "AI Crop Recommendations",
+    "checkPrice": "Check Your Price",
+    "datasetMandis": "Mandis from Dataset",
+    "compareButton": "Compare with Market Price"
   },
   "fraud": {
     "title": "Input Verification",
@@ -80,7 +92,16 @@
     "reportFraud": "Report Fraud",
     "verified": "Verified",
     "suspicious": "Suspicious",
-    "fake": "Fake"
+    "fake": "Fake",
+    "scanBottle": "Upload Bottle Photo",
+    "scanBill": "Upload Purchase Bill",
+    "marketIntelligence": "Market Price Intelligence",
+    "billPrice": "Bill Price",
+    "bottleMrp": "MRP on Bottle",
+    "onlinePrice": "Online Avg Price",
+    "genuine": "Verified Genuine",
+    "fraudPotential": "Fraud Potential",
+    "suspiciousPrice": "Suspicious Pricing"
   },
   "loan": {
     "title": "Loan Decoder",
@@ -89,7 +110,24 @@
     "loanAmount": "Loan Amount",
     "tenure": "Tenure (months)",
     "interestRate": "Interest Rate",
-    "emi": "EMI"
+    "emi": "EMI",
+    "unlockPotential": "Upload your ID document to unlock your farming loan potential.",
+    "aadhaarCard": "Aadhaar Card",
+    "rationCard": "Ration Card",
+    "ocrFast": "Fastest verification via OCR.",
+    "altIdentity": "Alternative identity proof.",
+    "uploadDoc": "Upload {{type}}",
+    "startScanning": "Start OCR Scanning",
+    "processing": "Processing document...",
+    "trustScore": "Trust Score",
+    "eligible": "Eligible for Loan",
+    "improveScore": "Improve your score",
+    "identityVerified": "Identity Verified",
+    "nameMismatch": "Name Mismatch Detected",
+    "pointBreakdown": "Point Breakdown",
+    "recommendedLoan": "Recommended Loan",
+    "maxLimit": "Max Credit Limit",
+    "availableOptions": "Available Loan Options"
   },
   "legal": {
     "title": "Legal Aid",
@@ -99,15 +137,48 @@
     "status": "Status",
     "pending": "Pending",
     "resolved": "Resolved",
-    "inProgress": "In Progress"
+    "inProgress": "In Progress",
+    "smartAssistant": "Your Smart Legal Assistant",
+    "describeProblem": "Describe your problem in your own words...",
+    "analyze": "Analyze Problem",
+    "voiceNatural": "Don't worry about legal terms. Just speak naturally, and our AI will draft the right complaint for you.",
+    "recentComplaints": "My Recent Complaints",
+    "understandingIssue": "Understanding your issue...",
+    "analysisComplete": "Analysis Complete",
+    "confidence": "AI Analysis Confidence",
+    "detectedCategory": "Detected Category",
+    "estimatedLoss": "Estimated Loss",
+    "caseStrength": "Case Strength",
+    "actionableAdvice": "Actionable Legal Advice",
+    "submitComplaint": "Submit Complaint Now",
+    "emailNgo": "Email to NGO",
+    "downloadReport": "Download Report",
+    "submitted": "Your complaint has been officially submitted!",
+    "refNo": "Ref No",
+    "backToInput": "Back to Input"
   },
   "wallet": {
-    "title": "Farmer Wallet",
+    "title": "Farmer Budget Mitra",
     "balance": "Balance",
     "transactions": "Transactions",
     "send": "Send Money",
     "receive": "Receive",
-    "withdraw": "Withdraw"
+    "withdraw": "Withdraw",
+    "seasonFinancialEntry": "Season Financial Entry",
+    "unlockIntelligence": "Enter your crop details to unlock deep profit intelligence.",
+    "cropType": "Crop Type",
+    "quantityQuintals": "Quantity (Quintals)",
+    "totalSold": "Total Sold (Revenue - ₹)",
+    "totalExpenses": "Total Expenses (Seeds, Fertilizers, etc - ₹)",
+    "generateIntelligence": "Generate Profit Intelligence",
+    "runningModels": "Running Financial Models...",
+    "netSeasonOutcome": "Net Season Outcome",
+    "financialStructure": "Financial Structure",
+    "whereMoneyWent": "Where Your Money Went",
+    "performanceOverTime": "Performance Over Time",
+    "whatIfSimulator": "What-If Simulator",
+    "nearbyFarmers": "Nearby Farmers Earned",
+    "takeAction": "Take Action Now"
   },
   "profile": {
     "title": "My Profile",
@@ -115,5 +186,17 @@
     "verificationStatus": "Verification Status",
     "verified": "Verified",
     "pending": "Pending"
+  },
+  "chatbot": {
+    "title": "Annadata AI",
+    "online": "Online Assistant",
+    "greeting": "Namaste! I am your Annadata Assistant. How can I help you today?",
+    "thinking": "Thinking...",
+    "typeQuestion": "Type your question...",
+    "createRequest": "Create Request",
+    "applyLoan": "Apply for Loan",
+    "checkPesticide": "Check Pesticide",
+    "sellCrop": "Sell Crop",
+    "connectError": "I'm having trouble connecting right now. Please try again later."
   }
 }

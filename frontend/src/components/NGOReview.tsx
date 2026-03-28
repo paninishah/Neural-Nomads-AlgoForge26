@@ -3,7 +3,8 @@ import {
   Users, ShieldCheck, ShieldAlert,
   AlertTriangle, CheckCircle, XCircle,
   FileText, Activity, MapPin, Eye,
-  ArrowRight
+  ArrowRight, Clock, Landmark, MessageSquare,
+  HelpCircle, Scale
 } from "lucide-react";
 import { theme } from "@/designSystem";
 import { apiClient } from "@/lib/apiClient";
@@ -13,19 +14,22 @@ import { toast } from "sonner";
 const NGOReview = () => {
   const [farmers, setFarmers] = useState<any[]>([]);
   const [scans, setScans] = useState<any[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"farmers" | "pesticides">("farmers");
+  const [activeTab, setActiveTab] = useState<"farmers" | "pesticides" | "requests">("requests");
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [fRes, sRes] = await Promise.all([
+      const [fRes, sRes, rRes] = await Promise.all([
         apiClient.get<APIResponse<any[]>>("/ngo/farmers?filter_status=needs_manual_review"),
-        apiClient.get<APIResponse<any[]>>("/ngo/pending-scans")
+        apiClient.get<APIResponse<any[]>>("/ngo/pending-scans"),
+        apiClient.get<APIResponse<any[]>>("/requests/ngo/all")
       ]);
       
       if (fRes.data.status === "success") setFarmers(fRes.data.data);
       if (sRes.data.status === "success") setScans(sRes.data.data);
+      if (rRes.data.status === "success") setRequests(rRes.data.data);
     } catch (e) {
       toast.error("Failed to fetch review queues");
     } finally {
@@ -63,6 +67,29 @@ const NGOReview = () => {
     }
   };
 
+  const handleUpdateRequestStatus = async (requestId: string, status: string) => {
+    try {
+      await apiClient.patch(`/requests/${requestId}`, { 
+        status, 
+        ngo_notes: `Processed by NGO. Decision: ${status}` 
+      });
+      toast.success(`Request marked as ${status}`);
+      fetchData();
+    } catch (e) {
+      toast.error("Update failed");
+    }
+  };
+
+  const getRequestIcon = (type: string) => {
+    switch (type) {
+      case 'loan': return <Landmark className="w-5 h-5" />;
+      case 'pesticide_check': return <ShieldCheck className="w-5 h-5" />;
+      case 'legal_aid': return <Scale className="w-5 h-5" />;
+      case 'help_ngo': return <HelpCircle className="w-5 h-5" />;
+      default: return <FileText className="w-5 h-5" />;
+    }
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6 pb-20">
       
@@ -73,6 +100,12 @@ const NGOReview = () => {
           <p className="font-hind text-gray-500 text-sm">Reviewing anomalies and verifying identity records in your sector.</p>
         </div>
         <div className="flex bg-gray-100 p-1 rounded-none border border-[#e5e3d7]">
+           <button 
+             onClick={() => setActiveTab("requests")}
+             className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'requests' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
+           >
+              Unified Requests ({requests.length})
+           </button>
            <button 
              onClick={() => setActiveTab("farmers")}
              className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'farmers' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'}`}
@@ -91,6 +124,65 @@ const NGOReview = () => {
       {loading ? (
         <div className="p-20 flex justify-center">
            <div className="w-10 h-10 border-4 border-[#e18b2c] border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : activeTab === "requests" ? (
+        <div className="space-y-4">
+           {requests.length === 0 ? (
+             <div className="bg-white p-12 text-center border-2 border-dashed border-[#e5e3d7]">
+                <Clock className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+                <p className="font-mukta font-bold text-gray-400">No pending unified requests.</p>
+             </div>
+           ) : requests.map(req => (
+             <div key={req.id} className="bg-white border border-[#e5e3d7] hover:border-[#408447]/30 transition-all p-5 flex flex-col md:flex-row md:items-center justify-between gap-6 group">
+                <div className="flex items-center gap-4">
+                   <div className={`w-12 h-12 flex items-center justify-center border ${
+                     req.request_type === 'loan' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                     req.request_type === 'pesticide_check' ? 'bg-green-50 text-green-600 border-green-100' :
+                     'bg-amber-50 text-amber-600 border-amber-100'
+                   }`}>
+                      {getRequestIcon(req.request_type)}
+                   </div>
+                   <div>
+                      <h3 className="font-bold text-[#1a1a1a] text-lg leading-none mb-1 capitalize">
+                        {req.request_type.replace('_', ' ')}
+                      </h3>
+                      <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                         <span className="flex items-center gap-1 font-hindi text-xs">{req.user_name || "Unknown Farmer"}</span>
+                         <span className="w-1 h-1 bg-gray-300 rounded-full" />
+                         <span className="flex items-center gap-1 font-mono text-[#3174a1]">{req.id.slice(0,8)}</span>
+                      </div>
+                   </div>
+                </div>
+
+                <div className="flex-1 bg-gray-50 p-3 border-l-2 border-gray-300 min-w-[200px]">
+                   <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Farmer Context</p>
+                   <p className="text-[11px] font-bold text-[#4a3a2a] leading-tight line-clamp-2 italic">
+                     {req.payload?.description || req.payload?.text || "No details provided via assistant."}
+                   </p>
+                </div>
+
+                <div className="flex gap-2">
+                   <button 
+                     onClick={() => handleUpdateRequestStatus(req.id, "in_progress")}
+                     className="bg-white text-[#3174a1] border border-[#3174a1] px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 transition-colors"
+                   >
+                      Acknowledge
+                   </button>
+                   <button 
+                     onClick={() => handleUpdateRequestStatus(req.id, "resolved")}
+                     className="bg-[#408447] text-white px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-[#2d5d32] transition-colors"
+                   >
+                      Resolve
+                   </button>
+                   <button 
+                     onClick={() => handleUpdateRequestStatus(req.id, "rejected")}
+                     className="bg-white text-[#c82b28] border border-[#c82b28] px-4 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-red-50 transition-colors"
+                   >
+                      Decline
+                   </button>
+                </div>
+             </div>
+           ))}
         </div>
       ) : activeTab === "farmers" ? (
         <div className="space-y-4">

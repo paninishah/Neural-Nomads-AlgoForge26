@@ -33,16 +33,21 @@ class DocumentType(str, enum.Enum):
     bill = "bill"
 
 
-class HelpRequestType(str, enum.Enum):
-    fraud = "fraud"
-    legal = "legal"
-    agriculture = "agriculture"
+class RequestType(str, enum.Enum):
+    loan = "loan"
+    pesticide_check = "pesticide_check"
+    help_ngo = "help_ngo"
+    crop_listing = "crop_listing"
+    fraud_report = "fraud_report"
+    legal_aid = "legal_aid"
 
 
-class HelpRequestStatus(str, enum.Enum):
-    open = "open"
+class RequestStatus(str, enum.Enum):
+    pending = "pending"
     in_progress = "in_progress"
     resolved = "resolved"
+    flagged = "flagged"
+    rejected = "rejected"
 
 
 # ─── Models ──────────────────────────────────────────────────────────────────
@@ -71,6 +76,7 @@ class User(Base):
     admin_profile = relationship("AdminProfile", back_populates="user", uselist=False, cascade="all, delete")
     documents = relationship("Document", back_populates="user", cascade="all, delete")
     help_requests = relationship("HelpRequest", back_populates="user", cascade="all, delete", foreign_keys="[HelpRequest.user_id]")
+    unified_requests = relationship("UnifiedRequest", back_populates="user", cascade="all, delete", foreign_keys="[UnifiedRequest.user_id]")
 
 
 class FarmerProfile(Base):
@@ -141,9 +147,9 @@ class HelpRequest(Base):
 
     id = Column(String, primary_key=True, default=gen_uuid)
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    request_type = Column(Enum(HelpRequestType), nullable=False)
+    request_type = Column(Enum(RequestType), nullable=False)
     description = Column(Text, nullable=False)
-    status = Column(Enum(HelpRequestStatus), default=HelpRequestStatus.open)
+    status = Column(Enum(RequestStatus), default=RequestStatus.pending)
     ngo_notes = Column(Text, default="")
     assigned_ngo_id = Column(String, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -177,3 +183,19 @@ class PesticideScan(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User")
+
+class UnifiedRequest(Base):
+    __tablename__ = "unified_requests"
+
+    id = Column(String, primary_key=True, default=gen_uuid)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    request_type = Column(Enum(RequestType), nullable=False)
+    status = Column(Enum(RequestStatus), default=RequestStatus.pending)
+    payload = Column(Text, default="{}")  # JSON data for type-specific details
+    ngo_notes = Column(Text, default="")
+    assigned_ngo_id = Column(String, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="unified_requests", foreign_keys=[user_id])
+    assigned_ngo = relationship("User", foreign_keys=[assigned_ngo_id])

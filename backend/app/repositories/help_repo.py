@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models.models import HelpRequest, HelpRequestStatus
+from app.models.models import HelpRequest, RequestStatus
 from datetime import datetime
 
 
@@ -20,7 +20,7 @@ class HelpRequestRepository:
     def get_all_open(self) -> list[HelpRequest]:
         return (
             self.db.query(HelpRequest)
-            .filter(HelpRequest.status.in_([HelpRequestStatus.open, HelpRequestStatus.in_progress]))
+            .filter(HelpRequest.status.in_([RequestStatus.open, RequestStatus.in_progress]))
             .all()
         )
 

@@ -32,6 +32,8 @@ from app.routes import (
     voice,
     financials,
     legal,
+    requests,
+    chatbot,
 )
 
 # Logging configuration

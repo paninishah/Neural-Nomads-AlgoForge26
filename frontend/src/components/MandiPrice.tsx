@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   MapPin, TrendingUp, TrendingDown, Loader2,
   IndianRupee, Sparkles, AlertTriangle, CheckCircle2, Search
@@ -10,6 +11,7 @@ import { APIResponse, PriceCheckResponse } from "@/lib/api";
 interface Recommendation { crop: string; avg_price: number; data_points: number; }
 
 export default function MandiPage({ onBack }: any) {
+  const { t } = useTranslation();
   // --- State ---
   const [crops, setCrops]               = useState<string[]>([]);
   const [selectedCrop, setSelectedCrop] = useState<string>("");
@@ -110,7 +112,7 @@ export default function MandiPage({ onBack }: any) {
           <div className="p-4 border-b border-[#e5e3d7] bg-[#fbfaf5] flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#e18b2c]" />
             <h3 className="font-mukta font-bold text-sm uppercase tracking-widest text-[#1a1a1a]">
-              AI Crop Recommendations
+              {t("mandi.aiRecommendations")}
             </h3>
             {recScope && (
               <span className="ml-auto text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-gray-100 px-2 py-0.5">
@@ -164,7 +166,7 @@ export default function MandiPage({ onBack }: any) {
         <div className="bg-white border border-[#e5e3d7] shadow-sm">
           <div className="p-4 border-b border-[#e5e3d7] bg-[#fbfaf5]">
             <h3 className="font-mukta font-bold text-sm uppercase tracking-widest text-[#1a1a1a]">
-              Check Your Price
+              {t("mandi.checkPrice")}
             </h3>
             <p className="text-[11px] text-gray-400 mt-0.5 font-hind">
               Select a crop, enter what the trader is offering you, and we'll compare it against live market data.
@@ -251,7 +253,7 @@ export default function MandiPage({ onBack }: any) {
               className="w-full bg-[#408447] text-white py-3 font-bold uppercase tracking-widest text-sm hover:bg-[#2a5a2f] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <IndianRupee className="w-4 h-4" />}
-              {loading ? "Checking market data..." : "Compare with Market Price"}
+              {loading ? t("common.loading") : t("mandi.compareButton")}
             </button>
           </div>
         </div>
@@ -332,7 +334,7 @@ export default function MandiPage({ onBack }: any) {
                 <div className="p-4 border-b border-[#e5e3d7] bg-[#fbfaf5] flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-[#3174a1]" />
                   <h3 className="font-mukta font-bold text-sm uppercase tracking-widest text-[#1a1a1a]">
-                    Mandis from Dataset
+                    {t("mandi.datasetMandis")}
                   </h3>
                   <span className="ml-auto text-[10px] text-gray-400">{data.all_mandis?.length} mandis found</span>
                 </div>

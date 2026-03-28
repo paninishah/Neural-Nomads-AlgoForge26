@@ -13,6 +13,7 @@ import AppLayout from "@/components/AppLayout";
 import RoleLogin, { Role } from "@/components/RoleLogin";
 import NGODashboard from "@/components/NGODashboard";
 import AdminDashboard from "@/components/AdminDashboard";
+import VoiceAssistant from "@/components/VoiceAssistant";
 
 type Screen = "vine" | "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap" | "wallet" | "profile";
 export type Lang = "en" | "hi";
@@ -42,7 +43,12 @@ const Index = () => {
   return (
     <AppLayout currentScreen={screen} onNavigate={navigate} lang={lang} onToggleLang={toggleLang} role={role} onLogout={handleLogout}>
       {screen === "home" && (
-        <HomeDashboard onNavigate={navigate} lang={lang} onToggleLang={toggleLang} role={role} />
+        <HomeDashboard 
+          onNavigate={navigate} 
+          lang={lang} 
+          onToggleLang={toggleLang} 
+          role={role} 
+        />
       )}
       {screen === "mandi" && <MandiPrice onBack={() => navigate("home")} lang={lang} />}
       {screen === "fraud" && <FraudDetection onBack={() => navigate("home")} role={role} />}
@@ -51,6 +57,10 @@ const Index = () => {
       {screen === "wallet"  && <FarmerWallet onNavigate={navigate} />}
       {screen === "heatmap" && <HeatmapIntelligence onBack={() => navigate("home")} />}
       {screen === "profile" && <ProfilePage role={role} />}
+      
+      {role === "farmer" && (
+        <VoiceAssistant role={role} onNavigate={navigate} />
+      )}
     </AppLayout>
   );
 };

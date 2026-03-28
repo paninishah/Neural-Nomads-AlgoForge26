@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Upload,
   Activity,
@@ -48,6 +49,7 @@ interface CredibilityResponse {
 }
 
 export default function LoanDecoder({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>("landing");
   const [docType, setDocType] = useState<"aadhaar" | "ration_card">("aadhaar");
   const [file, setFile] = useState<File | null>(null);
@@ -147,9 +149,9 @@ export default function LoanDecoder({ onBack }: { onBack: () => void }) {
             className="space-y-6"
           >
             <div className="bg-[#13311c] text-white p-8 border-l-4 border-[#e18b2c] shadow-xl">
-              <h2 className="font-mukta font-black text-3xl mb-2">Loan AI Decoder</h2>
+              <h2 className="font-mukta font-black text-3xl mb-2">{t("loan.title")}</h2>
               <p className="font-hind text-white/80 text-lg">
-                Upload your identity document to unlock your farming credit potential.
+                {t("loan.unlockPotential")}
               </p>
             </div>
 
@@ -161,8 +163,8 @@ export default function LoanDecoder({ onBack }: { onBack: () => void }) {
                 <div className="w-12 h-12 bg-[#fbfaf5] flex items-center justify-center mb-4 group-hover:bg-[#408447] group-hover:text-white transition-colors">
                   <BadgeCheck className="w-6 h-6" />
                 </div>
-                <h3 className="font-mukta font-bold text-xl text-[#1a1a1a]">Aadhaar Card</h3>
-                <p className="text-sm text-gray-400 font-hind">Fastest verification via OCR.</p>
+                <h3 className="font-mukta font-bold text-xl text-[#1a1a1a]">{t("loan.aadhaarCard")}</h3>
+                <p className="text-sm text-gray-400 font-hind">{t("loan.ocrFast")}</p>
               </button>
 
               <button 
@@ -172,8 +174,8 @@ export default function LoanDecoder({ onBack }: { onBack: () => void }) {
                 <div className="w-12 h-12 bg-[#fbfaf5] flex items-center justify-center mb-4 group-hover:bg-[#408447] group-hover:text-white transition-colors">
                   <FileText className="w-6 h-6" />
                 </div>
-                <h3 className="font-mukta font-bold text-xl text-[#1a1a1a]">Ration Card</h3>
-                <p className="text-sm text-gray-400 font-hind">Alternate identity proofing.</p>
+                <h3 className="font-mukta font-bold text-xl text-[#1a1a1a]">{t("loan.rationCard")}</h3>
+                <p className="text-sm text-gray-400 font-hind">{t("loan.altIdentity")}</p>
               </button>
             </div>
           </motion.div>
@@ -222,7 +224,7 @@ export default function LoanDecoder({ onBack }: { onBack: () => void }) {
               className="w-full bg-[#408447] text-white py-4 font-mukta font-black text-xl flex items-center justify-center gap-3 hover:bg-[#13311c] disabled:opacity-50 transition-all shadow-lg"
             >
               <ScanLine className="w-6 h-6" />
-              Start OCR Scanning
+              {t("loan.startScanning")}
             </button>
           </motion.div>
         );
@@ -413,9 +415,7 @@ export default function LoanDecoder({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="w-full max-w-5xl mx-auto min-h-[600px] flex flex-col">
-       <button onClick={() => { if (mode === "landing") onBack(); else setMode("landing"); }} className="mb-6 flex items-center gap-2 text-gray-400 hover:text-black transition-colors font-bold text-sm uppercase tracking-widest">
-         ← Go Back
-       </button>
+       {/* Global Back Header is handled by AppLayout for farmers */}
        
        <div className="flex-1">
            {currentModeUI()}

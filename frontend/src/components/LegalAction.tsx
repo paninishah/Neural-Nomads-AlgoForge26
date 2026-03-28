@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Mic, Paperclip, Send, BrainCircuit, CheckCircle2, ShieldAlert, Sparkles, AlertTriangle, 
@@ -14,6 +15,7 @@ import { toast } from "sonner";
 type Step = 'input' | 'analyzing' | 'detected' | 'dashboard' | 'submitted';
 
 export default function LegalAction({ onBack, lang, role }: { onBack: () => void; lang: Lang; role?: Role }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>('input');
   const [inputText, setInputText] = useState("");
   const [analysisResult, setAnalysisResult] = useState<{
@@ -235,7 +237,7 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
       {/* Remove global ScreenHeader to avoid duplication with AppLayout */}
       {step !== 'input' && (
         <button className="border px-4 py-2 bg-white font-bold text-sm text-gray-600 hover:text-black mb-4 flex items-center gap-2" onClick={() => setStep('input')}>
-           ← Back to Input
+           ← {t("legal.backToInput")}
         </button>
       )}
 
@@ -251,8 +253,8 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                   <span className="text-xl">👩‍⚖️</span>
                 </div>
                 <div>
-                  <h3 className="font-mukta font-bold text-lg leading-tight text-gray-800">Hi {userName},</h3>
-                  <p className="font-hind text-sm text-gray-600">I am your smart legal assistant.</p>
+                  <h3 className="font-mukta font-bold text-lg leading-tight text-gray-800">{t("dashboard.welcomeBack")}, {userName}</h3>
+                  <p className="font-hind text-sm text-gray-600">{t("legal.smartAssistant")}</p>
                 </div>
               </div>
 
@@ -262,7 +264,7 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                   <textarea 
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder="Describe your problem in your own words..."
+                    placeholder={t("legal.describeProblem")}
                     className="w-full bg-transparent border-none outline-none resize-none font-hind text-base placeholder:text-gray-400 min-h-[140px]"
                   />
                   
@@ -293,7 +295,7 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                       disabled={!inputText}
                       className="bg-green-600 text-white px-5 py-2.5 rounded-none font-bold text-sm tracking-wide flex items-center gap-2 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
                     >
-                      Analyze <Send className="w-4 h-4 ml-1" />
+                      {t("legal.analyze")} <Send className="w-4 h-4 ml-1" />
                     </button>
                   </div>
                 </div>

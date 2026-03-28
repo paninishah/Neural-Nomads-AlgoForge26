@@ -339,3 +339,32 @@ class FinancialsRequest(BaseModel):
     quantity: float
     revenue: float
     expenses: float
+
+
+# ─── Unified Request System ───────────────────────────────────────────────────
+
+class UnifiedRequestCreate(BaseModel):
+    user_id: str
+    type: str = Field(..., description="loan, pesticide_check, help_ngo, crop_listing, fraud_report, legal_aid")
+    payload: dict = Field(default_factory=dict)
+    description: Optional[str] = None
+
+
+class UnifiedRequestUpdate(BaseModel):
+    status: str = Field(..., description="pending, in_progress, resolved, flagged, rejected")
+    ngo_notes: Optional[str] = None
+
+
+class UnifiedRequestOut(BaseModel):
+    id: str
+    user_id: str
+    request_type: str
+    status: str
+    payload: dict
+    ngo_notes: str
+    assigned_ngo_id: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

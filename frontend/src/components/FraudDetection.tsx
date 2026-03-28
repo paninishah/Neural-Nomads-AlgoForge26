@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Camera,
   FileText,
@@ -20,6 +21,7 @@ import { APIResponse } from "@/lib/api";
 type ScanMode = "gathering" | "capturing_bottle" | "capturing_bill" | "capturing_qr" | "loading" | "result";
 
 const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) => {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<ScanMode>("gathering");
   const [loadingText, setLoadingText] = useState("Running Neural OCR Processing...");
   const [inputs, setInputs] = useState({
@@ -150,7 +152,7 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
           <h2 className={`text-2xl font-bold font-mukta tracking-tight uppercase ${
             isFake ? "text-red-700" : isSuspicious ? "text-yellow-700" : "text-green-700"
           }`}>
-            {analysisResult?.status === "genuine" ? "Verified Genuine" : isFake ? "Potential Fraud" : "Suspicious Pricing"}
+            {analysisResult?.status === "genuine" ? t("fraud.genuine") : isFake ? t("fraud.fraudPotential") : t("fraud.suspiciousPrice")}
           </h2>
           
           <div className="text-xs font-bold mt-2 bg-black/5 px-3 py-1 rounded-none uppercase tracking-widest">
@@ -160,18 +162,18 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
 
         {/* PRICE COMPARISON SECTION */}
         <div className="bg-white border p-5 space-y-4">
-           <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Market Price Intelligence</h3>
+           <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">{t("fraud.marketIntelligence")}</h3>
            <div className="grid grid-cols-3 gap-2">
               <div className="p-3 bg-gray-50 border border-gray-100 text-center">
-                 <p className="text-[9px] font-bold text-gray-500 uppercase">Bill Price</p>
+                 <p className="text-[9px] font-bold text-gray-500 uppercase">{t("fraud.billPrice")}</p>
                  <p className="text-lg font-black text-gray-900">₹{billDetails?.bill_price}</p>
               </div>
               <div className="p-3 bg-gray-50 border border-gray-100 text-center">
-                 <p className="text-[9px] font-bold text-gray-500 uppercase">Bottle MRP</p>
+                 <p className="text-[9px] font-bold text-gray-500 uppercase">{t("fraud.bottleMrp")}</p>
                  <p className="text-lg font-black text-gray-900">₹{bottleDetails?.bottle_mrp}</p>
               </div>
               <div className={`p-3 border text-center ${isSuspicious || isFake ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100'}`}>
-                 <p className="text-[9px] font-bold text-gray-500 uppercase">Online Price</p>
+                 <p className="text-[9px] font-bold text-gray-500 uppercase">{t("fraud.onlinePrice")}</p>
                  <p className="text-lg font-black text-gray-900">₹{analysisResult?.industry_data?.standard_price || 0}</p>
               </div>
            </div>
@@ -340,8 +342,8 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
         <div className="space-y-6" style={{ animation: "slide-up-fade 0.3s ease-out forwards" }}>
             <div className="space-y-4">
               <InputCard
-                title="1. Upload Bottle Image"
-                subtitle="Select JPG/PNG from your laptop"
+                title={t("fraud.scanBottle")}
+                subtitle={t("fraud.verifyProduct")}
                 icon={Camera}
                 isAdded={inputs.bottle}
                 onClick={() => handleFileLocal("bottle")}
@@ -367,8 +369,8 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
               )}
 
               <InputCard
-                title="2. Upload Purchase Bill"
-                subtitle="Select JPG/PNG from your documents"
+                title={t("fraud.scanBill")}
+                subtitle={t("fraud.verifyProduct")}
                 icon={FileText}
                 isAdded={inputs.bill}
                 isDisabled={!inputs.bottle}
