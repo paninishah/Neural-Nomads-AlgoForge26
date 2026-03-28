@@ -34,7 +34,8 @@ const ALL_SIDEBAR_ITEMS = [
   { id: "loan", label: "Loan Decoder", icon: Landmark, roles: ["admin", "farmer"] },
   { id: "legal", label: "Legal Aid", icon: Scale, roles: ["admin", "farmer", "ngo"] },
   { id: "wallet", label: "Farmer Wallet", icon: Briefcase, roles: ["farmer"] },
-  { id: "heatmap", label: "Map Intelligence", icon: LayoutDashboard, roles: ["admin", "ngo", "farmer"] }, 
+  { id: "heatmap",  label: "Map Intelligence", icon: LayoutDashboard, roles: ["admin", "ngo", "farmer"] },
+  { id: "profile",  label: "My Profile",        icon: FileText,       roles: ["admin", "ngo", "farmer"] },
 ];
 
 const SECONDARY_ITEMS = [
@@ -187,7 +188,11 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
               </div>
             </button>
 
-            <div className="w-8 h-8 bg-[#254d31] text-white flex items-center justify-center text-xs font-bold border border-[#13311c]">
+            <div
+              className="w-8 h-8 bg-[#254d31] text-white flex items-center justify-center text-xs font-bold border border-[#13311c] cursor-pointer hover:bg-[#386542] transition-colors"
+              onClick={() => onNavigate('profile')}
+              title="My Profile"
+            >
               RS
             </div>
           </div>

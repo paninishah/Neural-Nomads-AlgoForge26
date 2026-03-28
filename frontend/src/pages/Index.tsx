@@ -7,10 +7,11 @@ import LoanDecoder from "@/components/LoanDecoder";
 import HeatmapIntelligence from "@/components/HeatmapIntelligence";
 import FarmerWallet from "@/components/FarmerWallet";
 import LegalAction from "@/components/LegalAction";
+import ProfilePage from "@/components/profile/ProfilePage";
 import AppLayout from "@/components/AppLayout";
 import RoleLogin, { Role } from "@/components/RoleLogin";
 
-type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap" | "wallet";
+type Screen = "hero" | "home" | "mandi" | "fraud" | "loan" | "legal" | "heatmap" | "wallet" | "profile";
 export type Lang = "en" | "hi";
 
 const Index = () => {
@@ -43,8 +44,9 @@ const Index = () => {
       {screen === "fraud" && <FraudDetection onBack={() => navigate("home")} lang={lang} role={role} />}
       {screen === "loan" && <LoanDecoder onBack={() => navigate("home")} lang={lang} />}
       {screen === "legal" && <LegalAction onBack={() => navigate("home")} lang={lang} role={role} />}
-      {screen === "wallet" && <FarmerWallet onNavigate={navigate} />}
+      {screen === "wallet"  && <FarmerWallet onNavigate={navigate} />}
       {screen === "heatmap" && <HeatmapIntelligence onBack={() => navigate("home")} />}
+      {screen === "profile" && <ProfilePage role={role} />}
     </AppLayout>
   );
 };
