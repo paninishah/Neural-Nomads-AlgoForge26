@@ -2,7 +2,6 @@ import { useState } from "react";
 import { MapPin, TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 import ScreenHeader from "./ScreenHeader";
-import VoiceButton from "./VoiceButton";
 
 const nearbyMandis = [
   { name: "Azadpur Mandi", distance: 12, price: 2220, best: true },
@@ -177,13 +176,7 @@ export default function MandiPage({ onBack }: any) {
         </div>
       </div>
 
-      {/* 🎤 VOICE */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
-        <div className="bg-green-600 text-white px-6 py-3 rounded-none shadow-lg flex items-center gap-2">
-          <VoiceButton size="sm" />
-          Ask by voice
-        </div>
-      </div>
+
     </div>
   );
 }

@@ -14,7 +14,6 @@ import {
   PlusCircle
 } from "lucide-react";
 import ScreenHeader from "./ScreenHeader";
-import VoiceButton from "./VoiceButton";
 import type { Role } from "@/components/RoleLogin";
 
 type ScanMode = "gathering" | "capturing_bottle" | "capturing_bill" | "capturing_qr" | "loading" | "result";
@@ -368,15 +367,6 @@ const FraudDetection = ({ onBack, lang, role }: { onBack: () => void; lang?: any
           </>
         )}
       </div>
-
-      {(mode === "gathering" || mode === "result") && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-          <div className="bg-card/95 backdrop-blur-md rounded-none px-5 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-border/50 flex items-center gap-3">
-            <VoiceButton size="sm" />
-            <span className="text-sm font-hind font-bold text-primary cursor-pointer hover:underline">Ask by voice</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

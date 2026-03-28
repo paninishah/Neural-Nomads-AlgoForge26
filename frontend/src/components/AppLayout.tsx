@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { Lang } from "@/pages/Index";
 import type { Role } from "@/components/RoleLogin";
+import VoiceAssistant from "./VoiceAssistant";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -198,6 +199,10 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
         </main>
       </div>
       
+      {/* Global Voice Assistant for Farmers */}
+      {role === "farmer" && (
+        <VoiceAssistant role={role} onNavigate={onNavigate} />
+      )}
     </div>
   );
 };
