@@ -21,7 +21,7 @@ def verify_input(
     Returns status, confidence, issues, and extracted product details.
     """
     result = ai_service.detect_fraud_input(
-        image=payload.image,
+        image_path=payload.image,
         batch_number=payload.batch_number,
         brand=payload.brand,
         expiry_date=payload.expiry_date,

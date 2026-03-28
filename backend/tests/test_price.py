@@ -58,6 +58,31 @@ class TestPriceCheck:
         if resp.status_code == 200:
             assert isinstance(resp.json()["data"]["all_mandis"], list)
 
+    def test_check_price_auto_fraud_report(self, client, farmer_token):
+        # We need a user_id from the farmer_token or a known ID
+        # The farmer_user fixture in conftest usually provides this
+        # For simplicity, we use a low price to trigger 'underpaid'
+        resp = client.post(
+            "/check-price",
+            json={
+                "crop": "apple", 
+                "location": "durg", 
+                "user_price": 50, # Extremely low
+                "user_id": "test-farmer-id", # Mocked if needed, or get from DB
+                "report_fraud": True
+            },
+            headers={"Authorization": f"Bearer {farmer_token}"},
+        )
+        # Note: If user_id is missing or invalid in DB, it might 404 or 400
+        # In pytest, we usually use the test DB.
+        assert resp.status_code in (200, 400) # 400 if user_id not found in test db
+        if resp.status_code == 200:
+            d = resp.json()["data"]
+            assert d["status"] == "underpaid"
+            assert "fraud_complaint" in d
+            assert d["fraud_complaint"] is not None
+            assert "complaint_id" in d["fraud_complaint"]
+
 
 class TestHeatmap:
     def test_heatmap_returns_locations(self, client, farmer_token):

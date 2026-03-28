@@ -13,18 +13,38 @@ class UserRepository:
     def get_by_phone(self, phone: str) -> User | None:
         return self.db.query(User).filter(User.phone == phone).first()
 
-    def create(self, phone: str, role: str = "farmer") -> User:
-        user = User(phone=phone, role=role, phone_verified=True)
+    def get_by_email(self, email: str) -> User | None:
+        return self.db.query(User).filter(User.email == email).first()
+
+    def create_user(self, name: str, phone: str, hashed_password: str, role: str = "farmer") -> User:
+        user = User(
+            name=name, 
+            phone=phone, 
+            hashed_password=hashed_password, 
+            role=role, 
+            phone_verified=True
+        )
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)
         return user
 
-    def get_or_create(self, phone: str, role: str = "farmer") -> tuple[User, bool]:
-        user = self.get_by_phone(phone)
-        if user:
-            return user, False
-        return self.create(phone, role), True
+    def create_ngo_user(self, email: str, hashed_password: str, full_name: str, organization_name: str) -> User:
+        user = User(
+            name=full_name,  # name acts as display/operator name
+            email=email,
+            hashed_password=hashed_password,
+            full_name=full_name,
+            organization_name=organization_name,
+            role=UserRole.ngo,
+            phone_verified=False,
+            ngo_verified=False, # NGO starts as unverified
+            verification_status=VerificationStatus.unverified
+        )
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
 
     def get_all(self, skip: int = 0, limit: int = 100) -> list[User]:
         return self.db.query(User).offset(skip).limit(limit).all()

@@ -24,7 +24,19 @@ def error(message: str, data: Any = None) -> dict:
 
 class LoginRequest(BaseModel):
     phone: str = Field(..., min_length=10, max_length=15, pattern=r"^\d{10,15}$")
-    role: Optional[str] = Field(default="farmer")
+    password: str = Field(..., min_length=6, description="User password")
+
+class NGOLoginRequest(BaseModel):
+    email: str = Field(...)
+    password: str = Field(..., min_length=6)
+
+class RegisterRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100, description="Full name")
+    phone: str = Field(..., min_length=10, max_length=15, pattern=r"^\d{10,15}$")
+    password: str = Field(..., min_length=6, description="Password")
+    role: str = Field(default="farmer")
+    state: Optional[str] = None
+    district: Optional[str] = None
 
     @field_validator("role")
     @classmethod
@@ -33,6 +45,11 @@ class LoginRequest(BaseModel):
             raise ValueError("Role must be farmer, ngo, or admin")
         return v
 
+class NGORegisterRequest(BaseModel):
+    email: str = Field(...)
+    password: str = Field(..., min_length=6)
+    operator_full_name: str = Field(..., min_length=2, max_length=200)
+    organization_name: str = Field(..., min_length=2, max_length=200)
 
 class LoginResponse(BaseModel):
     user_id: str
@@ -43,11 +60,14 @@ class LoginResponse(BaseModel):
 
 class UserOut(BaseModel):
     id: str
-    phone: str
+    phone: Optional[str] = None
+    email: Optional[str] = None
     role: str
     verification_status: str
     phone_verified: bool
     ngo_verified: bool
+    full_name: Optional[str] = None
+    organization_name: Optional[str] = None
     created_at: datetime
 
     class Config:
@@ -59,6 +79,7 @@ class UserOut(BaseModel):
 class ProfileCreate(BaseModel):
     name: str = Field(..., min_length=2, max_length=200)
     village: Optional[str] = None
+    district: Optional[str] = None
     state: Optional[str] = None
     crop: Optional[str] = None
     land_acres: Optional[float] = Field(default=0.0, ge=0)
@@ -69,6 +90,7 @@ class ProfileOut(BaseModel):
     user_id: str
     name: str
     village: Optional[str]
+    district: Optional[str]
     state: Optional[str]
     crop: Optional[str]
     land_acres: float
@@ -119,6 +141,8 @@ class PriceCheckRequest(BaseModel):
     crop: str = Field(..., min_length=2)
     location: str = Field(..., min_length=2)
     user_price: float = Field(..., gt=0)
+    user_id: Optional[str] = None
+    report_fraud: bool = False
 
 
 class MandiInfo(BaseModel):
