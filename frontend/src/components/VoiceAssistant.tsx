@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, X, Play, Square, Loader2, MessageSquare, ChevronRight, Store, ShieldCheck, Scale, Landmark, Wallet } from "lucide-react";
 import { theme } from "@/designSystem";
-import { chatbotApi } from "@/api/client";
+import { chatbotApi, voiceApi } from "@/api/client";
 import { APIResponse, IntentResponse } from "@/lib/api";
 
 type AssistantState = "idle" | "listening" | "thinking" | "responding";
@@ -17,45 +17,110 @@ const VoiceAssistant = ({ role, onNavigate }: VoiceAssistantProps) => {
   const [transcript, setTranscript] = useState("");
   const [response, setResponse] = useState<{ text: string; sub: string; screen?: any } | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
-  const startListening = () => {
-    setState("listening");
-    setTranscript("");
-    // Simulate speech detection
-    setTimeout(() => {
-      setTranscript("Aaj mandi mein gehun ka bhaav kya hai?");
-      setTimeout(() => {
-        setState("thinking");
-        processInput("Aaj mandi mein gehun ka bhaav kya hai?");
-      }, 1500);
-    }, 2000);
+  const startListening = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        processAudio(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setState("listening");
+      setTranscript("Recording...");
+    } catch (err) {
+      console.error("Mic access error", err);
+      setState("idle");
+    }
   };
 
-  const processInput = async (text: string) => {
+  const stopListening = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      setState("thinking");
+    }
+  };
+
+  const processAudio = async (blob: Blob) => {
     try {
-      const resp = await chatbotApi.query(text, 'en');
+      const resp = await voiceApi.processAudio(blob);
       const data = resp.data.data;
       
+      setTranscript(data.heard || "");
       setResponse({ text: data.text, sub: data.sub, screen: data.screen });
       setState("responding");
-      speak(data.text);
+      
+      // Speak the ENTIRE answer (text + sub)
+      const fullResponse = `${data.text}. ${data.sub}`;
+      speak(fullResponse, data.lang);
     } catch (e) {
       console.error(e);
       const resText = "I couldn't process that right now. Please try again.";
       setResponse({ text: resText, sub: "Connection error", screen: null });
       setState("responding");
-      speak(resText);
+      speak(resText, "en");
     }
   };
 
-  const speak = (text: string) => {
+  const speak = (text: string, langCode: string = "en-IN") => {
+    if (!("speechSynthesis" in window)) return;
+    
+    // Reset and Start
+    window.speechSynthesis.cancel();
     setIsSpeaking(true);
-    if ("speechSynthesis" in window) {
-      const utance = new SpeechSynthesisUtterance(text);
+
+    const utance = new SpeechSynthesisUtterance(text);
+    
+    const setVoiceAndSpeak = () => {
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Determine targets based on requested language
+      if (langCode.startsWith("mr")) {
+        utance.lang = "mr-IN";
+        // Priority: Marathi voice -> Hindi voice (fallback) -> any with 'mr'
+        utance.voice = voices.find(v => v.lang === "mr-IN") || 
+                       voices.find(v => v.lang === "hi-IN") ||
+                       voices.find(v => v.lang.startsWith("mr"));
+      } else if (langCode.startsWith("hi")) {
+        utance.lang = "hi-IN";
+        utance.voice = voices.find(v => v.lang === "hi-IN") ||
+                       voices.find(v => v.lang.startsWith("hi"));
+      } else {
+        utance.lang = "en-IN";
+        utance.voice = voices.find(v => v.lang.startsWith("en"));
+      }
+
+      // Voice volume and speed optimization for clarity
+      utance.rate = 0.9; // Slightly slower for rural Marathi clarity
+      utance.pitch = 1.0;
+      
       utance.onend = () => setIsSpeaking(false);
+      utance.onerror = (e) => {
+        console.error("Speech error", e);
+        setIsSpeaking(false);
+      };
+
       window.speechSynthesis.speak(utance);
+    };
+
+    // Browsers often load voices asynchronously
+    if (window.speechSynthesis.getVoices().length > 0) {
+      setVoiceAndSpeak();
     } else {
-      setTimeout(() => setIsSpeaking(false), 3000);
+      window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
     }
   };
 
@@ -64,6 +129,7 @@ const VoiceAssistant = ({ role, onNavigate }: VoiceAssistantProps) => {
     setTranscript("");
     setResponse(null);
     window.speechSynthesis.cancel();
+    setIsSpeaking(false);
   };
 
   if (role !== "farmer") return null;
@@ -138,7 +204,7 @@ const VoiceAssistant = ({ role, onNavigate }: VoiceAssistantProps) => {
                     />
                   ))}
                 </div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[#408447]">Listening...</span>
+                <span className="text-xs font-black uppercase tracking-widest text-red-500 animate-pulse">TAP TO STOP & PROCESS</span>
               </div>
             ) : (
               <div className="flex items-center gap-3">
@@ -156,9 +222,10 @@ const VoiceAssistant = ({ role, onNavigate }: VoiceAssistantProps) => {
       </AnimatePresence>
 
       <button 
-        onClick={state === "idle" ? startListening : reset}
+        onClick={state === "idle" ? startListening : state === "listening" ? stopListening : reset}
         className={`group relative w-16 h-16 flex items-center justify-center transition-all duration-500 rounded-none overflow-hidden ${
-          state === "idle" ? "bg-[#408447] shadow-[0_8px_30px_rgba(64,132,71,0.4)]" : "bg-red-600 shadow-xl"
+          state === "idle" ? "bg-[#408447] shadow-[0_8px_30px_rgba(64,132,71,0.4)]" : 
+          state === "listening" ? "bg-red-600 animate-pulse" : "bg-red-600 shadow-xl"
         }`}
       >
         {/* Animated Orbs for idle state */}

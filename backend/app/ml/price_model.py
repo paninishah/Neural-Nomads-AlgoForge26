@@ -280,20 +280,21 @@ def get_market_hotspots() -> list:
     df.iloc[:, 8] = pd.to_numeric(df.iloc[:, 8], errors="coerce")
     df = df.dropna(subset=[df.columns[8]])
     
-    # Get top 80 most active/recent entries
-    subset = df.tail(80)
-
-    for _, row in subset.iterrows():
+    # Get diverse entries for the 'pulse' visual
+    # Group by commodity to ensure diversity, then take top n
+    unique_crops = df.drop_duplicates(subset=[df.columns[3]]).tail(40)
+    
+    for _, row in unique_crops.iterrows():
         state = str(row.iloc[0]).strip().lower()
         market = str(row.iloc[2]).strip()
         commodity = str(row.iloc[3]).strip()
         price = float(row.iloc[8])
 
         base_lat, base_lng = STATE_COORDS.get(state, (20.5937, 78.9629))
-        # Unique offset per market
-        h = int(hashlib.md5(market.encode()).hexdigest(), 16)
-        lat = base_lat + (h % 100 - 50) / 10
-        lng = base_lng + (h % 100 - 50) / 10
+        h = int(hashlib.md5((market+commodity).encode()).hexdigest(), 16)
+        # Small offset
+        lat = base_lat + (h % 100 - 50) / 100
+        lng = base_lng + (h % 100 - 50) / 100
 
         data.append({
             "id": h % 100000,
@@ -301,7 +302,99 @@ def get_market_hotspots() -> list:
             "price": price,
             "lat": lat,
             "lng": lng,
-            "intensity": min(1.0, max(0.1, price / 4000))  # Intensity based on 4k price cap
+            "intensity": min(1.0, max(0.1, price / 4000))
         })
 
     return data
+
+
+def get_summary_by_location(crop: str = "wheat", state: str = None) -> str:
+    """Returns a simple text summary for the voice assistant."""
+    df = _load_and_clean_data()
+    if df is None: return "Price data unavailable."
+    
+    # Simple search
+    commodity_col = df.columns[3]
+    state_col = df.columns[0]
+    price_col = df.columns[8]
+    
+    # Filter by crop (case insensitive)
+    mask = df[commodity_col].str.contains(crop, case=False, na=False)
+    if state:
+        mask &= df[state_col].str.contains(state, case=False, na=False)
+        
+    match = df[mask].tail(3)
+    if match.empty:
+        return f"I couldn't find recent prices for {crop}."
+        
+    summaries = []
+    return f"The latest prices for {crop} are: " + ". ".join(summaries)
+
+
+def get_dynamic_market_narrative(crop: str = "wheat", location: str = "Lucknow") -> str:
+    """Generates a contextual narrative instead of a static string with fuzzy matching."""
+    
+    # Deep Phonetic Mapping for Indian languages and accents
+    fuzzy_map = {
+        "wheat": ["wheat", "gehun", "geun", "gehu", "गेहूं", "गहू", "गेहू"],
+        "rice": ["rice", "paddy", "chawal", "dhan", "tandul", "jawal", "chaul", "चावल", "धान", "तांदूळ", "जावल", "चावल"],
+        "cotton": ["cotton", "kapas", "rui", "kapus", "kaapus", "कपास", "कापूस", "रुई"],
+        "soyabean": ["soyabean", "soya", "soybin", "सोयाबीन", "सोया", "सोयाबिन"],
+        "maize": ["maize", "corn", "makka", "makai", "maka", "मक्का", "मका"],
+        "bajra": ["bajra", "pearl millet", "millet", "bajara", "बाजरा", "बाजरी"],
+        "jowar": ["jowar", "sorghum", "jowari", "jawar", "ज्वार", "ज्वारी"],
+        "onion": ["onion", "kanda", "pyaz", "कांदा", "प्याज"],
+        "potato": ["potato", "batata", "aaloo", "बटाटा", "आलू"],
+        "tur": ["tur", "arhar", "तूर"],
+        "moong": ["moong", "मूंग"]
+    }
+    
+    # Resolve the standard crop name
+    std_crop = crop.lower()
+    for std, variants in fuzzy_map.items():
+        if any(v in std_crop for v in variants):
+            std_crop = std
+            break
+
+    df = _load_and_clean_data()
+    if df is None: return "Market data is currently being updated. Please try in a moment."
+
+    commodity_col = "crop" # Using normalized col names from _load_and_clean_data
+    price_col = "price_modal"
+    
+    # Filter for the resolved standard crop name
+    crop_df = df[df[commodity_col].str.contains(std_crop, case=False, na=False)]
+    
+    # Second-chance: direct match if contains fails
+    if crop_df.empty:
+        crop_df = df[df[commodity_col] == crop.lower().strip()]
+
+    if crop_df.empty:
+        return f"I see you're asking about '{crop}'. While I don't see exact prices for this specific crop today, the overall market is active. Try asking for 'Wheat', 'Rice', or 'Cotton' for real-time rates."
+
+    avg_price = crop_df[price_col].mean()
+    max_row = crop_df.sort_values(by=price_col, ascending=False).iloc[0]
+    
+    best_mandi = max_row["market"]
+    best_price = max_row["price_modal"]
+    
+    narrative = (
+        f"For {std_crop}, the average market rate is around {int(avg_price)} rupees per quintal. "
+        f"The best price found today is at {best_mandi.title()} Mandi, where it's selling for {int(best_price)}. "
+        f"We've tracked {len(crop_df)} recent records for this crop across the region."
+    )
+    return narrative
+
+def get_general_market_pulse() -> str:
+    """Returns a high-level summary of all market trends for the AI Brain."""
+    _, _, df = get_model()
+    if df is None: return "Market trends are currently stabilizing. No significant fluctuations detected."
+    
+    price_col = df.columns[8]
+    commodity_col = df.columns[3]
+    
+    avg_all = df[price_col].mean()
+    top_crops = df.groupby(commodity_col)[price_col].mean().sort_values(ascending=False).head(3)
+    
+    crops_str = ", ".join([f"{c} (₹{int(p)})" for c, p in top_crops.items()])
+    return f"The overall market is active with an average price of ₹{int(avg_all)}. Leading commodities are {crops_str}."

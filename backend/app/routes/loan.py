@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.schemas import LoanEligibilityRequest, success
+from app.schemas.base import LoanEligibilityRequest, success
 from app.core.dependencies import get_current_user
 from app.repositories.user_repo import UserRepository
 from app.repositories.document_repo import DocumentRepository
@@ -180,11 +180,11 @@ def check_credibility(
                 clean_extracted = extracted_name.lower().strip()
                 clean_profile = profile_name.lower().strip()
                 
-                if clean_extracted == clean_profile and clean_extracted != "extracted name":
+                if clean_extracted != "extracted name" and (clean_extracted in clean_profile or clean_profile in clean_extracted):
                     name_match = True
-                    logger.info(f"OCR Name Match SUCCESS for user {user_id}")
+                    logger.info(f"OCR Name Match SUCCESS for user {user_id}: '{clean_extracted}' matched '{clean_profile}'")
                 else:
-                    logger.warning(f"OCR Name Match FAILED: '{clean_extracted}' vs '{clean_profile}'")
+                    logger.warning(f"OCR Name Match FAILED for user {user_id}: '{clean_extracted}' vs '{clean_profile}'")
         except Exception as e:
             logger.error(f"Error parsing extracted fields for doc {latest_id_doc.id}: {e}")
     else:

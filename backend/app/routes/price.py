@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.schemas import PriceCheckRequest, success, error
+from app.schemas.base import PriceCheckRequest, success, error
 from app.core.dependencies import get_current_user
 from app.repositories.help_repo import HelpRequestRepository
 from app.ml.price_model import get_price_stats, get_model
@@ -161,3 +161,17 @@ def recommend_crops(
     except Exception as e:
         logger.error(f"Failed to get recommendations: {e}")
         raise HTTPException(status_code=500, detail="Could not generate recommendations")
+
+
+@router.get("/ticker")
+def get_price_ticker(current_user=Depends(get_current_user)):
+    """
+    Return a stream of real market entries from the dataset for the dashboard ticker.
+    """
+    from app.ml.price_model import get_market_hotspots
+    try:
+        data = get_market_hotspots()
+        return success("Ticker data loaded", {"tickers": data})
+    except Exception as e:
+        logger.error(f"Ticker error: {e}")
+        return error("Failed to load ticker", str(e))

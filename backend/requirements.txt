@@ -17,3 +17,8 @@ pytest==8.2.0
 pytest-asyncio==0.23.6
 anyio==4.3.0
 pdf2image
+openai-whisper
+torch
+more-itertools
+setuptools-rust
+ffmpeg-python

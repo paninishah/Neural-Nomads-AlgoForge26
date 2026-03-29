@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.schemas import AdminVerifyNGORequest, AdminOverrideRequest, success
+from app.schemas.base import AdminVerifyNGORequest, AdminOverrideRequest, success
 from app.core.dependencies import require_role
 from app.repositories.user_repo import UserRepository
 from app.models.models import UserRole, VerificationStatus

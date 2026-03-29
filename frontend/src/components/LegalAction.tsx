@@ -42,7 +42,7 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
         if (!userId) return;
         const res = await requestApi.getUserRequests(userId);
         // Filter for legal only
-        setComplaintsHistory(res.data.data.filter((h: any) => h.request_type === "legal"));
+        setComplaintsHistory(res.data.data.filter((h: any) => h.request_type === "legal_aid"));
       } catch (err) {
         console.error("Failed to fetch legal history", err);
       }
@@ -86,11 +86,18 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
     try {
       await requestApi.create({
         user_id: localStorage.getItem("annadata_user_id") || "",
-        type: "legal",
+        type: "legal_aid",
         payload: { text: draftText },
         description: draftText
       });
       toast.success("Complaint submitted securely");
+      
+      // Refresh local history
+      const userId = localStorage.getItem("annadata_user_id");
+      if (userId) {
+        const res = await requestApi.getUserRequests(userId);
+        setComplaintsHistory(res.data.data.filter((h: any) => h.request_type === "legal_aid"));
+      }
     } catch (e) {
       console.error(e);
       toast.error("Issue connecting to server, but recorded locally");
@@ -340,7 +347,9 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                           <div className="flex gap-3 items-center">
                             <div className={`w-1.5 h-1.5 rounded-none ${item.status === 'pending' ? 'bg-[#e18b2c]' : 'bg-[#408447]'}`} />
                             <div className="overflow-hidden">
-                              <p className="text-[11px] font-black text-[#1a1a1a] truncate w-full">{item.description.slice(0, 35)}...</p>
+                              <p className="text-[11px] font-black text-[#1a1a1a] truncate w-full">
+                                {(item.description || item.payload?.text || "Legal Help Request").slice(0, 35)}...
+                              </p>
                               <p className="text-[9px] text-gray-400 uppercase tracking-tighter mt-0.5 font-bold">
                                 {new Date(item.created_at).toLocaleDateString()} • {item.status}
                               </p>

@@ -118,18 +118,30 @@ def verify_document(
         
         gender = "Female" if "female" in raw_text.lower() else "Male"
         
-        # Simple heuristic to extract a name: it's often the first coherent line of 2+ words
-        extracted_name = "Extracted Name"
-        for line in lines:
-            if re.match(r"^[A-Z][a-z]+(\s[A-Z][a-z]+)+$", line):
-                extracted_name = line
-                break
+        # Real-Time Name Extraction (No Hardcoding)
+        BLACKLIST = {
+            "GOVERNMENT OF INDIA", "UNIQUE IDENTIFICATION", "AUTHORITY", "INDIA",
+            "MALE", "FEMALE", "TRANSGENDER", "DOB", "YEAR", "FATHER", "NAME",
+            "ENUMERATION", "ADDRESS", "INCOME TAX", "DEPARTMENT", "RATION CARD"
+        }
         
-        # Special case for demo purposes
-        if found_num and "9621" in found_num:
-            extracted_name = "Panini Nirav Shah"
-        elif "RAMESH" in raw_text.upper():
-            extracted_name = "Ramesh Kumar"
+        extracted_name = "Extracted Name"
+        candidates = []
+        for line in lines:
+            clean_line = line.strip()
+            # Must be 2+ words, alphabetic only (to skip Aadhaar numbers and mixed dates)
+            if re.match(r"^[A-Za-z]+(\s[A-Za-z]+)+$", clean_line):
+                # Skip if any word in the line is in the blacklist (e.g. Government of India)
+                words = set(clean_line.upper().split())
+                if words.isdisjoint(BLACKLIST):
+                    candidates.append(clean_line)
+        
+        # Pick the most likely candidate (heuristic: first one that doesn't look like a header)
+        if candidates:
+            extracted_name = candidates[0]
+            logger.info(f"Real-time OCR extraction SUCCESS: Identified '{extracted_name}'")
+        else:
+            logger.warning("Real-time OCR extraction FAILED: No valid name candidate found after filtering.")
 
         extracted_fields = {
             "aadhaar_number": found_num if found_num else f"XXXX-XXXX-{_stable_score(seed+'aadhaar', 1000, 9999):.0f}",

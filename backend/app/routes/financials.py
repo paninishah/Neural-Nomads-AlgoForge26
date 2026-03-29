@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter
-from app.schemas.schemas import FinancialsRequest, success
+from app.schemas.base import FinancialsRequest, success
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/financials", tags=["Financials"])

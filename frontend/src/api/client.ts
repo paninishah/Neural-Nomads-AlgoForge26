@@ -30,10 +30,21 @@ apiClient.interceptors.response.use(
     
     // Handle 401 Unauthorized globally
     if (error.response?.status === 401) {
-      localStorage.removeItem('annadata_token');
-      localStorage.removeItem('annadata_user_role');
-      // Redirect or handle logout logic here if needed
-      toast.error('Session expired. Please login again.');
+      // Don't auto-redirect if we are on the login screen to avoid refreshing on a simple typo
+      const isAuthRequest = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/ngo/login');
+      
+      if (!isAuthRequest) {
+        localStorage.removeItem('annadata_token');
+        localStorage.removeItem('annadata_user_role');
+        localStorage.removeItem('annadata_user_id');
+        localStorage.removeItem('annadata_user_name');
+        
+        // Force immediate redirect only for EXPIRED sessions
+        toast.error('Session expired. Please login again.');
+        setTimeout(() => {
+           window.location.href = '/';
+        }, 1000);
+      }
     } else {
       toast.error(message);
     }
@@ -155,6 +166,19 @@ export const chatbotApi = {
   
   confirm: (intent: string, payload: any, lang = 'en') => 
     apiClient.post('/chatbot/confirm', { intent, payload, lang }),
+};
+
+/**
+ * VOICE ASSISTANT (Whisper Intelligence)
+ */
+export const voiceApi = {
+  processAudio: (audioBlob: Blob) => {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'voice_query.webm');
+    return apiClient.post('/voice/process', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  }
 };
 
 /**

@@ -50,14 +50,10 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
 
   const fetchHistory = async () => {
     try {
-      const userId = localStorage.getItem("annadata_user_id");
-      if (!userId) return;
-      const res = await requestApi.getUserRequests(userId);
-      // Filter for identity and pesticide related requests
-      const filtered = res.data.data.filter((r: any) => 
-        ["identity_verification", "pesticide_check", "fraud_report"].includes(r.request_type)
-      );
-      setHistory(filtered);
+      const res = await apiClient.get("/verify-input/history");
+      if (res.data?.status === "success" && res.data.data?.history) {
+        setHistory(res.data.data.history);
+      }
     } catch (err) {
       console.error("Failed to fetch history", err);
     }
@@ -124,6 +120,7 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
       setAnalysisResult(resp.data.data);
       setInputs(prev => ({ ...prev, bill: true }));
       setMode("result");
+      fetchHistory(); // Refresh history immediately
     } catch (e) {
       console.error("Bill upload failed", e);
       setBillDetails({ bill_price: 680, vendor: "Regional Dist. Hub" });
@@ -415,21 +412,20 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
                   {history.map((item) => (
                     <div key={item.id} className="p-4 bg-white border border-[#e5e3d7] flex justify-between items-center group hover:border-primary/30 transition-all shadow-sm">
                       <div className="flex gap-4 items-center">
-                        <div className={`w-2 h-2 rounded-full ${item.status === 'pending' ? 'bg-amber-400' : item.status === 'resolved' ? 'bg-green-500' : 'bg-red-400'}`} />
+                        <div className={`w-2 h-2 rounded-full ${item.status === 'clean' ? 'bg-green-500' : 'bg-red-400'}`} />
                         <div>
                           <p className="text-sm font-bold text-[#1a1a1a] uppercase tracking-tighter">
-                            {item.request_type.replace('_', ' ')}
+                            {item.pesticide_name || "Verification"}
                           </p>
                           <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
                             {new Date(item.created_at).toLocaleDateString()} • {item.status.toUpperCase()}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[10px] font-black text-primary">ID: {item.id.slice(0, 8)}</p>
-                        {item.payload?.trust_score && (
-                           <p className="text-xs font-black text-gray-800">Score: {item.payload.trust_score}</p>
-                        )}
+                      <div className="text-right max-w-[150px]">
+                        <p className="text-[10px] font-black text-gray-400 uppercase truncate">
+                          {item.ai_findings || "No issues detected"}
+                        </p>
                       </div>
                     </div>
                   ))}

@@ -3,7 +3,7 @@ import re
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.schemas import success
+from app.schemas.base import success
 from app.core.dependencies import get_current_user
 from pydantic import BaseModel
 

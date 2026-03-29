@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.schemas import NGOVerifyRequest, NGOHelpUpdateRequest, success
+from app.schemas.base import NGOVerifyRequest, NGOHelpUpdateRequest, success
 from app.core.dependencies import get_current_user, require_role
 from app.repositories.user_repo import UserRepository
 from app.repositories.help_repo import HelpRequestRepository
@@ -91,28 +91,39 @@ def get_help_requests(
     db: Session = Depends(get_db),
     current_user=Depends(ngo_required),
 ):
-    """Enriched help request list with farmer details."""
-    query = db.query(HelpRequest, User, FarmerProfile).join(User, HelpRequest.user_id == User.id).outerjoin(FarmerProfile, User.id == FarmerProfile.user_id)
-    query = query.filter(HelpRequest.status == "open")
+    """Enriched help request list using the UnifiedRequest model."""
+    from app.models.models import UnifiedRequest
+    import json
+    
+    # We now pull from UnifiedRequest which is the new system of record
+    query = db.query(UnifiedRequest, User, FarmerProfile).join(User, UnifiedRequest.user_id == User.id).outerjoin(FarmerProfile, User.id == FarmerProfile.user_id)
+    
+    # Filter for legal_aid specifically for this queue
+    query = query.filter(UnifiedRequest.request_type == "legal_aid")
+    query = query.filter(UnifiedRequest.status == "pending")
     
     items = query.all()
 
-    return success(
-        f"Found {len(items)} open help request(s)",
-        [
-            {
-                "id": hr.id,
-                "user_id": hr.user_id,
-                "farmer_name": profile.name if profile else user.name,
-                "location": f"{profile.village}, {profile.district}" if profile else "Unknown",
-                "request_type": hr.request_type,
-                "description": hr.description,
-                "status": hr.status,
-                "created_at": hr.created_at.isoformat(),
-            }
-            for hr, user, profile in items
-        ],
-    )
+    out = []
+    for req, user, profile in items:
+        try:
+            payload = json.loads(req.payload)
+            description = payload.get("text") or "Legal Aid Request"
+        except:
+            description = "Legal Aid Request"
+
+        out.append({
+            "id": req.id,
+            "user_id": req.user_id,
+            "farmer_name": profile.name if profile and profile.name else (user.name or "Unknown Farmer"),
+            "location": f"{profile.village}, {profile.district}" if (profile and profile.village and profile.district) else "Location Not Set",
+            "request_type": "legal_aid",
+            "description": description,
+            "status": req.status,
+            "created_at": req.created_at.isoformat(),
+        })
+
+    return success(f"Found {len(out)} open legal request(s)", out)
 
 
 @router.post("/help-update")

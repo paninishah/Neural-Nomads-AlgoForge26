@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.schemas import HelpRequestCreate, success
+from app.schemas.base import HelpRequestCreate, success
 from app.core.dependencies import get_current_user
 from app.repositories.help_repo import HelpRequestRepository
 from app.repositories.user_repo import UserRepository

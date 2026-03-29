@@ -23,7 +23,7 @@ def error(message: str, data: Any = None) -> dict:
 # ─── Auth ─────────────────────────────────────────────────────────────────────
 
 class LoginRequest(BaseModel):
-    phone: str = Field(..., min_length=10, max_length=15, pattern=r"^\d{10,15}$")
+    phone: str = Field(..., min_length=9, max_length=15, pattern=r"^\d{9,15}$")
     password: str = Field(..., min_length=6, description="User password")
 
 class NGOLoginRequest(BaseModel):
@@ -32,7 +32,7 @@ class NGOLoginRequest(BaseModel):
 
 class RegisterRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=100, description="Full name")
-    phone: str = Field(..., min_length=10, max_length=15, pattern=r"^\d{10,15}$")
+    phone: str = Field(..., min_length=9, max_length=15, pattern=r"^\d{9,15}$")
     password: str = Field(..., min_length=6, description="Password")
     role: str = Field(default="farmer")
     state: Optional[str] = None

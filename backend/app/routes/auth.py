@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.schemas import (
+from app.schemas.base import (
     LoginRequest, 
     NGOLoginRequest, 
     RegisterRequest, 

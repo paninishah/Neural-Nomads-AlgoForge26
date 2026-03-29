@@ -35,6 +35,7 @@ from app.routes import (
     legal,
     requests,
     chatbot,
+    whatsapp,
 )
 
 # Logging configuration
@@ -77,26 +78,39 @@ def _seed_data():
     db = SessionLocal()
     try:
         repo = UserRepository(db)
+        # Unified demo users with explicit roles and emails
         demo_users = [
-            ("Admin User", "9999999001", "admin"),
-            ("Test NGO", "9999999002", "ngo"),
-            ("Farmer 1", "9999999003", "farmer"),
-            ("Farmer 2", "9999999004", "farmer"),
+            ("Master Admin", "777777777", "admin", "admin@annadata.org"),
+            ("Test NGO", "9999999002", "ngo", "ngo@annadata.org"),
+            ("Mahek Sanghvi", "9999999003", "farmer", None),
         ]
 
         hashed_pwd = get_password_hash("password123")
+        admin_pwd = get_password_hash("admin123")
 
-        for name, phone, role in demo_users:
+        for name, phone, role, email in demo_users:
             if not repo.get_by_phone(phone):
-                repo.create_user(
+                pwd = admin_pwd if role == "admin" else hashed_pwd
+                user = repo.create_user(
                     name=name,
                     phone=phone,
-                    hashed_password=hashed_pwd,
+                    hashed_password=pwd,
                     role=role,
                 )
-                logger.info(f"Seeded demo user: {phone} ({role})")
+                if email:
+                    user.email = email
+                
+                # Auto-verify the demo users for a smooth start
+                user.phone_verified = True
+                user.onboarding_completed = True
+                if role in ["ngo", "admin"]:
+                    user.ngo_verified = True
+
+        db.commit()
+        logger.info("Database re-seeded successfully with 3 roles.")
     except Exception as e:
-        logger.error(f"Seed error: {e}")
+        db.rollback()
+        logger.error(f"Seed rescue error: {e}")
     finally:
         db.close()
 
@@ -134,6 +148,7 @@ app.add_middleware(
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Ensure CORS headers are included even on validation errors."""
     return JSONResponse(
         status_code=422,
         content={
@@ -141,11 +156,13 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "message_text": "Validation failed",
             "data": jsonable_encoder(exc.errors()),
         },
+        headers={"Access-Control-Allow-Origin": "*"}
     )
 
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):
+    """Ensure CORS headers are included even on internal server errors."""
     logger.error(f"Unhandled error on {request.method} {request.url}: {exc}")
     return JSONResponse(
         status_code=500,
@@ -154,11 +171,31 @@ async def generic_exception_handler(request: Request, exc: Exception):
             "message_text": "Internal server error",
             "data": str(exc) if settings.DEBUG else None,
         },
+        headers={"Access-Control-Allow-Origin": "*"}
     )
 
 
 # ─── Routers ──────────────────────────────────────────────────────────────────
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Simplified for troubleshooting
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+@app.get("/", tags=["Health"])
+async def root():
+    """Health check endpoint."""
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"Incoming: {request.method} {request.url.path}")
+    response = await call_next(request)
+    logger.info(f"Response Status: {response.status_code}")
+    return response
+
+# Register Routers
 app.include_router(auth.router)
 app.include_router(profile.router)
 app.include_router(documents.router)
@@ -175,6 +212,7 @@ app.include_router(financials.router)
 app.include_router(legal.router)
 app.include_router(requests.router)
 app.include_router(chatbot.router)
+app.include_router(whatsapp.router)
 
 
 # ─── Health Check ─────────────────────────────────────────────────────────────

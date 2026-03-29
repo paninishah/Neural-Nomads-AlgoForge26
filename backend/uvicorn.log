@@ -1,0 +1,600 @@
+INFO:     Will watch for changes in these directories: ['/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [606] using StatReload
+INFO:     Started server process [680]
+INFO:     Waiting for application startup.
+2026-03-29 07:32:21 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:32:21 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:32:22 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:32:22 | INFO     | annadata | Seeded demo user: 9999999001 (admin)
+2026-03-29 07:32:22 | INFO     | annadata | Seeded demo user: 9999999002 (ngo)
+2026-03-29 07:32:22 | INFO     | annadata | Seeded demo user: 9999999003 (farmer)
+2026-03-29 07:32:22 | INFO     | annadata | Seeded demo user: 9999999004 (farmer)
+2026-03-29 07:32:22 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57065 - "GET /requests/user/22fa6c15-e928-475d-a01b-0101e4355e1f HTTP/1.1" 401 Unauthorized
+WARNING:  StatReload detected changes in 'app/ai/service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:32:45 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [680]
+INFO:     Started server process [1165]
+INFO:     Waiting for application startup.
+2026-03-29 07:32:46 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:32:46 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:32:46 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:32:47 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57184 - "GET /requests/user/8d23feea-6925-45f0-b46b-a532fc3c8a65 HTTP/1.1" 401 Unauthorized
+WARNING:  StatReload detected changes in 'app/routes/loan.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:33:00 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1165]
+INFO:     Started server process [1436]
+INFO:     Waiting for application startup.
+2026-03-29 07:33:02 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:33:02 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:33:02 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:33:02 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57306 - "POST /documents/upload HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57306 - "POST /documents/upload HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57306 - "POST /documents/upload HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57306 - "GET /requests/user/22fa6c15-e928-475d-a01b-0101e4355e1f HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57344 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57344 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57344 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57344 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57346 - "OPTIONS /auth/register HTTP/1.1" 200 OK
+2026-03-29 07:33:55 | INFO     | app.routes.auth | User 7045856206 registered as UserRole.farmer
+INFO:     127.0.0.1:57346 - "POST /auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57346 - "GET /auth/me HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57346 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57346 - "GET /check-price/ticker HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57348 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57350 - "GET /requests/user/8d23feea-6925-45f0-b46b-a532fc3c8a65 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57352 - "POST /documents/upload HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57352 - "POST /documents/upload HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57430 - "POST /documents/upload HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57430 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57430 - "GET /check-price/ticker HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57430 - "GET /verify-input/history HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57430 - "GET /verify-input/history HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57446 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57450 - "GET /check-price/ticker HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57449 - "GET /requests/user/8d23feea-6925-45f0-b46b-a532fc3c8a65 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57450 - "GET /requests/user/8d23feea-6925-45f0-b46b-a532fc3c8a65 HTTP/1.1" 401 Unauthorized
+2026-03-29 07:34:59 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57461 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57461 - "OPTIONS /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57461 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57461 - "OPTIONS /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57463 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57463 - "OPTIONS /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57461 - "OPTIONS /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57463 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57463 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57461 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57465 - "GET /check-price/ticker HTTP/1.1" 200 OK
+2026-03-29 07:35:23 | INFO     | app.ai.service | Verified Aadhaar Number: 996138616983
+2026-03-29 07:35:23 | INFO     | app.routes.documents | Document uploaded for 1198e388-621b-4946-853d-46f8c6697478: type=aadhaar, confidence=0.8482651072124756, status=auto_verified
+INFO:     127.0.0.1:57467 - "POST /documents/upload HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57467 - "OPTIONS /loan/check-credibility HTTP/1.1" 200 OK
+2026-03-29 07:35:23 | INFO     | app.routes.loan | Checking OCR name match for user 1198e388-621b-4946-853d-46f8c6697478. Extracted: {'aadhaar_number': '996138616983', 'name': 'Government of India', 'dob': '29/07/2006', 'gender': 'Female', 'address': 'Extracted District, Sector 4, Rural Area'}
+2026-03-29 07:35:23 | WARNING  | app.routes.loan | OCR Name Match FAILED for user 1198e388-621b-4946-853d-46f8c6697478: 'government of india' vs 'mahek sanghvi'
+INFO:     127.0.0.1:57467 - "POST /loan/check-credibility HTTP/1.1" 200 OK
+2026-03-29 07:35:23 | INFO     | app.routes.requests | Unified request created: id=297fdde3-57ef-4405-8520-eae04bc4aaa2, type=identity_verification, user=1198e388-621b-4946-853d-46f8c6697478
+INFO:     127.0.0.1:57467 - "POST /requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57469 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:36:31 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1436]
+INFO:     Started server process [1586]
+INFO:     Waiting for application startup.
+2026-03-29 07:36:33 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:36:33 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:36:33 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:36:33 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57492 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57492 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57494 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57494 - "OPTIONS /verify-input/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57492 - "GET /verify-input/history HTTP/1.1" 200 OK
+2026-03-29 07:36:56 | INFO     | app.routes.input_verify | Pesticide verification: user=1198e388-621b-4946-853d-46f8c6697478, mode=bottle, status=suspicious
+INFO:     127.0.0.1:57496 - "POST /verify-input HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57496 - "OPTIONS /verify-input HTTP/1.1" 200 OK
+2026-03-29 07:36:59 | INFO     | app.routes.input_verify | Pesticide verification: user=1198e388-621b-4946-853d-46f8c6697478, mode=bill, status=suspicious
+INFO:     127.0.0.1:57496 - "POST /verify-input HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57496 - "GET /verify-input/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57496 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57498 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57502 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57498 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57498 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57498 - "POST /legal/analyze HTTP/1.1" 200 OK
+2026-03-29 07:37:15 | INFO     | app.routes.requests | Unified request created: id=1a85121e-cd8c-4cad-b87a-f898876a91f9, type=legal_aid, user=1198e388-621b-4946-853d-46f8c6697478
+INFO:     127.0.0.1:57508 - "POST /requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57508 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57508 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57508 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57508 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57508 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'app/ai/service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:38:05 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1586]
+INFO:     Started server process [1610]
+INFO:     Waiting for application startup.
+2026-03-29 07:38:06 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:38:06 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:38:06 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:38:07 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57532 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+2026-03-29 07:38:08 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57532 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57532 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57532 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57532 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57532 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57536 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57534 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57534 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+2026-03-29 07:38:24 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57549 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57549 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57549 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57549 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57549 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57553 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57551 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57551 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57576 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+2026-03-29 07:40:13 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57576 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57576 - "OPTIONS /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57578 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57578 - "OPTIONS /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57576 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57576 - "OPTIONS /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57578 - "OPTIONS /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57581 - "OPTIONS /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57576 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57576 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57581 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57578 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57578 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+2026-03-29 07:40:38 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57592 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57592 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57592 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57592 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57596 - "OPTIONS /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57595 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57592 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57598 - "OPTIONS /documents/upload HTTP/1.1" 200 OK
+2026-03-29 07:41:00 | INFO     | app.ai.service | Verified Aadhaar Number: 996138616983
+2026-03-29 07:41:00 | INFO     | app.ai.service | Real-time OCR extraction SUCCESS: Identified 'Panini Nirav Shah'
+2026-03-29 07:41:00 | INFO     | app.routes.documents | Document uploaded for 1198e388-621b-4946-853d-46f8c6697478: type=aadhaar, confidence=0.8482651072124756, status=auto_verified
+INFO:     127.0.0.1:57598 - "POST /documents/upload HTTP/1.1" 200 OK
+2026-03-29 07:41:00 | INFO     | app.routes.loan | Checking OCR name match for user 1198e388-621b-4946-853d-46f8c6697478. Extracted: {'aadhaar_number': '996138616983', 'name': 'Panini Nirav Shah', 'dob': '29/07/2006', 'gender': 'Female', 'address': 'Extracted District, Sector 4, Rural Area'}
+2026-03-29 07:41:00 | WARNING  | app.routes.loan | OCR Name Match FAILED for user 1198e388-621b-4946-853d-46f8c6697478: 'panini nirav shah' vs 'mahek sanghvi'
+INFO:     127.0.0.1:57598 - "POST /loan/check-credibility HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57598 - "OPTIONS /requests HTTP/1.1" 200 OK
+2026-03-29 07:41:00 | INFO     | app.routes.requests | Unified request created: id=484d0565-01b6-4ffc-a077-e88740e898ad, type=identity_verification, user=1198e388-621b-4946-853d-46f8c6697478
+INFO:     127.0.0.1:57598 - "POST /requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57600 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57600 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57600 - "GET /check-price/ticker HTTP/1.1" 200 OK
+2026-03-29 07:41:19 | INFO     | app.ai.service | Real-time OCR extraction SUCCESS: Identified 'Authorized Signatory'
+2026-03-29 07:41:19 | INFO     | app.routes.documents | Document uploaded for 1198e388-621b-4946-853d-46f8c6697478: type=aadhaar, confidence=0.8723484848484848, status=auto_verified
+INFO:     127.0.0.1:57602 - "POST /documents/upload HTTP/1.1" 200 OK
+2026-03-29 07:41:19 | INFO     | app.routes.loan | Checking OCR name match for user 1198e388-621b-4946-853d-46f8c6697478. Extracted: {'aadhaar_number': 'XXXX-XXXX-4636', 'name': 'Authorized Signatory', 'dob': '01/01/2005', 'gender': 'Male', 'address': 'Extracted District, Sector 4, Rural Area'}
+2026-03-29 07:41:19 | WARNING  | app.routes.loan | OCR Name Match FAILED for user 1198e388-621b-4946-853d-46f8c6697478: 'authorized signatory' vs 'mahek sanghvi'
+INFO:     127.0.0.1:57602 - "POST /loan/check-credibility HTTP/1.1" 200 OK
+2026-03-29 07:41:19 | INFO     | app.routes.requests | Unified request created: id=4a19659a-5f03-42c4-92f0-e23aec0e4ff5, type=identity_verification, user=1198e388-621b-4946-853d-46f8c6697478
+INFO:     127.0.0.1:57602 - "POST /requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57608 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57610 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57608 - "GET /check-price/ticker HTTP/1.1" 200 OK
+2026-03-29 07:41:40 | WARNING  | app.ai.service | Real-time OCR extraction FAILED: No valid name candidate found after filtering.
+2026-03-29 07:41:40 | INFO     | app.routes.documents | Document uploaded for 1198e388-621b-4946-853d-46f8c6697478: type=aadhaar, confidence=0.9478443113772456, status=auto_verified
+INFO:     127.0.0.1:57612 - "POST /documents/upload HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57614 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+2026-03-29 07:41:40 | INFO     | app.routes.loan | Checking OCR name match for user 1198e388-621b-4946-853d-46f8c6697478. Extracted: {'aadhaar_number': 'XXXX-XXXX-2660', 'name': 'Extracted Name', 'dob': '12/03/2026', 'gender': 'Male', 'address': 'Extracted District, Sector 4, Rural Area'}
+2026-03-29 07:41:40 | WARNING  | app.routes.loan | OCR Name Match FAILED for user 1198e388-621b-4946-853d-46f8c6697478: 'extracted name' vs 'mahek sanghvi'
+INFO:     127.0.0.1:57612 - "POST /loan/check-credibility HTTP/1.1" 200 OK
+2026-03-29 07:41:40 | INFO     | app.routes.requests | Unified request created: id=a5eed5f3-fea1-41b7-8fd7-e1dcfb13184a, type=identity_verification, user=1198e388-621b-4946-853d-46f8c6697478
+INFO:     127.0.0.1:57612 - "POST /requests HTTP/1.1" 200 OK
+2026-03-29 07:41:51 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57623 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57623 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57623 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57623 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57623 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57627 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57625 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57629 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57631 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57629 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57645 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57654 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'app/ml/price_model.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:44:07 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1610]
+INFO:     Started server process [1846]
+INFO:     Waiting for application startup.
+2026-03-29 07:44:08 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:44:08 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:44:08 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:44:08 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57667 - "GET /check-price/ticker HTTP/1.1" 200 OK
+2026-03-29 07:44:39 | INFO     | app.ai.service | Verified Aadhaar Number: 343646733556
+2026-03-29 07:44:39 | INFO     | app.ai.service | Real-time OCR extraction SUCCESS: Identified 'Bekarodi Road oa'
+2026-03-29 07:44:39 | INFO     | app.routes.documents | Document uploaded for 1198e388-621b-4946-853d-46f8c6697478: type=aadhaar, confidence=0.6775247524752476, status=auto_verified
+INFO:     127.0.0.1:57670 - "POST /documents/upload HTTP/1.1" 200 OK
+2026-03-29 07:44:39 | INFO     | app.routes.loan | Checking OCR name match for user 1198e388-621b-4946-853d-46f8c6697478. Extracted: {'aadhaar_number': '343646733556', 'name': 'Bekarodi Road oa', 'dob': '09/06/2005', 'gender': 'Female', 'address': 'Extracted District, Sector 4, Rural Area'}
+2026-03-29 07:44:39 | WARNING  | app.routes.loan | OCR Name Match FAILED for user 1198e388-621b-4946-853d-46f8c6697478: 'bekarodi road oa' vs 'mahek sanghvi'
+INFO:     127.0.0.1:57670 - "POST /loan/check-credibility HTTP/1.1" 200 OK
+2026-03-29 07:44:39 | INFO     | app.routes.requests | Unified request created: id=755d0889-ba93-4ddc-b76a-0e83087de7b9, type=identity_verification, user=1198e388-621b-4946-853d-46f8c6697478
+INFO:     127.0.0.1:57670 - "POST /requests HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'app/routes/ngo.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:44:41 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1846]
+Process SpawnProcess-7:
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    ~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 79, in serve
+    await self._serve(sockets)
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 86, in _serve
+    config.load()
+    ~~~~~~~~~~~^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/config.py", line 441, in load
+    self.loaded_app = import_from_string(self.app)
+                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/importer.py", line 19, in import_from_string
+    module = importlib.import_module(module_str)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/main.py", line 21, in <module>
+    from app.routes import (
+    ...<16 lines>...
+    )
+  File "/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/routes/ngo.py", line 127
+    Riverside
+             ^
+IndentationError: unindent does not match any outer indentation level
+WARNING:  StatReload detected changes in 'app/routes/ngo.py'. Reloading...
+Process SpawnProcess-8:
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    ~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 79, in serve
+    await self._serve(sockets)
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 86, in _serve
+    config.load()
+    ~~~~~~~~~~~^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/config.py", line 441, in load
+    self.loaded_app = import_from_string(self.app)
+                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/importer.py", line 19, in import_from_string
+    module = importlib.import_module(module_str)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/main.py", line 21, in <module>
+    from app.routes import (
+    ...<16 lines>...
+    )
+  File "/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/routes/ngo.py", line 130
+    function update_help_request(
+    ^^^^^^^^
+SyntaxError: invalid syntax
+WARNING:  StatReload detected changes in 'app/routes/ngo.py'. Reloading...
+INFO:     Started server process [1890]
+INFO:     Waiting for application startup.
+2026-03-29 07:45:03 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:45:03 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:45:04 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:45:04 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57674 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57674 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57682 - "OPTIONS /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57674 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57676 - "GET /check-price/ticker HTTP/1.1" 200 OK
+2026-03-29 07:45:51 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57698 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57698 - "OPTIONS /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57698 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57698 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57698 - "OPTIONS /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57700 - "OPTIONS /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57702 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57702 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57700 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57698 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57704 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+2026-03-29 07:46:33 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57801 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57801 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57801 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57801 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57801 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57805 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57803 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57803 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57809 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57811 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57809 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57813 - "OPTIONS /auth/ngo/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57813 - "POST /auth/ngo/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57815 - "POST /auth/ngo/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57815 - "POST /auth/ngo/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57831 - "POST /auth/ngo/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57840 - "POST /auth/ngo/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57861 - "POST /auth/ngo/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57881 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57881 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+WARNING:  StatReload detected changes in 'app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:50:18 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1890]
+INFO:     Started server process [1956]
+INFO:     Waiting for application startup.
+2026-03-29 07:50:20 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:50:20 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:50:20 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:50:20 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57907 - "POST /auth/ngo/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:57920 - "OPTIONS /auth/ngo/register HTTP/1.1" 200 OK
+2026-03-29 07:51:34 | INFO     | app.routes.auth | NGO sevayojana@gmail.com registered
+INFO:     127.0.0.1:57920 - "POST /auth/ngo/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57920 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57920 - "OPTIONS /profile/09a114ea-bd86-430e-9bfe-8c83b4f7e571 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57922 - "GET /profile/09a114ea-bd86-430e-9bfe-8c83b4f7e571 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57922 - "OPTIONS /ngo/farmers?filter_status=needs_manual_review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57920 - "OPTIONS /requests/ngo/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57922 - "GET /ngo/farmers?filter_status=needs_manual_review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57922 - "OPTIONS /ngo/pending-scans HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57924 - "GET /requests/ngo/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57920 - "GET /ngo/pending-scans HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57920 - "OPTIONS /ngo/help-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57924 - "GET /ngo/help-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57929 - "GET /ngo/pending-scans HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57927 - "GET /ngo/farmers?filter_status=needs_manual_review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57930 - "GET /requests/ngo/all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57934 - "OPTIONS /ngo/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57933 - "GET /profile/09a114ea-bd86-430e-9bfe-8c83b4f7e571 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57934 - "GET /ngo/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57934 - "GET /ngo/pending-scans HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57936 - "OPTIONS /requests/user/09a114ea-bd86-430e-9bfe-8c83b4f7e571 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57936 - "GET /requests/user/09a114ea-bd86-430e-9bfe-8c83b4f7e571 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57938 - "GET /ngo/help-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57938 - "GET /profile/09a114ea-bd86-430e-9bfe-8c83b4f7e571 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57936 - "GET /ngo/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57936 - "GET /ngo/pending-scans HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57940 - "GET /profile/09a114ea-bd86-430e-9bfe-8c83b4f7e571 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57942 - "GET /ngo/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57944 - "OPTIONS /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57944 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+WARNING:  StatReload detected changes in 'app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:54:28 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1956]
+INFO:     Started server process [2036]
+INFO:     Waiting for application startup.
+2026-03-29 07:54:30 | INFO     | annadata | Creating database tables if not exist...
+2026-03-29 07:54:30 | INFO     | annadata | Loading price ML model (training if first run)...
+2026-03-29 07:54:30 | INFO     | annadata | Price ML model ready.
+2026-03-29 07:54:30 | INFO     | annadata | Seeded demo user: 777777777 (admin) with email admin@annadata.org
+2026-03-29 07:54:30 | INFO     | annadata | 🚀 ANNADATA API v1.0.0 started
+INFO:     Application startup complete.
+INFO:     127.0.0.1:57973 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+2026-03-29 07:54:47 | INFO     | app.routes.auth | User 7045856206 logged in as UserRole.farmer
+INFO:     127.0.0.1:57984 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57984 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57984 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57986 - "OPTIONS /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57984 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57984 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57988 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57986 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57986 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57986 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57984 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57988 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57988 - "OPTIONS /heatmap/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57984 - "GET /heatmap/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58005 - "GET /requests/user/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58005 - "GET /profile/1198e388-621b-4946-853d-46f8c6697478 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58007 - "GET /check-price/ticker HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58011 - "POST /auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:58013 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:58013 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:58013 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:58013 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:58017 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:58017 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:58017 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:58017 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+INFO:     127.0.0.1:58034 - "POST /auth/login HTTP/1.1" 422 Unprocessable Content
+WARNING:  StatReload detected changes in 'app/schemas/schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-29 07:58:01 | INFO     | annadata | ANNADATA API shutting down.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2036]
+Process SpawnProcess-12:
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    ~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 79, in serve
+    await self._serve(sockets)
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 86, in _serve
+    config.load()
+    ~~~~~~~~~~~^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/config.py", line 441, in load
+    self.loaded_app = import_from_string(self.app)
+                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/importer.py", line 19, in import_from_string
+    module = importlib.import_module(module_str)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/main.py", line 21, in <module>
+    from app.routes import (
+    ...<16 lines>...
+    )
+  File "/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/routes/auth.py", line 5, in <module>
+    from app.schemas.schemas import (
+    ...<7 lines>...
+    )
+ImportError: cannot import name 'LoginRequest' from 'app.schemas.schemas' (/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/schemas/schemas.py)
+WARNING:  StatReload detected changes in 'app/schemas/schemas.py'. Reloading...
+Process SpawnProcess-13:
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    ~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 79, in serve
+    await self._serve(sockets)
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/server.py", line 86, in _serve
+    config.load()
+    ~~~~~~~~~~~^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/config.py", line 441, in load
+    self.loaded_app = import_from_string(self.app)
+                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/mahek/Library/Python/3.13/lib/python/site-packages/uvicorn/importer.py", line 19, in import_from_string
+    module = importlib.import_module(module_str)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/main.py", line 21, in <module>
+    from app.routes import (
+    ...<16 lines>...
+    )
+  File "/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/routes/auth.py", line 5, in <module>
+    from app.schemas.schemas import (
+    ...<7 lines>...
+    )
+ImportError: cannot import name 'LoginRequest' from 'app.schemas.schemas' (/Users/mahek/Desktop/Neural-Nomads-AlgoForge26/backend/app/schemas/schemas.py)

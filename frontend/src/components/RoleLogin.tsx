@@ -141,7 +141,15 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
         onLogin(selectedRole);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || err.message || "Failed to authenticate");
+      console.error("Auth Failure:", err);
+      const msg = err.response?.data?.detail || err.message || "Failed to authenticate";
+      toast.error(msg);
+      
+      // Specifically for "cannot restart" complaint: 
+      // Ensure everything is unlocked and password is cleared on 401
+      if (err.response?.status === 401) {
+        setPassword("");
+      }
     } finally {
       setLoading(false);
     }

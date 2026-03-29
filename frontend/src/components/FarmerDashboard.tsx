@@ -10,6 +10,8 @@ import {
 import { profileApi, requestApi } from "@/api/client";
 import { APIResponse } from "@/lib/api";
 import PriceChart from "./PriceChart";
+import PriceTicker from "./PriceTicker";
+import MandiPrice from "./MandiPrice";
 
 interface FarmerDashboardProps {
   onNavigate: (screen: string) => void;
@@ -66,6 +68,7 @@ const FarmerDashboard = ({ onNavigate, openChat, onStartTour }: FarmerDashboardP
   }, [userId]);
 
   const ACTIONS = [
+    { id: "mandi",     label: t("nav.mandiPrices"),       icon: Landmark,     color: "bg-[#ecfccb] text-[#3f6212] border-[#3f6212]/20", tourId: "tour-mandi" },
     { id: "fraud",     label: t("nav.inputVerification"), icon: ShieldCheck,  color: "bg-[#fdf2f2] text-[#c82b28] border-[#c82b28]/20", tourId: "tour-fraud" },
     { id: "loan",      label: t("nav.loanDecoder"),       icon: Landmark,     color: "bg-[#eef6fc] text-[#3174a1] border-[#3174a1]/20", tourId: "tour-loan" },
     { id: "legal",     label: t("nav.legalAid"),          icon: MessageSquare, color: "bg-[#fdf5e8] text-[#e18b2c] border-[#e18b2c]/20", tourId: "tour-legal" },
@@ -122,11 +125,10 @@ const FarmerDashboard = ({ onNavigate, openChat, onStartTour }: FarmerDashboardP
         </div>
       </div>
 
-      {/* Grid & Live Data Interface */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-        {/* Quick Actions Grid */}
-        <div className="md:col-span-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {ACTIONS.map((action) => (
+      {/* Primary Action Suite */}
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {ACTIONS.slice(0, 6).map((action) => (
             <motion.button
               key={action.id}
               id={action.tourId}
@@ -142,82 +144,14 @@ const FarmerDashboard = ({ onNavigate, openChat, onStartTour }: FarmerDashboardP
               </span>
             </motion.button>
           ))}
-          
-          {/* AI Guide Shortcut */}
-          <motion.div
-            whileHover={{ y: -4 }}
-            className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-[#d4cb7e] bg-[#fbfaf5] text-[#13311c] group cursor-pointer"
-            onClick={onStartTour}
-          >
-            <Bot className="w-8 h-8 mb-4 text-[#408447]" />
-            <span className="font-bold text-xs text-center leading-tight uppercase tracking-tight">
-              Start AI Tour
-            </span>
-          </motion.div>
         </div>
 
-        {/* Live Market Insights (Restored) */}
-        <div className="md:col-span-2 h-full">
-           <div className="h-full min-h-[300px] sticky top-6">
-              <PriceChart />
-           </div>
+        {/* LIVE MARKET TICKER (Full Width Raw Data) */}
+        <div className="w-full">
+          <div className="min-h-[450px]">
+            <PriceTicker />
+          </div>
         </div>
-      </div>
-
-      {/* Recent Request Status */}
-      <div className="bg-white border border-[#e5e3d7] p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="font-mukta font-bold text-xl flex items-center gap-2">
-            <Clock className="w-5 h-5 text-[#408447]" />
-            {t("dashboard.requestStatus")}
-          </h3>
-          <button 
-            onClick={() => onNavigate("profile")}
-            className="text-xs font-black uppercase tracking-widest text-[#408447] hover:underline"
-          >
-            {t("dashboard.seeAll")}
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center p-8">
-            <div className="w-6 h-6 border-2 border-[#408447] border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : requests.length === 0 ? (
-          <div className="text-center p-8 border-2 border-dashed border-gray-100 bg-gray-50/50">
-            <p className="text-gray-400 text-sm font-bold italic">{t("dashboard.noRequests")}</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {requests.map((req) => (
-              <div 
-                key={req.id} 
-                className="flex items-center justify-between p-4 bg-gray-50 border border-gray-100 hover:border-[#408447]/30 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-full ${
-                    req.status === 'resolved' ? 'bg-green-100 text-green-600' : 
-                    req.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'
-                  }`}>
-                    {req.status === 'resolved' ? <CheckCircle2 className="w-4 h-4" /> : 
-                     req.status === 'pending' ? <Clock className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm capitalize">{req.request_type.replace('_', ' ')}</p>
-                    <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">
-                      {new Date(req.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <div className={`text-[10px] font-black uppercase tracking-tighter px-2 py-1 ${
-                  req.status === 'resolved' ? 'text-green-600' : 'text-amber-600'
-                }`}>
-                  {req.status.replace('_', ' ')}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Helper Tip */}

@@ -10,7 +10,7 @@ import { APIResponse, PriceCheckResponse } from "@/lib/api";
 
 interface Recommendation { crop: string; avg_price: number; data_points: number; }
 
-export default function MandiPage({ onBack }: any) {
+export default function MandiPage({ onBack, isEmbedded = false }: any) {
   const { t } = useTranslation();
   // --- State ---
   const [crops, setCrops]               = useState<string[]>([]);
@@ -104,8 +104,8 @@ export default function MandiPage({ onBack }: any) {
                    : <CheckCircle2 className="w-5 h-5" />;
 
   return (
-    <div className="space-y-6 w-full max-w-5xl mx-auto pb-12">
-      <div className="px-5 mt-4 space-y-6">
+    <div className={`space-y-6 w-full max-w-5xl mx-auto ${isEmbedded ? "" : "pb-12"}`}>
+      <div className={`${isEmbedded ? "" : "px-5"} mt-4 space-y-6`}>
 
         {/* ── AI Recommendations ── */}
         <div className="bg-white border border-[#e5e3d7] shadow-sm">

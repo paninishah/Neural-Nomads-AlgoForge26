@@ -3,7 +3,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.schemas import ProfileCreate, success, error
+from app.schemas.base import ProfileCreate, success, error
 from app.core.dependencies import get_current_user
 from app.repositories.profile_repo import ProfileRepository
 from app.repositories.user_repo import UserRepository

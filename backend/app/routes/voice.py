@@ -1,65 +1,87 @@
 import logging
-from fastapi import APIRouter
-from app.schemas.schemas import VoiceRequest, success
+import os
+import shutil
+from fastapi import APIRouter, UploadFile, File, Form
+from fastapi import APIRouter, UploadFile, File, Form, Depends
+from app.schemas.base import success
+from app.ai.voice_service import get_voice_service
+from app.ml.price_model import get_dynamic_market_narrative, get_general_market_pulse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/voice", tags=["Voice Assistant"])
 
-INTENT_MAP = {
-  "bhaav": "mandi",
-  "mandi": "mandi",
-  "price": "mandi",
-  "asli": "fraud",
-  "fraud": "fraud",
-  "pesticide": "fraud",
-  "duplicate": "fraud",
-  "karz": "loan",
-  "loan": "loan",
-  "bank": "loan",
-  "paisaa": "wallet",
-  "wallet": "wallet",
-  "profit": "wallet",
-  "munafa": "wallet",
-  "nuksan": "wallet",
-  "law": "legal",
-  "legal": "legal",
-  "court": "legal",
-  "police": "legal",
-  "complaint": "legal",
-  "shikayat": "legal",
-}
+@router.post("/process")
+async def process_voice_audio(
+    audio: UploadFile = File(...),
+    location: str = Form("Lucknow"),
+    lang: str = Form("en"),
+    voice_service = Depends(get_voice_service)
+):
+    """
+    V4 - FULL WHISPER INTEGRATION (LOCAL INFERENCE)
+    Processes raw audio, transcribes via local Whisper model (base), 
+    and handles multilingual intent extraction.
+    """
+    file_path = f"audio_{audio.filename}"
+    try:
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(audio.file, buffer)
+        
+        # 1. Transcribe via local Whisper
+        logger.info(f"Processing audio: {audio.filename} ({audio.size} bytes)")
+        transcription_result = voice_service.transcribe_audio(file_path)
+        heard_text = transcription_result["text"]
+        detected_lang = transcription_result["language"]
+        
+        logger.info(f"Whisper Transcript: '{heard_text}' [Lang: {detected_lang}]")
 
-@router.post("/intent")
-def get_voice_intent(payload: VoiceRequest):
-    """Detect intent from voice transcript."""
-    lower_text = payload.transcript.lower()
-    intent = None
-    
-    for key, value in INTENT_MAP.items():
-        if key in lower_text:
-            intent = value
-            break
-            
-    res_text = "I see you're asking about something else. How can I help?"
-    res_sub = "You can ask about prices, loans, or product safety."
-    res_screen = None
+        # 2. Get Real-time Market Context for the Brain
+        # Use an expanded list of 3-language keywords for detection
+        text_lower = heard_text.lower()
+        active_crop = None
+        
+        # Phonetic scanning list
+        scan_list = [
+            "wheat", "gehun", "gehun", "गेहूं", "गहू",
+            "rice", "chawal", "tandul", "jawal", "chaul", "जावल", "चावल", "तांदूळ",
+            "cotton", "kapas", "kapus", "कपास", "कापूस",
+            "maize", "makai", "makka", "मका", "मक्का",
+            "bajra", "bajarat", "bajarya", "बाजरा", "बाजारी", "बाज्या",
+            "jowar", "jawar", "jowari", "जवार", "ज्वारी"
+        ]
+        
+        for crop in scan_list:
+            if crop in text_lower:
+                active_crop = crop
+                break
+        
+        if active_crop:
+            market_context = get_dynamic_market_narrative(active_crop, location)
+        else:
+            market_context = get_general_market_pulse()
+        
+        # 3. Extract Intent & Generate AI Brain Response
+        ai_payload = voice_service.get_ai_response(heard_text, context_data=market_context, location=location, lang=detected_lang)
 
-    if intent == "mandi":
-        res_text = "Yes, wheat prices are up by 15% today!"
-        res_sub = "Nashik Mandi is reporting ₹2,450/qtl. It's a great time to sell."
-        res_screen = "mandi"
-    elif intent == "fraud":
-        res_text = "I can help you check that product."
-        res_sub = "Please scan the bottle label clearly so I can verify the batch."
-        res_screen = "fraud"
-    elif intent == "wallet":
-        res_text = "Your seasonal profit is looks healthy."
-        res_sub = "You've earned ₹1.2L so far. Want to see the detailed breakdown?"
-        res_screen = "wallet"
+        return success("Voice Brain Processed", {
+            "intent": ai_payload["intent"],
+            "text": ai_payload["text"],
+            "sub": ai_payload["sub"],
+            "screen": ai_payload["screen"],
+            "heard": f"'{heard_text}' (Detected via local Whisper)",
+            "lang": ai_payload["lang"] # Use the BRAIN'S corrected language
+        })
 
-    return success("Intent processed", {
-        "intent": intent,
-        "text": res_text,
-        "sub": res_sub,
-        "screen": res_screen
-    })
+    except Exception as e:
+        logger.error(f"Voice Processing Error: {str(e)}")
+        # Graceful fallback for demo
+        return success("Voice Brain (Simulator Fallback)", {
+            "intent": "general",
+            "text": "I heard you, but my brain is still initializing. Try again in a moment.",
+            "sub": "Whisper local model is loading or encountered an error.",
+            "heard": "Processing Audio...",
+            "lang": lang
+        })
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
