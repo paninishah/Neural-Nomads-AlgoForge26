@@ -6,8 +6,8 @@ import {
   Users, Scale, Landmark, ShieldAlert, Save, Edit2, RotateCcw
 } from "lucide-react";
 import type { Role } from "@/components/RoleLogin";
-import { apiClient } from "@/lib/apiClient";
-import { APIResponse } from "@/lib/api";
+import { NGOProfileOut } from "@/lib/api";
+import { ngoApi } from "@/api/client";
 
 const INDIA_STATES  = ["Maharashtra", "Punjab", "Madhya Pradesh", "Uttar Pradesh", "Bihar", "Rajasthan", "Gujarat", "Karnataka", "Tamil Nadu", "West Bengal"];
 const FOCUS_OPTIONS = ["Fraud Awareness", "Legal Aid", "Loans", "Insurance", "Crop Advisory", "Water Rights", "Market Access"];
@@ -56,7 +56,7 @@ const NGOProfile = ({ role }: NGOProfileProps) => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await apiClient.get<APIResponse<any>>("/ngo/stats");
+        const res = await ngoApi.getStats();
         if (res.data.status === "success") {
           setStats(res.data.data);
         }

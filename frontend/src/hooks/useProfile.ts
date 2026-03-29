@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import type { Role } from "@/components/RoleLogin";
-import { apiClient } from "@/lib/apiClient";
+import { profileApi } from "@/api/client";
 
 // ── Default profiles per role ────────────────────────
 const defaultProfiles: Record<Role, any> = {
@@ -68,7 +68,7 @@ export const useProfile = (role: Role) => {
          return;
       }
       try {
-        const res = await apiClient.get(`/profile/${userId}`);
+        const res = await profileApi.getProfile(userId);
         const data = res.data.data;
 
         if (!data || !data.id) {
@@ -147,7 +147,7 @@ export const useProfile = (role: Role) => {
         payload.admin_id = nextProfile.adminId;
       }
 
-      await apiClient.post("/profile", payload);
+      await profileApi.updateProfile(payload);
     } catch(e) {
       console.error("Failed to sync profile updates", e);
     }

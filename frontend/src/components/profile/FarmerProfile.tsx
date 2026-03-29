@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import type { Role } from "@/components/RoleLogin";
 
-import { apiClient } from "@/lib/apiClient";
+import { apiClient, profileApi } from "@/api/client";
 
 const CROPS       = ["Wheat", "Rice", "Soybean", "Cotton", "Maize", "Sugarcane", "Mustard", "Groundnut", "Pulses", "Vegetables"];
 const IRRIGATIONS = ["Borewell", "Canal", "Rainwater", "Drip", "Sprinkler", "Pond / Tank"];

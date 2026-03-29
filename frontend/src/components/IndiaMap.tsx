@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useGeoData } from '../hooks/useGeoData';
 import { safeCompare } from '../lib/mapUtils';
 import { ChevronLeft, Lightbulb } from 'lucide-react';
-import { apiClient } from '@/lib/apiClient';
+import { apiClient } from '@/api/client';
 import './MapStyles.css';
 
 /* ── Types ─────────────────────────────────────────── */

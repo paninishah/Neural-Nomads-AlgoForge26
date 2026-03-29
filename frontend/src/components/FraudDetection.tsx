@@ -15,7 +15,7 @@ import {
   PlusCircle
 } from "lucide-react";
 import type { Role } from "@/components/RoleLogin";
-import { apiClient } from "@/lib/apiClient";
+import { ngoApi, inputApi, apiClient, requestApi } from "@/api/client";
 import { APIResponse } from "@/lib/api";
 
 type ScanMode = "gathering" | "capturing_bottle" | "capturing_bill" | "capturing_qr" | "loading" | "result";
@@ -38,16 +38,35 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
   const [pendingScans, setPendingScans] = useState<any[]>([]);
   const [isNgoLoading, setIsNgoLoading] = useState(false);
 
+  const [history, setHistory] = useState<any[]>([]);
+
   useEffect(() => {
     if (role === "ngo" || role === "admin") {
       fetchScans();
+    } else {
+      fetchHistory();
     }
   }, [role]);
+
+  const fetchHistory = async () => {
+    try {
+      const userId = localStorage.getItem("annadata_user_id");
+      if (!userId) return;
+      const res = await requestApi.getUserRequests(userId);
+      // Filter for identity and pesticide related requests
+      const filtered = res.data.data.filter((r: any) => 
+        ["identity_verification", "pesticide_check", "fraud_report"].includes(r.request_type)
+      );
+      setHistory(filtered);
+    } catch (err) {
+      console.error("Failed to fetch history", err);
+    }
+  };
 
   const fetchScans = async () => {
     setIsNgoLoading(true);
     try {
-      const res = await apiClient.get<APIResponse<any[]>>("/ngo/pending-scans");
+      const res = await ngoApi.getPendingScans();
       if (res.data.status === "success") {
         setPendingScans(res.data.data);
       }
@@ -58,11 +77,9 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
     }
   };
 
-  const resolveScan = async (scanId: string, action: string) => {
+  const resolveScan = async (scanId: string, action: "clean" | "fraud") => {
     try {
-      await apiClient.post("/ngo/resolve-scan", null, {
-        params: { scan_id: scanId, action: action, notes: `Resolved as ${action} by NGO` }
-      });
+      await ngoApi.resolveScan(scanId, action, `Resolved as ${action} by NGO`);
       setPendingScans(prev => prev.filter(s => s.id !== scanId));
     } catch (e) {
       console.error("Failed to resolve scan", e);
@@ -75,7 +92,7 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
     setMode("loading");
     
     try {
-      const resp = await apiClient.post<APIResponse<any>>("/verify-input", {
+      const resp = await inputApi.verify({
         image: "dummy_bottle_image",
         mode: "bottle"
       });
@@ -98,7 +115,7 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
     setMode("loading");
     
     try {
-      const resp = await apiClient.post<APIResponse<any>>("/verify-input", {
+      const resp = await inputApi.verify({
         image: "dummy_bill_image",
         mode: "bill",
         pesticide_name: bottleDetails?.pesticide_name || "RoundUp"
@@ -382,6 +399,43 @@ const FraudDetection = ({ onBack, role }: { onBack: () => void; role?: Role }) =
            <p className="text-center text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] py-4">
               Two-Step Intelligent Verification Active
            </p>
+
+           {/* VERIFICATION HISTORY SECTION */}
+           <div className="mt-10 pt-8 border-t border-gray-100">
+              <h4 className="font-mukta font-bold text-[#1a1a1a] flex items-center gap-2 mb-6">
+                 <Activity className="w-4 h-4 text-primary" /> Recent Identity & Pesticide Checks
+              </h4>
+              
+              {history.length === 0 ? (
+                <div className="text-center py-10 bg-[#fbfaf5] border border-dashed border-gray-100 text-gray-400">
+                   <p className="text-xs font-bold uppercase tracking-widest">No recent history found</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {history.map((item) => (
+                    <div key={item.id} className="p-4 bg-white border border-[#e5e3d7] flex justify-between items-center group hover:border-primary/30 transition-all shadow-sm">
+                      <div className="flex gap-4 items-center">
+                        <div className={`w-2 h-2 rounded-full ${item.status === 'pending' ? 'bg-amber-400' : item.status === 'resolved' ? 'bg-green-500' : 'bg-red-400'}`} />
+                        <div>
+                          <p className="text-sm font-bold text-[#1a1a1a] uppercase tracking-tighter">
+                            {item.request_type.replace('_', ' ')}
+                          </p>
+                          <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
+                            {new Date(item.created_at).toLocaleDateString()} • {item.status.toUpperCase()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black text-primary">ID: {item.id.slice(0, 8)}</p>
+                        {item.payload?.trust_score && (
+                           <p className="text-xs font-black text-gray-800">Score: {item.payload.trust_score}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+           </div>
         </div>
       )}
 

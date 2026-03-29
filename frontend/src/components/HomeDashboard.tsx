@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import type { Lang } from "@/pages/Index";
 import { Role } from "@/components/RoleLogin";
-import { apiClient } from "@/lib/apiClient";
+import { ngoApi, apiClient } from "@/api/client";
 import { APIResponse } from "@/lib/api";
 import AdminDashboard from "./AdminDashboard";
 import NGOReview from "./NGOReview";
@@ -51,13 +51,13 @@ const NgoDashboardSection = () => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const farmersRes = await apiClient.get<APIResponse<any[]>>("/ngo/farmers", { params: { filter_status: "needs_manual_review" } });
+        const farmersRes = await ngoApi.getFarmers("needs_manual_review");
         if (farmersRes.data.status === "success") {
           setPendingFarmers(farmersRes.data.data.slice(0, 5));
         }
 
-        const scansRes = await apiClient.get<APIResponse<any[]>>("/ngo/pending-scans");
-        const helpRes = await apiClient.get<APIResponse<any[]>>("/ngo/help-requests");
+        const scansRes = await ngoApi.getPendingScans();
+        const helpRes  = await ngoApi.getHelpRequests();
         
         const combinedAlerts = [];
         if (scansRes.data.status === "success") {
@@ -104,6 +104,35 @@ const NgoDashboardSection = () => {
 
       {activeSubView === "stats" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ animation: "slide-up-fade 0.4s ease-out" }}>
+          {/* Assigned Tasks (NGO Specific) */}
+          <div className={`${theme.classes.card} bg-white shadow-lg border-t-4 border-t-[#3174a1]`}>
+            <div className="p-4 border-b border-[#e5e3d7] bg-[#f0f9ff] flex justify-between items-center">
+              <h2 className={`${theme.classes.heading2} text-[#1b435e]`}>Assigned Requests</h2>
+              <span className="bg-[#3174a1] text-white text-[10px] font-black px-2 py-0.5 uppercase tracking-widest">
+                {alerts.filter(a => a.type === 'help').length} Active
+              </span>
+            </div>
+            <div className="p-0 max-h-[350px] overflow-y-auto">
+              {loading ? (
+                <div className="p-10 flex justify-center"><div className="w-6 h-6 border-2 border-[#3174a1] border-t-transparent rounded-full animate-spin" /></div>
+              ) : alerts.filter(a => a.type === 'help').length === 0 ? (
+                <div className="p-10 text-center text-gray-400 font-bold text-sm italic">No specific tasks assigned yet.</div>
+              ) : (
+                alerts.filter(a => a.type === 'help').map((help, idx) => (
+                  <div key={idx} className="p-4 border-b border-gray-100 flex justify-between items-center hover:bg-gray-50 transition-colors" onClick={() => setActiveSubView("review")}>
+                    <div>
+                      <p className="font-bold text-[#1a1a1a]">{help.farmer_name || 'Farmer Request'}</p>
+                      <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest mt-1">
+                        {help.request_type?.toUpperCase()} Assistance • {new Date(help.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-300" />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
           {/* Verification Queue Preview */}
           <div className={theme.classes.card}>
             <div className="p-4 border-b border-[#e5e3d7] bg-gray-50 flex justify-between items-center">
@@ -131,29 +160,31 @@ const NgoDashboardSection = () => {
             </div>
           </div>
 
-          {/* AI Field Alerts */}
-          <div className={theme.classes.card}>
+          {/* AI Field Alerts (Bottom Wide or split) */}
+          <div className={theme.classes.card + " lg:col-span-2"}>
             <div className="p-4 border-b border-[#e5e3d7] bg-[#fdf2f2] flex justify-between items-center">
-              <h2 className={theme.classes.heading2 + " text-[#c82b28]"}>High-Priority Alerts</h2>
-              <span className={theme.classes.badgeError}>Field Action</span>
+              <h2 className={theme.classes.heading2 + " text-[#c82b28]"}>High-Priority Alerts & Anomalies</h2>
+              <span className={theme.classes.badgeError}>System Alert</span>
             </div>
             <div className="p-0 overflow-y-auto max-h-[350px]">
                 {loading ? (
                   <div className="p-10 flex justify-center"><div className="w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin" /></div>
-                ) : alerts.length === 0 ? (
+                ) : alerts.filter(a => a.type === 'scan').length === 0 ? (
                   <div className="p-10 text-center text-gray-400 font-bold text-sm italic">Global status nominal.</div>
                 ) : (
-                  alerts.map((alert, idx) => (
+                  alerts.filter(a => a.type === 'scan').map((alert, idx) => (
                     <div key={idx} className="p-4 border-b border-gray-100 flex gap-4 hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => setActiveSubView("review")}>
                       <div className="mt-1">
                         {alert.priority === 'high' ? <AlertTriangle className="w-5 h-5 text-[#c82b28]" /> : <Clock className="w-5 h-5 text-[#e18b2c]" />}
                       </div>
-                      <div>
+                      <div className="flex-1">
                           <p className="font-bold text-sm text-[#1a1a1a]">
-                            {alert.type === 'scan' ? `Suspicious Input: ${alert.pesticide_name}` : `Legal Assistance: ${alert.farmer_name}`}
+                            Suspicious Input: {alert.pesticide_name}
                           </p>
                           <p className="text-xs text-gray-600 mt-1 line-clamp-2">{alert.description || `Mismatch: ₹${alert.bill_price} vs ₹${alert.extracted_mrp}`}</p>
+                          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-2">{alert.farmer_name || 'Anonymous Farmer'} • {alert.location || 'Unknown Location'}</p>
                       </div>
+                      <ChevronRight className="w-4 h-4 text-gray-300 mt-2" />
                     </div>
                   ))
                 )}

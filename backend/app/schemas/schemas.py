@@ -355,6 +355,7 @@ class UnifiedRequestCreate(BaseModel):
 class UnifiedRequestUpdate(BaseModel):
     status: str = Field(..., description="pending, in_progress, resolved, flagged, rejected")
     ngo_notes: Optional[str] = None
+    assigned_ngo_id: Optional[str] = None
 
 
 class UnifiedRequestOut(BaseModel):

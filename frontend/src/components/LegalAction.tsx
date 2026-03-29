@@ -8,7 +8,7 @@ import {
 import ScreenHeader from "./ScreenHeader";
 import type { Lang } from "@/pages/Index";
 import type { Role } from "@/components/RoleLogin";
-import { apiClient } from "@/lib/apiClient";
+import { loanApi, apiClient, requestApi, ngoApi } from "@/api/client";
 import { APIResponse } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -40,9 +40,9 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
       try {
         const userId = localStorage.getItem("annadata_user_id");
         if (!userId) return;
-        const res = await apiClient.get<APIResponse<any[]>>(`/help-request/${userId}`);
+        const res = await requestApi.getUserRequests(userId);
         // Filter for legal only
-        setComplaintsHistory(res.data.data.filter(h => h.request_type === "legal"));
+        setComplaintsHistory(res.data.data.filter((h: any) => h.request_type === "legal"));
       } catch (err) {
         console.error("Failed to fetch legal history", err);
       }
@@ -52,6 +52,12 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
   
   // Handlers
   const handleAnalyze = async () => {
+    const token = localStorage.getItem("annadata_token");
+    if (!token) {
+      toast.error("Authentication required. Please log in again.");
+      return;
+    }
+
     if (!inputText) return;
     setStep('analyzing');
     
@@ -66,16 +72,22 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
         setStep('detected');
       }, 1500);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "AI Analysis failed");
+      const status = err.response?.status;
+      if (status === 401) {
+        toast.error("Your session has expired. Please log in again.");
+      } else {
+        toast.error(err.response?.data?.detail || "AI Analysis failed");
+      }
       setStep('input');
     }
   };
 
   const submitComplaint = async () => {
     try {
-      await apiClient.post("/help-request", {
-        user_id: localStorage.getItem("annadata_user_id"),
+      await requestApi.create({
+        user_id: localStorage.getItem("annadata_user_id") || "",
         type: "legal",
+        payload: { text: draftText },
         description: draftText
       });
       toast.success("Complaint submitted securely");
@@ -125,7 +137,7 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
       const fetchNgoCases = async () => {
         setIsNgoLoading(true);
         try {
-          const res = await apiClient.get<APIResponse<any[]>>("/ngo/help-requests");
+          const res = await ngoApi.getHelpRequests();
           if (res.data.status === "success") {
             setNgoCases(res.data.data);
           }
@@ -141,7 +153,7 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
 
   const updateCaseStatus = async (caseId: string, status: string) => {
     try {
-      await apiClient.post("/ngo/help-update", {
+      await ngoApi.updateHelpRequest({
         request_id: caseId,
         status: status,
         notes: `Case marked as ${status} by NGO operator`
@@ -306,36 +318,45 @@ export default function LegalAction({ onBack, lang, role }: { onBack: () => void
                 <p className="font-hind text-sm leading-snug text-blue-700/80">Don't worry about legal terms. Just speak naturally, and our AI will document the perfect complaint for you.</p>
               </div>
 
-              {/* MY RECENT COMPLAINTS SECTION */}
-              <div className="bg-white/40 border border-[#e5e3d7] p-5">
-                <h4 className="font-mukta font-bold text-[#1a1a1a] flex items-center gap-2 mb-4">
-                  <FileText className="w-4 h-4 text-orange-500" /> My Recent Complaints
-                </h4>
+              {/* MY RECENT COMPLAINTS - PINNED STYLE */}
+              <div className="bg-[#fbfaf5] border-2 border-[#e5e3d7] overflow-hidden shadow-sm">
+                <div className="bg-white px-4 py-2 border-b border-[#e5e3d7] flex justify-between items-center">
+                  <h4 className="font-mukta font-bold text-xs uppercase tracking-widest text-gray-500 flex items-center gap-2">
+                    <Clock className="w-3 h-3 text-[#e18b2c]" /> {t("legal.recentHistory") || "Verification History"}
+                  </h4>
+                  <span className="text-[10px] font-black text-[#408447]">LIVE SYNC ACTIVE</span>
+                </div>
                 
-                {complaintsHistory.length === 0 ? (
-                  <p className="text-xs text-gray-400 font-hind">No recent legal help requests found.</p>
-                ) : (
-                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
-                    {complaintsHistory.map((item) => (
-                      <div key={item.id} className="p-3 bg-white border border-[#e5e3d7] flex justify-between items-center group hover:border-[#1b435e]/30 transition-all">
-                        <div className="flex gap-3 items-center">
-                          <div className={`w-2 h-2 rounded-full ${item.status === 'pending' ? 'bg-orange-400' : 'bg-green-500'}`} />
-                          <div>
-                            <p className="text-sm font-bold text-[#1a1a1a] line-clamp-1">{item.description.slice(0, 50)}...</p>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">
-                              {new Date(item.created_at).toLocaleDateString()} • {item.status}
-                            </p>
+                <div className="p-2">
+                  {complaintsHistory.length === 0 ? (
+                    <div className="py-8 text-center">
+                       <FileText className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">No recent legal help requests</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {complaintsHistory.slice(0, 4).map((item) => (
+                        <div key={item.id} className="p-3 bg-white border border-[#e5e3d7] flex justify-between items-center hover:border-[#1b435e]/30 transition-all cursor-pointer">
+                          <div className="flex gap-3 items-center">
+                            <div className={`w-1.5 h-1.5 rounded-none ${item.status === 'pending' ? 'bg-[#e18b2c]' : 'bg-[#408447]'}`} />
+                            <div className="overflow-hidden">
+                              <p className="text-[11px] font-black text-[#1a1a1a] truncate w-full">{item.description.slice(0, 35)}...</p>
+                              <p className="text-[9px] text-gray-400 uppercase tracking-tighter mt-0.5 font-bold">
+                                {new Date(item.created_at).toLocaleDateString()} • {item.status}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                        <button className="text-xs font-bold text-[#1b435e] opacity-0 group-hover:opacity-100 transition-opacity">
-                          View Status
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {complaintsHistory.length > 4 && (
+                   <button className="w-full py-2 bg-gray-50 text-[9px] font-black text-gray-400 uppercase border-t border-[#e5e3d7] hover:bg-white hover:text-black transition-all">
+                      View all complaints
+                   </button>
                 )}
               </div>
-
             </motion.div>
           )}
 

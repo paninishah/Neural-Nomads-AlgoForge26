@@ -85,7 +85,7 @@ def update_request_status(
         request_id=request_id,
         status=payload.status,
         ngo_notes=payload.ngo_notes,
-        ngo_id=current_user.id
+        ngo_id=payload.assigned_ngo_id if current_user.role == "admin" and payload.assigned_ngo_id else current_user.id
     )
 
     if not req:

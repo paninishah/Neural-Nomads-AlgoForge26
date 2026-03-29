@@ -16,7 +16,7 @@ import {
   ScanLine
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { apiClient } from "@/lib/apiClient";
+import { loanApi, apiClient, requestApi } from "@/api/client";
 import { APIResponse } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -98,10 +98,29 @@ export default function LoanDecoder({ onBack }: { onBack: () => void }) {
       setScanningProgress(95);
 
       // 2. Fetch the credibility score
-      const credResp = await apiClient.post<APIResponse<CredibilityResponse>>("/loan/check-credibility");
+      const credResp = await loanApi.checkCredibility();
       setResult(credResp.data.data);
       
       setScanningProgress(100);
+
+      // 3. Create a platform request for the NGO to see
+      try {
+        await requestApi.create({
+          user_id: userId!,
+          type: "identity_verification",
+          payload: { 
+            doc_type: docType,
+            trust_score: credResp.data.data.trust_score,
+            ocr_name: credResp.data.data.ocr_name,
+            name_match: credResp.data.data.name_match
+          },
+          description: `Identity verification via ${docType.toUpperCase()}. Result: ${credResp.data.data.trust_score}/100`
+        });
+        logger.info("Identity verification request logged");
+      } catch (reqErr) {
+        console.warn("Failed to log verification request, but OCR succeeded", reqErr);
+      }
+
       setTimeout(() => setMode("report"), 500);
     } catch (err: any) {
       const errorMsg = err.response?.data?.detail || "Verification failed";

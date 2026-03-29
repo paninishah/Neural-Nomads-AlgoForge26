@@ -40,6 +40,7 @@ class RequestType(str, enum.Enum):
     crop_listing = "crop_listing"
     fraud_report = "fraud_report"
     legal_aid = "legal_aid"
+    identity_verification = "identity_verification"
 
 
 class RequestStatus(str, enum.Enum):

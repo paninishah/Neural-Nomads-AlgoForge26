@@ -5,7 +5,7 @@ import {
   IndianRupee, Sparkles, AlertTriangle, CheckCircle2, Search
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { apiClient } from "@/lib/apiClient";
+import { apiClient } from "@/api/client";
 import { APIResponse, PriceCheckResponse } from "@/lib/api";
 
 interface Recommendation { crop: string; avg_price: number; data_points: number; }

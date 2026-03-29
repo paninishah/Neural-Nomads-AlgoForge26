@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
@@ -20,6 +20,7 @@ import type { Lang } from "@/pages/Index";
 import type { Role } from "@/components/RoleLogin";
 import VoiceAssistant from "./VoiceAssistant";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { requestApi } from "@/api/client";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -45,6 +46,9 @@ const ALL_SIDEBAR_ITEMS = [
 const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, role, onLogout }: AppLayoutProps) => {
   const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  
+  const userId = localStorage.getItem("annadata_user_id");
   const userName = localStorage.getItem("annadata_user_name") || "User";
   const userInitials = userName
     .split(" ")
@@ -52,6 +56,48 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  const checkNotifications = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const res = role === 'farmer' ? await requestApi.getUserRequests(userId) : await requestApi.getAllRequests();
+      if (res.data.status === "success") {
+        const requests = res.data.data;
+        const seenData = JSON.parse(localStorage.getItem("annadata_seen_requests") || "{}");
+        let newUnread = 0;
+
+        requests.forEach((req: any) => {
+          if (!seenData[req.id] || seenData[req.id] !== req.status) {
+            newUnread++;
+          }
+        });
+        setUnreadCount(newUnread);
+      }
+    } catch (e) {
+      console.error("Notification sync error");
+    }
+  }, [userId, role]);
+
+  useEffect(() => {
+    checkNotifications();
+    const interval = setInterval(checkNotifications, 60000); // Polling every 60s
+    return () => clearInterval(interval);
+  }, [checkNotifications]);
+
+  const markAllAsRead = () => {
+    if (!userId) return;
+    requestApi.getUserRequests(userId).then(res => {
+      if (res.data.status === "success") {
+        const requests = res.data.data;
+        const seenData: Record<string, string> = {};
+        requests.forEach((req: any) => {
+          seenData[req.id] = req.status;
+        });
+        localStorage.setItem("annadata_seen_requests", JSON.stringify(seenData));
+        setUnreadCount(0);
+      }
+    });
+  };
 
   // Filter Sidebar based on role
   const SIDEBAR_ITEMS = ALL_SIDEBAR_ITEMS.filter(item => item.roles.includes(role));
@@ -218,11 +264,16 @@ const AppLayout = ({ children, currentScreen, onNavigate, lang, onToggleLang, ro
               </div>
             )}
             
-            <button className="relative text-gray-500 hover:text-gray-800 transition-colors">
+            <button 
+              onClick={markAllAsRead}
+              className="relative text-gray-500 hover:text-gray-800 transition-colors"
+            >
               <Bell className="w-5 h-5" />
-              <div className="absolute -top-1.5 -right-1.5 bg-[#c82b28] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-none shadow-sm">
-                5
-              </div>
+              {unreadCount > 0 && (
+                <div className="absolute -top-1.5 -right-1.5 bg-[#c82b28] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-none shadow-sm">
+                  {unreadCount}
+                </div>
+              )}
             </button>
 
             <div

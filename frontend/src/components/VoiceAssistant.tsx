@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, X, Play, Square, Loader2, MessageSquare, ChevronRight, Store, ShieldCheck, Scale, Landmark, Wallet } from "lucide-react";
 import { theme } from "@/designSystem";
-import { apiClient } from "@/lib/apiClient";
+import { chatbotApi } from "@/api/client";
 import { APIResponse, IntentResponse } from "@/lib/api";
 
 type AssistantState = "idle" | "listening" | "thinking" | "responding";
@@ -33,9 +33,7 @@ const VoiceAssistant = ({ role, onNavigate }: VoiceAssistantProps) => {
 
   const processInput = async (text: string) => {
     try {
-      const resp = await apiClient.post<APIResponse<IntentResponse>>("/voice/intent", {
-        transcript: text
-      });
+      const resp = await chatbotApi.query(text, 'en');
       const data = resp.data.data;
       
       setResponse({ text: data.text, sub: data.sub, screen: data.screen });

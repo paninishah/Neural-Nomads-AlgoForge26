@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Spotlight from "./Spotlight";
 import GuidedTooltip from "./GuidedTooltip";
 import SunlightParticles from "./SunlightParticles";
-import { apiClient } from "@/lib/apiClient";
+import { authApi } from "@/api/client";
 import { X } from "lucide-react";
 
 interface OnboardingTourProps {
@@ -74,7 +74,7 @@ const OnboardingTour = ({ onComplete }: OnboardingTourProps) => {
 
   const finishTour = async () => {
     try {
-      await apiClient.post("/auth/onboarding/complete");
+      await authApi.completeOnboarding();
     } catch (e) {
       console.error("Failed to mark onboarding as complete", e);
     }

@@ -24,7 +24,7 @@ const PriceTicker = () => {
     // Fetch real baseline data
     const fetchLiveMarkets = async () => {
       try {
-        const { apiClient } = await import("@/lib/apiClient");
+        const { apiClient } = await import("@/api/client");
         const res = await apiClient.get("/heatmap/summary");
         if (res.data?.status === "success" && res.data.data) {
            const liveData = res.data.data.slice(0, 5).map((d: any) => ({

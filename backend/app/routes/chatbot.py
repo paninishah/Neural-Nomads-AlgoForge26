@@ -60,6 +60,9 @@ def process_chatbot_query(
         })
 
     # Logic for translated replies
+    if not detected_intent:
+         return success("I identify as a farmer assistant.", {"intent": None})
+
     intent_val = detected_intent.value.replace('_', ' ')
     if lang == "hi":
         intent_map_hi = {

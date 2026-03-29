@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { theme } from "@/designSystem";
 import { Shield, Sprout, Briefcase, UserPlus, LogIn, Globe } from "lucide-react";
-import { apiClient } from "@/lib/apiClient";
+import { authApi, profileApi } from "@/api/client";
 import { toast } from "sonner";
 import { APIResponse, LoginResponse } from "@/lib/api";
 
@@ -95,20 +95,19 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
       let res;
       if (selectedRole === "farmer") {
         if (authMode === "login") {
-          res = await apiClient.post<APIResponse<LoginResponse>>("/auth/login", { phone, password });
+          res = await authApi.login({ phone, password });
         } else {
-          res = await apiClient.post<APIResponse<LoginResponse>>("/auth/register", { name, phone, password, state: stateName, district, role: "farmer" });
+          res = await authApi.register({ name, phone, password, state: stateName, district, role: "farmer" });
         }
       } else if (selectedRole === "ngo") {
         if (authMode === "login") {
-          res = await apiClient.post<APIResponse<LoginResponse>>("/auth/ngo/login", { email, password });
+          res = await authApi.ngoLogin({ email, password });
         } else {
-          res = await apiClient.post<APIResponse<LoginResponse>>("/auth/ngo/register", { email, password, operator_full_name: operatorName, organization_name: orgName });
+          res = await authApi.ngoRegister({ email, password, operator_full_name: operatorName, organization_name: orgName });
         }
       } else if (selectedRole === "admin") {
-        // Mock admin phone is usually used here (e.g. 9999999001 for "SYS-ADMIN-XX")
         const loginPhone = adminId.includes("SYS") ? "9999999001" : adminId; 
-        res = await apiClient.post<APIResponse<LoginResponse>>("/auth/login", { phone: loginPhone, password });
+        res = await authApi.login({ phone: loginPhone, password });
       }
 
       if (res?.data.status === "success" || res?.data.token) {
@@ -116,38 +115,26 @@ const RoleLogin = ({ onLogin }: RoleLoginProps) => {
         if (d.token)   localStorage.setItem("annadata_token", d.token);
         if (d.user_id) localStorage.setItem("annadata_user_id", d.user_id);
         if (d.role)    localStorage.setItem("annadata_role", d.role);
-        if (d.onboarding_completed !== undefined) {
-          localStorage.setItem("annadata_onboarding_completed", String(d.onboarding_completed));
-        }
-        // Store registration form location immediately (available even before profile is created)
+        
+        // Store registration info immediately
         if (stateName) localStorage.setItem("annadata_user_state", stateName);
         if (district)  localStorage.setItem("annadata_user_district", district);
 
-        // Fetch full user details from /auth/me now that token is set
+        // Fetch user profile info
         try {
-          const meRes = await apiClient.get("/auth/me");
+          const meRes = await authApi.getMe();
           const me = meRes.data.data;
-          // display_name is always populated (full_name for NGO, name for farmer/admin)
           if (me.display_name) localStorage.setItem("annadata_user_name", me.display_name);
-          if (me.organization_name) localStorage.setItem("annadata_user_org", me.organization_name);
-          if (me.phone)             localStorage.setItem("annadata_user_phone", me.phone);
-          if (me.email)             localStorage.setItem("annadata_user_email", me.email);
           if (me.verification_status) localStorage.setItem("annadata_verification_status", me.verification_status);
-          if (me.onboarding_completed !== undefined) {
-            localStorage.setItem("annadata_onboarding_completed", String(me.onboarding_completed));
-          }
-
-          // Fetch profile to get state/district for mandi location filtering
+          
           if (d.user_id) {
-            try {
-              const profileRes = await apiClient.get(`/profile/${d.user_id}`);
-              const prof = profileRes.data.data;
-              if (prof?.state)    localStorage.setItem("annadata_user_state", prof.state);
-              if (prof?.district) localStorage.setItem("annadata_user_district", prof.district);
-            } catch { /* profile may not exist yet for new users */ }
+            const profileRes = await profileApi.getProfile(d.user_id);
+            const prof = profileRes.data.data;
+            if (prof?.state)    localStorage.setItem("annadata_user_state", prof.state);
+            if (prof?.district) localStorage.setItem("annadata_user_district", prof.district);
           }
         } catch (meErr) {
-          console.warn("Could not fetch user details from /auth/me", meErr);
+          console.warn("User context hydration failed", meErr);
         }
 
         toast.success(res.data.message_text || "Success");

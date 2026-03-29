@@ -7,7 +7,7 @@ import {
   HelpCircle, Scale
 } from "lucide-react";
 import { theme } from "@/designSystem";
-import { apiClient } from "@/lib/apiClient";
+import { ngoApi, requestApi } from "@/api/client";
 import { APIResponse } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -22,9 +22,9 @@ const NGOReview = () => {
     setLoading(true);
     try {
       const [fRes, sRes, rRes] = await Promise.all([
-        apiClient.get<APIResponse<any[]>>("/ngo/farmers?filter_status=needs_manual_review"),
-        apiClient.get<APIResponse<any[]>>("/ngo/pending-scans"),
-        apiClient.get<APIResponse<any[]>>("/requests/ngo/all")
+        ngoApi.getFarmers("needs_manual_review"),
+        ngoApi.getPendingScans(),
+        requestApi.getAllRequests()
       ]);
       
       if (fRes.data.status === "success") setFarmers(fRes.data.data);
@@ -43,7 +43,7 @@ const NGOReview = () => {
 
   const handleVerifyFarmer = async (farmerId: string, action: "approve" | "reject") => {
     try {
-      await apiClient.post("/ngo/verify", {
+      await ngoApi.verifyFarmer({
         farmer_id: farmerId,
         action,
         notes: `Manual NGO Review: ${action.toUpperCase()}`
@@ -57,9 +57,7 @@ const NGOReview = () => {
 
   const handleResolveScan = async (scanId: string, action: "clean" | "fraud") => {
     try {
-      await apiClient.post("/ngo/resolve-scan", null, {
-        params: { scan_id: scanId, action, notes: `NGO manual resolution as ${action}` }
-      });
+      await ngoApi.resolveScan(scanId, action, `NGO manual resolution as ${action}`);
       toast.success(`Scan marked as ${action}`);
       fetchData();
     } catch (e) {
@@ -69,7 +67,7 @@ const NGOReview = () => {
 
   const handleUpdateRequestStatus = async (requestId: string, status: string) => {
     try {
-      await apiClient.patch(`/requests/${requestId}`, { 
+      await requestApi.updateStatus(requestId, { 
         status, 
         ngo_notes: `Processed by NGO. Decision: ${status}` 
       });

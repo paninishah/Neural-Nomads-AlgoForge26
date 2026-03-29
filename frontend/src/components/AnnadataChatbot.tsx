@@ -6,7 +6,7 @@ import {
   ChevronRight, Sparkles, Loader2,
   CheckCircle, PlusCircle
 } from "lucide-react";
-import { apiClient } from "@/lib/apiClient";
+import { chatbotApi } from "@/api/client";
 import { APIResponse } from "@/lib/api";
 
 interface Message {
@@ -70,10 +70,7 @@ const AnnadataChatbot = ({ isOpen, onClose }: AnnadataChatbotProps) => {
     setLoading(true);
 
     try {
-      const res = await apiClient.post<APIResponse<any>>("/chatbot/query", { 
-        text: messageText,
-        lang: i18n.language 
-      });
+      const res = await chatbotApi.query(messageText, i18n.language);
       if (res.data.status === "success") {
         const data = res.data.data;
         const botMsg: Message = {
@@ -100,10 +97,7 @@ const AnnadataChatbot = ({ isOpen, onClose }: AnnadataChatbotProps) => {
   const confirmAction = async (intent: string) => {
     setLoading(true);
     try {
-      const res = await apiClient.post<APIResponse<any>>("/chatbot/confirm", { 
-        intent,
-        lang: i18n.language
-      });
+      const res = await chatbotApi.confirm(intent, {}, i18n.language);
       if (res.data.status === "success") {
         setMessages(prev => [...prev, {
           id: Date.now().toString(),

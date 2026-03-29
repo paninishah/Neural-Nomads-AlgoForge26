@@ -165,16 +165,30 @@ def check_credibility(
     if latest_id_doc:
         try:
             import json
-            fields = json.loads(latest_id_doc.extracted_fields)
+            # Ensure we are parsing a string, not accidentally a dict if SQLAlchemy already converted it
+            fields = latest_id_doc.extracted_fields
+            if isinstance(fields, str):
+                fields = json.loads(fields)
+            
+            logger.info(f"Checking OCR name match for user {user_id}. Extracted: {fields}")
+
             # Aadhaar uses 'name', Ration Card uses 'head_of_family'
             extracted_name = fields.get("name") or fields.get("head_of_family")
             if extracted_name:
                 ocr_name = extracted_name
-                # Simple fuzzy match: if first names or full names overlap significantly
-                if extracted_name.lower().strip() == profile_name.lower().strip():
+                # Robust fuzzy match: ignore case, extra spaces, and "Extracted Name" placeholder
+                clean_extracted = extracted_name.lower().strip()
+                clean_profile = profile_name.lower().strip()
+                
+                if clean_extracted == clean_profile and clean_extracted != "extracted name":
                     name_match = True
-        except:
-            pass
+                    logger.info(f"OCR Name Match SUCCESS for user {user_id}")
+                else:
+                    logger.warning(f"OCR Name Match FAILED: '{clean_extracted}' vs '{clean_profile}'")
+        except Exception as e:
+            logger.error(f"Error parsing extracted fields for doc {latest_id_doc.id}: {e}")
+    else:
+        logger.warning(f"No identity document found for credibility check for user {user_id}")
 
     # 2. Calculate Trust Score using the point breakdown logic
     avg_confidence = doc_repo.get_avg_confidence(user_id)

@@ -6,7 +6,7 @@ import {
   IndianRupee, TrendingUp, TrendingDown, Info, 
   MapPin, Store, AlertTriangle, ArrowRight, Activity, Calendar
 } from "lucide-react";
-import { apiClient } from "@/lib/apiClient";
+import { apiClient } from "@/api/client";
 import { APIResponse, FinancialsResponse } from "@/lib/api";
 
 interface FarmerWalletProps {
